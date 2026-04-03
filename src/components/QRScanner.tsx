@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Html5QrcodeScanner } from "html5-qrcode"
 
 interface QRScannerProps {
@@ -9,30 +9,39 @@ interface QRScannerProps {
 }
 
 export default function QRScanner({ onScanSuccess, onError }: QRScannerProps) {
+  const scanHandlerRef = useRef(onScanSuccess)
+
+  // Cập nhật ref mỗi khi callback thay đổi
   useEffect(() => {
+    scanHandlerRef.current = onScanSuccess
+  }, [onScanSuccess])
+
+  useEffect(() => {
+    // Chỉ khởi tạo khi component mount
     const scanner = new Html5QrcodeScanner(
       "reader",
       { 
         fps: 10, 
         qrbox: { width: 250, height: 250 },
-        videoConstraints: {
-          facingMode: "environment"
-        }
+        // Thư viện sẽ tự chọn camera sau mặc định trên hầu hết thiết bị di động
       },
-      false
+      /* verbose= */ false
     );
 
     scanner.render(
-      (text) => onScanSuccess(text, scanner),
+      (text) => scanHandlerRef.current(text, scanner),
       (err) => {
-        // Ignore constant scan errors
+        // Lỗi này xảy ra liên tục khi không thấy mã QR, bỏ qua
       }
     )
 
     return () => {
-      scanner.clear().catch(console.error)
+      // Làm sạch scanner khi unmount
+      scanner.clear().catch(err => {
+        console.error("Lỗi khi dừng QR Scanner:", err);
+      });
     }
-  }, [onScanSuccess])
+  }, []); // Cực kỳ quan trọng: Dependency array rỗng để chỉ chạy 1 lần
 
   return (
     <div id="reader" className="w-full h-full"></div>

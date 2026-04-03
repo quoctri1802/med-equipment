@@ -3,8 +3,15 @@ import { notFound } from "next/navigation"
 import ReportForm from "@/components/ReportForm"
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
-  const equipment = await prisma.equipment.findUnique({
-    where: { id: params.id }
+  const cleanId = params.id.trim().replace(/\/$/, "");
+
+  const equipment = await prisma.equipment.findFirst({
+    where: {
+      OR: [
+        { id: cleanId },
+        { code: cleanId }
+      ]
+    }
   })
 
   if (!equipment) {

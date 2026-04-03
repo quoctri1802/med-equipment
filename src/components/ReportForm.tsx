@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
 import { CheckCircle2 } from "lucide-react"
 
 export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const router = useRouter()
+  const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState("WORKING")
   const [note, setNote] = useState("")
   const [reporterName, setReporterName] = useState("")
@@ -26,54 +27,13 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
     setIsAutoMode(savedAuto)
   }, [])
 
-  // Logic đếm ngược tự động gửi
-  useEffect(() => {
-    if (isAutoMode && !success && !loading && reporterName.trim()) {
-      setCountdown(2)
-      const timer = setInterval(() => {
-        setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : 0))
-      }, 1000)
-
-      const autoSubmit = setTimeout(() => {
-        if (isAutoMode) {
-           handleAutoSubmit()
-        }
-      }, 2000)
-
-      return () => {
-        clearInterval(timer)
-        clearTimeout(autoSubmit)
-      }
-    } else {
-        setCountdown(null)
-    }
-  }, [isAutoMode, reporterName, success])
-
-  const handleAutoSubmit = () => {
-     // Trigger click on a hidden submit or just call the logic
-     const form = document.querySelector('form')
-     if (form) form.requestSubmit()
-  }
-
-  const toggleAutoMode = () => {
-    const newVal = !isAutoMode
-    setIsAutoMode(newVal)
-    localStorage.setItem("med_auto_mode", newVal.toString())
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!reporterName.trim()) {
-        alert("Vui lòng nhập tên người báo cáo.")
-        return
-    }
-
+  const performSubmit = async (formData: { status: string, note: string, reporterName: string }) => {
     setLoading(true)
     try {
       // Lưu tên vào máy để lần sau không phải nhập lại
-      localStorage.setItem("med_reporter_name", reporterName)
+      localStorage.setItem("med_reporter_name", formData.reporterName)
 
-      await submitScanReport({ equipmentId, status, note, reporterName })
+      await submitScanReport({ equipmentId, ...formData })
       setSuccess(true)
       setNote("")
       router.refresh()
@@ -88,6 +48,48 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleAutoSubmit = () => {
+     if (!loading && !success && reporterName.trim()) {
+        performSubmit({ status: "WORKING", note: "Báo cáo tự động (Quick Mode)", reporterName })
+     }
+  }
+
+  // Logic đếm ngược tự động gửi
+  useEffect(() => {
+    if (isAutoMode && !success && !loading && reporterName.trim()) {
+      setCountdown(2)
+      const timer = setInterval(() => {
+        setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : 0))
+      }, 1000)
+
+      const autoSubmit = setTimeout(() => {
+        handleAutoSubmit()
+      }, 2000)
+
+      return () => {
+        clearInterval(timer)
+        clearTimeout(autoSubmit)
+      }
+    } else {
+        setCountdown(null)
+    }
+  }, [isAutoMode, reporterName, success, loading])
+
+  const toggleAutoMode = () => {
+    const newVal = !isAutoMode
+    setIsAutoMode(newVal)
+    localStorage.setItem("med_auto_mode", newVal.toString())
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!reporterName.trim()) {
+        alert("Vui lòng nhập tên người báo cáo.")
+        return
+    }
+    await performSubmit({ status, note, reporterName })
   }
 
   if (success) {
@@ -107,7 +109,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6 relative">
+    <form ref={formRef} onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6 relative">
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
         <h3 className="font-bold text-lg text-slate-900 dark:text-white">
           Báo cáo trạng thái thiết bị
