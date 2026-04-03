@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  role          String    @default("STAFF") // ADMIN, TECHNICIAN, STAFF
+  permissions   String    @default("") // Comma-separated permissions  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  logs          Log[]
+  maintenances  Maintenance[]
+}
+
+model Equipment {
+  id            String    @id @default(cuid())
+  name          String
+  code          String    @unique // e.g. KHOA-YYYYMMDD-STT
+  department    String
+  status        String    @default("WORKING") // WORKING, WARNING, BROKEN
+  purchaseDate  DateTime
+  riskScore     String    @default("LOW") // LOW, MEDIUM, HIGH
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  logs          Log[]
+  maintenances  Maintenance[]
+}
+
+model Log {
+  id          String    @id @default(cuid())
+  equipmentId String
+  userId      String
+  status      String    // Trạng thái được nhân viên cập nhật
+  note        String?
+  createdAt   DateTime  @default(now())
+
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Maintenance {
+  id            String    @id @default(cuid())
+  equipmentId   String
+  technicianId  String
+  description   String
+  cost          Float?
+  status        String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  date          DateTime
+  isNotified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+  technician    User      @relation(fields: [technicianId], references: [id])
+}
