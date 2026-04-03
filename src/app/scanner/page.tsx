@@ -20,24 +20,32 @@ export default function MobileScannerPage() {
 
     scanner.render(
       (decodedText) => {
-        // Success callback
-        // The decoded text should be the URL of the scan target (e.g. http://localhost:3000/scan/123)
-        // We can just redirect to decodedText if it's a valid URL on our site
+        // Hỗ trợ nhiều định dạng mã QR:
+        // 1. URL đầy đủ: https://domain.com/scan/ID
+        // 2. Đường dẫn: /scan/ID
+        // 3. Chỉ chứa ID thiết bị
         
-        try {
-          const url = new URL(decodedText)
-          if (url.pathname.startsWith("/scan/")) {
-            scanner.clear()
-            router.push(url.pathname)
-          } else {
-            setError("Mã QR không hợp lệ")
-          }
-        } catch (e) {
-          setError("Mã QR không hợp lệ: Không thể đọc URL")
+        console.log("Decoded text:", decodedText);
+        
+        let targetId = "";
+
+        if (decodedText.includes("/scan/")) {
+          const parts = decodedText.split("/scan/");
+          targetId = parts[parts.length - 1].split("?")[0]; // Lấy ID trước khi có query params
+        } else if (decodedText.length > 20) { 
+          // Nếu là chuỗi dài không chứa /scan/, giả định đó là ID trực tiếp (UUID)
+          targetId = decodedText;
+        }
+
+        if (targetId) {
+          scanner.clear();
+          router.push(`/scan/${targetId}`);
+        } else {
+          setError("Mã QR không đúng định dạng báo cáo thiết bị");
         }
       },
       (errorMessage) => {
-        // Ignore regular scan errors (happens when no barcode found)
+        // Bỏ qua lỗi quét định kỳ
       }
     )
 
