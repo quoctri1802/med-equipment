@@ -24,7 +24,9 @@ export default function ReportsPage() {
   const [dailyData, setDailyData] = useState<{ reported: any[], missing: any[] } | null>(null)
   const [dailyFilters, setDailyFilters] = useState({
     department: "ALL",
-    status: "ALL"
+    status: "ALL",
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
   })
 
   // CHỨC NĂNG TAB 1
@@ -345,6 +347,21 @@ export default function ReportsPage() {
                   <option value="WARNING">Cảnh báo</option>
                   <option value="BROKEN">Hỏng</option>
                 </select>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    value={dailyFilters.startDate}
+                    onChange={e => setDailyFilters({...dailyFilters, startDate: e.target.value})}
+                    className="rounded-lg border border-slate-300 px-2 py-1.5 text-[10px] font-bold dark:bg-slate-900 border-none outline-none"
+                  />
+                  <span className="text-slate-400 text-[10px]">→</span>
+                  <input
+                    type="date"
+                    value={dailyFilters.endDate}
+                    onChange={e => setDailyFilters({...dailyFilters, endDate: e.target.value})}
+                    className="rounded-lg border border-slate-300 px-2 py-1.5 text-[10px] font-bold dark:bg-slate-900 border-none outline-none"
+                  />
+                </div>
                 <button 
                   onClick={handleDailyExport}
                   className="flex items-center gap-2 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-bold uppercase tracking-wider"

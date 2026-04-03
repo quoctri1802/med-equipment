@@ -6,18 +6,25 @@ import { authOptions } from "@/lib/auth"
 
 const prisma = new PrismaClient()
 
-export async function getDailyStatus(filters?: { department?: string, status?: string }) {
+export async function getDailyStatus(filters?: { department?: string, status?: string, startDate?: string, endDate?: string }) {
   const session = await getServerSession(authOptions)
   if (!session) {
     throw new Error("Unauthorized")
   }
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // Mặc định là ngày hôm nay nếu không có filter ngày
+  const startDay = filters?.startDate ? new Date(filters.startDate) : new Date()
+  startDay.setHours(0, 0, 0, 0)
+  
+  const endDay = filters?.endDate ? new Date(filters.endDate) : new Date()
+  endDay.setHours(23, 59, 59, 999)
 
-  // 1. Lọc danh sách LOGS hôm nay
+  // 1. Lọc danh sách LOGS trong khoảng thời gian
   const whereLog: any = {
-    createdAt: { gte: today }
+    createdAt: { 
+      gte: startDay,
+      lte: endDay
+    }
   }
   
   if (filters?.department && filters.department !== "ALL") {
@@ -36,18 +43,19 @@ export async function getDailyStatus(filters?: { department?: string, status?: s
     orderBy: { createdAt: 'desc' }
   })
 
-  // 2. Lấy danh sách Thiết bị CHƯA báo cáo (theo filter)
+  // 2. Lấy danh sách Thiết bị CHƯA báo cáo trong khoảng thời gian đó
+  // Một thiết bị được coi là "Missing" nếu không có bất kỳ Log nào trong khoảng thời gian đã chọn
+  const reportedEquipmentIds = dailyLogs.map(log => log.equipmentId)
+  
   const whereMissing: any = {
     id: {
-      notIn: dailyLogs.map(log => log.equipmentId)
+      notIn: reportedEquipmentIds
     }
   }
 
   if (filters?.department && filters.department !== "ALL") {
     whereMissing.department = filters.department
   }
-  // Mặc định thiết bị chưa báo cáo thì ta không lọc theo status của LOG, 
-  // nhưng nếu người dùng muốn lọc thiết bị đang có status cụ thể mà CHƯA báo cáo hôm nay:
   if (filters?.status && filters.status !== "ALL") {
     whereMissing.status = filters.status
   }
@@ -57,6 +65,7 @@ export async function getDailyStatus(filters?: { department?: string, status?: s
     orderBy: { department: 'asc' }
   })
 
+  // Loại bỏ các log trùng lặp cho cùng 1 thiết bị trong kết quả hiển thị (chỉ lấy log mới nhất)
   const uniqueReportedMap = new Map()
   for (const log of dailyLogs) {
     if (!uniqueReportedMap.has(log.equipmentId)) {
