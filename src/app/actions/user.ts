@@ -29,7 +29,8 @@ export async function createUser(data: any) {
       email: data.email,
       password: data.password,
       role: data.role,
-      permissions: data.permissions || ""
+      permissions: data.permissions || "",
+      department: data.department || ""
     } as any
   })
 
@@ -51,7 +52,8 @@ export async function updateUser(id: string, data: any) {
     name: data.name,
     email: data.email,
     role: data.role,
-    permissions: typeof data.permissions === 'string' ? data.permissions : ""
+    permissions: typeof data.permissions === 'string' ? data.permissions : "",
+    department: data.department || ""
   }
 
   if (data.password && data.password.trim() !== '') {

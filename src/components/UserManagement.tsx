@@ -9,6 +9,7 @@ type User = {
   name: string | null
   email: string | null
   role: string
+  department?: string | null
   createdAt: Date
 }
 
@@ -18,20 +19,27 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
   const [editingUser, setEditingUser] = useState<User | null>(null)
   
   // Form states
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "STAFF", permissions: "" })
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "" })
   const [loading, setLoading] = useState(false)
   const [errorMSG, setErrorMSG] = useState("")
 
   const openAddModal = () => {
     setEditingUser(null)
-    setFormData({ name: "", email: "", password: "", role: "STAFF", permissions: "" })
+    setFormData({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "" })
     setErrorMSG("")
     setIsModalOpen(true)
   }
 
   const openEditModal = (user: any) => {
     setEditingUser(user)
-    setFormData({ name: user.name || "", email: user.email || "", password: "", role: user.role, permissions: user.permissions || "" })
+    setFormData({ 
+      name: user.name || "", 
+      email: user.email || "", 
+      password: "", 
+      role: user.role, 
+      permissions: user.permissions || "",
+      department: user.department || ""
+    })
     setErrorMSG("")
     setIsModalOpen(true)
   }
@@ -56,7 +64,7 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
       if (editingUser) {
         // Edit mode
         await updateUser(editingUser.id, formData)
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, name: formData.name, email: formData.email, role: formData.role, permissions: formData.permissions } as any : u))
+        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, name: formData.name, email: formData.email, role: formData.role, permissions: formData.permissions, department: formData.department } as any : u))
       } else {
         // Add mode
         if (!formData.password) throw new Error("Vui lòng nhập mật khẩu")
@@ -92,7 +100,8 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
             <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-700">
               <tr>
                 <th className="px-6 py-4 font-semibold">Tên & Email</th>
-                <th className="px-6 py-4 font-semibold">Vai trò (Role)</th>
+                <th className="px-6 py-4 font-semibold">Vai trò</th>
+                <th className="px-6 py-4 font-semibold">Khoa phụ trách</th>
                 <th className="px-6 py-4 font-semibold">Ngày tạo</th>
                 <th className="px-6 py-4 font-semibold text-right">Hành động</th>
               </tr>
@@ -104,7 +113,7 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                     <div className="font-medium text-slate-900 dark:text-white">{u.name || "Chưa có tên"}</div>
                     <div className="text-xs text-slate-500">{u.email}</div>
                   </td>
-                  <td className="px-6 py-4">
+                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30' : 
                       u.role === 'TECHNICIAN' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30' : 
@@ -112,6 +121,9 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                     }`}>
                       {u.role}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-bold text-slate-500">
+                    {(u as any).department || "—"}
                   </td>
                   <td className="px-6 py-4">
                     {new Date(u.createdAt).toLocaleDateString("vi-VN")}
@@ -178,7 +190,7 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                 />
               </div>
 
-              <div>
+               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vai trò</label>
                 <select 
                   value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}
@@ -187,6 +199,22 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                   <option value="STAFF">STAFF (Nhân viên)</option>
                   <option value="TECHNICIAN">TECHNICIAN (Kỹ thuật viên)</option>
                   <option value="ADMIN">ADMIN (Quản trị viên)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Khoa / Phòng phụ trách</label>
+                <select 
+                  value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                >
+                  <option value="">Không phân khoa</option>
+                  <option value="ALL">Tất cả khoa (ADMIN)</option>
+                  <option value="CC">Cấp Cứu</option>
+                  <option value="HSTC">Hồi sức tích cực</option>
+                  <option value="NTH">Nội Tổng hợp</option>
+                  <option value="XN">Xét nghiệm</option>
+                  <option value="CDHA">Chẩn đoán hình ảnh</option>
                 </select>
               </div>
 
