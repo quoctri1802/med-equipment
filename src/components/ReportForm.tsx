@@ -20,6 +20,12 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
       setSuccess(true)
       setNote("")
       router.refresh()
+      
+      // Tự động chuyển về trang chủ sau 2 giây để người dùng kịp thấy thông báo thành công
+      setTimeout(() => {
+        router.push("/")
+      }, 2000)
+      
     } catch (err: any) {
       alert("Lỗi kết nối: " + err.message)
     } finally {
