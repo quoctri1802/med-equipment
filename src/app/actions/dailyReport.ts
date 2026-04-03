@@ -64,18 +64,9 @@ export async function getDailyStatus(filters?: { department?: string, status?: s
     orderBy: { department: 'asc' }
   })
 
-  // Loại bỏ các log trùng lặp cho cùng 1 thiết bị trong kết quả hiển thị (chỉ lấy log mới nhất)
-  const uniqueReportedMap = new Map()
-  for (const log of dailyLogs) {
-    if (!uniqueReportedMap.has(log.equipmentId)) {
-      uniqueReportedMap.set(log.equipmentId, log)
-    }
-  }
-
-  const reportedEquipments = Array.from(uniqueReportedMap.values())
-
+  // Trả về toàn bộ danh sách Logs (không deduplicate) để thống kê toàn diện mọi lượt quét
   return {
-    reported: reportedEquipments,
+    reported: dailyLogs,
     missing: missingEquipments
   }
 }
