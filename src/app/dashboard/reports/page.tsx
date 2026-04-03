@@ -22,6 +22,10 @@ export default function ReportsPage() {
   // --- TAB 2: DAILY STATUS STATES ---
   const [loadingDaily, setLoadingDaily] = useState(false)
   const [dailyData, setDailyData] = useState<{ reported: any[], missing: any[] } | null>(null)
+  const [dailyFilters, setDailyFilters] = useState({
+    department: "ALL",
+    status: "ALL"
+  })
 
   // CHỨC NĂNG TAB 1
   const handlePreview = async () => {
@@ -81,7 +85,7 @@ export default function ReportsPage() {
   const fetchDailyReport = async () => {
     setLoadingDaily(true)
     try {
-      const data = await getDailyStatus()
+      const data = await getDailyStatus(dailyFilters)
       setDailyData(data)
     } catch (e: any) {
       alert("Lỗi tải báo cáo hằng ngày: " + e.message)
@@ -90,9 +94,51 @@ export default function ReportsPage() {
     }
   }
 
+  const handleDailyExport = async () => {
+    if (!dailyData) return;
+
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: Đã báo cáo
+      const reportedData = dailyData.reported.map(log => ({
+        "Mã Thiết Bị": log.equipment.code,
+        "Tên Thiết Bị": log.equipment.name,
+        "Khoa / Phòng": log.equipment.department,
+        "Trạng Thái Ghi Nhận": log.status,
+        "Người Báo Cáo": log.user?.name || log.user?.email || "Hệ thống",
+        "Thời Điểm": new Date(log.createdAt).toLocaleString('vi-VN'),
+        "Ghi Chú": log.note || ""
+      }));
+      const ws1 = XLSX.utils.json_to_sheet(reportedData);
+      XLSX.utils.book_append_sheet(wb, ws1, "DA_KIEM_TRA");
+
+      // Sheet 2: Chưa báo cáo
+      const missingData = dailyData.missing.map(eq => ({
+        "Mã Thiết Bị": eq.code,
+        "Tên Thiết Bị": eq.name,
+        "Khoa / Phòng": eq.department,
+        "Trạng Thái Hiện Tại": eq.status,
+        "Mức Độ Rủi Ro": eq.riskScore
+      }));
+      const ws2 = XLSX.utils.json_to_sheet(missingData);
+      XLSX.utils.book_append_sheet(wb, ws2, "CHUA_KIEM_TRA");
+
+      XLSX.writeFile(wb, `BaoCao_HangNgay_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch (e: any) {
+      alert("Lỗi xuất Excel: " + e.message);
+    }
+  };
+
   useEffect(() => {
-    if (activeTab === "DAILY" && !dailyData) {
+    if (activeTab === "DAILY") {
       fetchDailyReport()
+    }
+  }, [activeTab, dailyFilters])
+
+  useEffect(() => {
+    if (activeTab === "EXPORT" && !previewData) {
+       // Optional: load initial export preview
     }
   }, [activeTab])
 
@@ -271,13 +317,41 @@ export default function ReportsPage() {
       {activeTab === "DAILY" && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-500" /> Đã cập nhật trạng thái hôm nay
-              </h2>
-              <button onClick={fetchDailyReport} className="text-sm px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium">
-                Tải lại
-              </button>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-500" /> 
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">Trạng thái kiểm tra hôm nay</h2>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  value={dailyFilters.department}
+                  onChange={e => setDailyFilters({...dailyFilters, department: e.target.value})}
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold dark:bg-slate-900 dark:border-slate-600"
+                >
+                  <option value="ALL">Tất cả Khoa</option>
+                  <option value="CC">Cấp Cứu</option>
+                  <option value="HSTC">Hồi sức</option>
+                  <option value="NTH">Nội TH</option>
+                  <option value="XN">Xét nghiệm</option>
+                  <option value="CDHA">SĐ/CĐHA</option>
+                </select>
+                <select
+                  value={dailyFilters.status}
+                  onChange={e => setDailyFilters({...dailyFilters, status: e.target.value})}
+                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-bold dark:bg-slate-900 dark:border-slate-600"
+                >
+                  <option value="ALL">Tất cả TT</option>
+                  <option value="WORKING">Bình thường</option>
+                  <option value="WARNING">Cảnh báo</option>
+                  <option value="BROKEN">Hỏng</option>
+                </select>
+                <button 
+                  onClick={handleDailyExport}
+                  className="flex items-center gap-2 px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-bold uppercase tracking-wider"
+                >
+                  <Download className="w-4 h-4" /> Xuất Excel
+                </button>
+              </div>
             </div>
             
             {loadingDaily ? (
