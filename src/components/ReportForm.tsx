@@ -9,14 +9,29 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const router = useRouter()
   const [status, setStatus] = useState("WORKING")
   const [note, setNote] = useState("")
+  const [reporterName, setReporterName] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
+  // Tự động điền tên nếu đã từng báo cáo trên trình duyệt này
+  useEffect(() => {
+    const savedName = localStorage.getItem("med_reporter_name")
+    if (savedName) setReporterName(savedName)
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!reporterName.trim()) {
+        alert("Vui lòng nhập tên người báo cáo.")
+        return
+    }
+
     setLoading(true)
     try {
-      await submitScanReport({ equipmentId, status, note })
+      // Lưu tên vào máy để lần sau không phải nhập lại
+      localStorage.setItem("med_reporter_name", reporterName)
+
+      await submitScanReport({ equipmentId, status, note, reporterName })
       setSuccess(true)
       setNote("")
       router.refresh()
@@ -52,12 +67,26 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
       <h3 className="font-bold text-lg text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-4">
-        1. Cập nhật Tình Trạng Hiện Tại
+        Báo cáo trạng thái thiết bị
       </h3>
 
       <div>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Họ và tên người báo cáo <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={reporterName}
+          onChange={(e) => setReporterName(e.target.value)}
+          required
+          placeholder="Nhập tên của bạn... (VD: Nguyễn Văn A)"
+          className="w-full rounded-lg border border-slate-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-          Đánh giá tình trạng thiết bị:
+          1. Đánh giá tình trạng thiết bị:
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className={`cursor-pointer flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${status === "WORKING" ? "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 transform scale-[1.02]" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>

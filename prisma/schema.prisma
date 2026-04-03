@@ -41,6 +41,7 @@ model Log {
   equipmentId String
   userId      String
   status      String    // Trạng thái được nhân viên cập nhật
+  reporterName  String?   // Tên người báo cáo nhập từ điện thoại
   note        String?
   createdAt   DateTime  @default(now())
 

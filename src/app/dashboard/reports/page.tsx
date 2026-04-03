@@ -109,7 +109,7 @@ export default function ReportsPage() {
         "Tên Thiết Bị": log.equipment.name,
         "Khoa / Phòng": log.equipment.department,
         "Trạng Thái Ghi Nhận": log.status,
-        "Người Báo Cáo": log.user?.name || log.user?.email || "Hệ thống",
+        "Người Báo Cáo": log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
         "Thời Điểm": new Date(log.createdAt).toLocaleString('vi-VN'),
         "Ghi Chú": log.note || ""
       }));
@@ -384,7 +384,7 @@ export default function ReportsPage() {
                   <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-medium">
                     <tr>
                       <th className="px-4 py-3">Thiết bị</th>
-                      <th className="px-4 py-3">Người báo cáo (Log)</th>
+                      <th className="px-4 py-3">Người báo cáo</th>
                       <th className="px-4 py-3">Trạng thái ghi nhận</th>
                       <th className="px-4 py-3">Thời điểm</th>
                     </tr>
@@ -396,7 +396,10 @@ export default function ReportsPage() {
                           <div>{log.equipment.name}</div>
                           <div className="text-xs font-normal text-slate-500">{log.equipment.code}</div>
                         </td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{log.user?.name || log.user?.email || 'Hệ thống'}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-bold text-slate-900 dark:text-white">{log.reporterName || "N/A"}</div>
+                          <div className="text-[10px] text-slate-400">Account: {log.user?.name || log.user?.email || 'Hệ thống'}</div>
+                        </td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
                             log.status === "WORKING" ? "bg-green-100 text-green-700" :
