@@ -1,11 +1,9 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-
-const prisma = new PrismaClient()
 
 // Check Authorization Wrapper
 async function checkAdmin() {
@@ -29,10 +27,10 @@ export async function createUser(data: any) {
     data: {
       name: data.name,
       email: data.email,
-      password: data.password, // Simple string storage for MVP purposes
+      password: data.password,
       role: data.role,
       permissions: data.permissions || ""
-    }
+    } as any
   })
 
   revalidatePath("/dashboard/settings")
@@ -42,7 +40,6 @@ export async function createUser(data: any) {
 export async function updateUser(id: string, data: any) {
   await checkAdmin()
   
-  // check if updating email to an existing one
   if (data.email) {
     const existing = await prisma.user.findUnique({ where: { email: data.email } })
     if (existing && existing.id !== id) {
@@ -50,7 +47,6 @@ export async function updateUser(id: string, data: any) {
     }
   }
 
-  // Update object preparation (so we don't accidentally blank out passwords if left empty in form)
   const updateData: any = {
     name: data.name,
     email: data.email,
@@ -64,7 +60,7 @@ export async function updateUser(id: string, data: any) {
 
   await prisma.user.update({
     where: { id },
-    data: updateData
+    data: updateData as any
   })
 
   revalidatePath("/dashboard/settings")

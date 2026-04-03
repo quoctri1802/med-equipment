@@ -1,10 +1,9 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-
-const prisma = new PrismaClient()
+import { revalidatePath } from "next/cache"
 
 export async function getDailyStatus(filters?: { department?: string, status?: string, startDate?: string, endDate?: string }) {
   const session = await getServerSession(authOptions)

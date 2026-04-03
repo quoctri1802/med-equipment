@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import ReportForm from "@/components/ReportForm"
-
-const prisma = new PrismaClient()
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
   const equipment = await prisma.equipment.findUnique({

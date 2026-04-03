@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { getReportData } from "@/app/actions/export"
 import { getDailyStatus } from "@/app/actions/dailyReport"
-import * as XLSX from "xlsx"
 import { Download, Filter, FileSpreadsheet, Search, Clock, AlertTriangle, CheckCircle2 } from "lucide-react"
 
 export default function ReportsPage() {
@@ -66,6 +65,7 @@ export default function ReportsPage() {
     }
 
     try {
+      const XLSX = await import("xlsx");
       const worksheet = XLSX.utils.json_to_sheet(dataToExport)
       const workbook = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(workbook, worksheet, "BaoCao_ThietBi")
@@ -100,6 +100,7 @@ export default function ReportsPage() {
     if (!dailyData) return;
 
     try {
+      const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
 
       // Sheet 1: Đã báo cáo

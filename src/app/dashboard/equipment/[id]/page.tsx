@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Clock, Wrench } from "lucide-react"
 import QRCodeBox from "@/components/QRCodeBox"
-
-const prisma = new PrismaClient()
 
 export default async function EquipmentDetailsPage({ params }: { params: { id: string } }) {
   const equipment = await prisma.equipment.findUnique({

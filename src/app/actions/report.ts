@@ -1,11 +1,9 @@
 "use server"
 
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
-
-const prisma = new PrismaClient()
 
 export async function submitScanReport(data: { equipmentId: string, status: string, note: string }) {
   // Try to get session, if unauthenticated, we'll try to find an admin or staff user to assign it to 

@@ -1,61 +1,48 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Html5QrcodeScanner } from "html5-qrcode"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
+
+const QRScanner = dynamic(() => import("@/components/QRScanner"), { 
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center w-full h-full bg-slate-800 text-slate-400">Đang khởi động camera...</div>
+})
 
 export default function MobileScannerPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Create instance of HTML5 QC
-    const scanner = new Html5QrcodeScanner(
-      "reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false // verbose
-    );
+  const handleScanSuccess = async (decodedText: string, scanner: any) => {
+    // Hỗ trợ mọi định dạng: URL đầy đủ hoặc chỉ ID
+    console.log("Mã QR đã quét:", decodedText);
+    
+    let targetId = "";
 
-    scanner.render(
-      async (decodedText) => {
-        // Hỗ trợ mọi định dạng: URL đầy đủ hoặc chỉ ID
-        console.log("Mã QR đã quét:", decodedText);
-        
-        let targetId = "";
-
-        if (decodedText.includes("/scan/")) {
-          const parts = decodedText.split("/scan/");
-          targetId = parts[parts.length - 1].split("?")[0];
-        } else {
-          // Giả định nếu không phải URL thì chính là ID thiết bị
-          targetId = decodedText.trim();
-        }
-
-        if (targetId) {
-          try {
-             // Dừng camera trước khi chuyển trang để tránh xung đột
-             await scanner.clear();
-             // Chuyển hướng trực tiếp giúp trang web tải lại sạch sẽ trên mobile
-             window.location.href = `/scan/${targetId}`;
-          } catch (err) {
-             console.error("Lỗi khi dừng camera:", err);
-             window.location.href = `/scan/${targetId}`;
-          }
-        } else {
-          setError("Không tìm thấy thông tin thiết bị trong mã QR");
-        }
-      },
-      (errorMessage) => {
-        // Lỗi quét bình thường, không cần xử lý
-      }
-    )
-
-    return () => {
-      scanner.clear().catch(console.error)
+    if (decodedText.includes("/scan/")) {
+      const parts = decodedText.split("/scan/");
+      targetId = parts[parts.length - 1].split("?")[0];
+    } else {
+      // Giả định nếu không phải URL thì chính là ID thiết bị
+      targetId = decodedText.trim();
     }
-  }, [router])
+
+    if (targetId) {
+      try {
+         // Dừng camera trước khi chuyển trang để tránh xung đột
+         await scanner.clear();
+         // Chuyển hướng trực tiếp giúp trang web tải lại sạch sẽ trên mobile
+         window.location.href = `/scan/${targetId}`;
+      } catch (err) {
+         console.error("Lỗi khi dừng camera:", err);
+         window.location.href = `/scan/${targetId}`;
+      }
+    } else {
+      setError("Không tìm thấy thông tin thiết bị trong mã QR");
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-white">
@@ -68,7 +55,7 @@ export default function MobileScannerPage() {
 
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="w-full max-w-sm aspect-square bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border-2 border-slate-700">
-          <div id="reader" className="w-full h-full"></div>
+           <QRScanner onScanSuccess={handleScanSuccess} />
         </div>
 
         <p className="mt-8 text-center text-slate-400 max-w-xs">
