@@ -19,33 +19,36 @@ export default function MobileScannerPage() {
     );
 
     scanner.render(
-      (decodedText) => {
-        // Hỗ trợ nhiều định dạng mã QR:
-        // 1. URL đầy đủ: https://domain.com/scan/ID
-        // 2. Đường dẫn: /scan/ID
-        // 3. Chỉ chứa ID thiết bị
-        
-        console.log("Decoded text:", decodedText);
+      async (decodedText) => {
+        // Hỗ trợ mọi định dạng: URL đầy đủ hoặc chỉ ID
+        console.log("Mã QR đã quét:", decodedText);
         
         let targetId = "";
 
         if (decodedText.includes("/scan/")) {
           const parts = decodedText.split("/scan/");
-          targetId = parts[parts.length - 1].split("?")[0]; // Lấy ID trước khi có query params
-        } else if (decodedText.length > 20) { 
-          // Nếu là chuỗi dài không chứa /scan/, giả định đó là ID trực tiếp (UUID)
-          targetId = decodedText;
+          targetId = parts[parts.length - 1].split("?")[0];
+        } else {
+          // Giả định nếu không phải URL thì chính là ID thiết bị
+          targetId = decodedText.trim();
         }
 
         if (targetId) {
-          scanner.clear();
-          router.push(`/scan/${targetId}`);
+          try {
+             // Dừng camera trước khi chuyển trang để tránh xung đột
+             await scanner.clear();
+             // Chuyển hướng trực tiếp giúp trang web tải lại sạch sẽ trên mobile
+             window.location.href = `/scan/${targetId}`;
+          } catch (err) {
+             console.error("Lỗi khi dừng camera:", err);
+             window.location.href = `/scan/${targetId}`;
+          }
         } else {
-          setError("Mã QR không đúng định dạng báo cáo thiết bị");
+          setError("Không tìm thấy thông tin thiết bị trong mã QR");
         }
       },
       (errorMessage) => {
-        // Bỏ qua lỗi quét định kỳ
+        // Lỗi quét bình thường, không cần xử lý
       }
     )
 
