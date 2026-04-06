@@ -24,8 +24,9 @@ export default function ReportsPage() {
   const [dailyFilters, setDailyFilters] = useState({
     department: "ALL",
     status: "ALL",
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
+    // Sử dụng chuỗi ngày tháng địa phương (Việt Nam) thay vì UTC ISOString
+    startDate: new Date().toLocaleDateString('en-CA'), // "YYYY-MM-DD"
+    endDate: new Date().toLocaleDateString('en-CA')
   })
 
   // CHỨC NĂNG TAB 1
@@ -110,7 +111,7 @@ export default function ReportsPage() {
         "Khoa / Phòng": log.equipment.department,
         "Trạng Thái Ghi Nhận": log.status,
         "Người Báo Cáo": log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
-        "Thời Điểm": new Date(log.createdAt).toLocaleString('vi-VN'),
+        "Thời Điểm": new Date(log.createdAt).toLocaleString('vi-VN', { hour12: false }),
         "Ghi Chú": log.note || ""
       }));
       const ws1 = XLSX.utils.json_to_sheet(reportedData);
@@ -407,7 +408,7 @@ export default function ReportsPage() {
                           }`}>{log.status}</span>
                         </td>
                         <td className="px-4 py-3 text-slate-500">
-                          {new Date(log.createdAt).toLocaleTimeString('vi-VN')}
+                          {new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false })}
                         </td>
                       </tr>
                     ))}

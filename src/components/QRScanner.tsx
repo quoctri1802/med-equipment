@@ -23,7 +23,11 @@ export default function QRScanner({ onScanSuccess, onError }: QRScannerProps) {
       { 
         fps: 10, 
         qrbox: { width: 250, height: 250 },
-        // Thư viện sẽ tự chọn camera sau mặc định trên hầu hết thiết bị di động
+        aspectRatio: 1.0,
+        // Ưu tiên camera sau (environment)
+        videoConstraints: {
+          facingMode: "environment"
+        }
       },
       /* verbose= */ false
     );

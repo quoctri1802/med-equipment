@@ -11,12 +11,28 @@ export async function getDailyStatus(filters?: { department?: string, status?: s
     throw new Error("Unauthorized")
   }
 
-  // Mặc định là ngày hôm nay nếu không có filter ngày
-  const startDay = filters?.startDate ? new Date(filters.startDate) : new Date()
-  startDay.setHours(0, 0, 0, 0)
+  // Xử lý múi giờ Việt Nam (UTC+7)
+  // Khi server chạy UTC, ta cần điều chỉnh để khớp với ngày của người dùng tại Việt Nam
+  const VIETNAM_OFFSET = 7;
   
-  const endDay = filters?.endDate ? new Date(filters.endDate) : new Date()
-  endDay.setHours(23, 59, 59, 999)
+  let startDay: Date;
+  if (filters?.startDate) {
+    // startDate từ client có dạng "YYYY-MM-DD"
+    startDay = new Date(`${filters.startDate}T00:00:00+07:00`);
+  } else {
+    // Mặc định là đầu ngày hôm nay (giờ VN)
+    const now = new Date();
+    const vnNow = new Date(now.getTime() + (VIETNAM_OFFSET * 60 * 60 * 1000));
+    startDay = new Date(vnNow.toISOString().split('T')[0] + 'T00:00:00+07:00');
+  }
+
+  let endDay: Date;
+  if (filters?.endDate) {
+    endDay = new Date(`${filters.endDate}T23:59:59.999+07:00`);
+  } else {
+    const vnNow = new Date(new Date().getTime() + (VIETNAM_OFFSET * 60 * 60 * 1000));
+    endDay = new Date(vnNow.toISOString().split('T')[0] + 'T23:59:59.999+07:00');
+  }
 
   // 1. Lọc danh sách LOGS trong khoảng thời gian
   const whereLog: any = {
