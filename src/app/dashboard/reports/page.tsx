@@ -128,7 +128,7 @@ export default function ReportsPage() {
       const ws2 = XLSX.utils.json_to_sheet(missingData);
       XLSX.utils.book_append_sheet(wb, ws2, "CHUA_KIEM_TRA");
 
-      XLSX.writeFile(wb, `BaoCao_HangNgay_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `BaoCao_HangNgay_${dailyFilters.startDate}${dailyFilters.startDate !== dailyFilters.endDate ? '_den_' + dailyFilters.endDate : ''}.xlsx`);
     } catch (e: any) {
       alert("Lỗi xuất Excel: " + e.message);
     }
@@ -324,7 +324,11 @@ export default function ReportsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-slate-100 dark:border-slate-700 pb-4">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" /> 
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">Trạng thái kiểm tra hôm nay</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+                  Tình trạng kiểm tra {dailyFilters.startDate === dailyFilters.endDate 
+                    ? `ngày ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')}` 
+                    : `từ ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')} đến ${new Date(dailyFilters.endDate).toLocaleDateString('vi-VN')}`}
+                </h2>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <select
@@ -376,8 +380,8 @@ export default function ReportsPage() {
             {loadingDaily ? (
               <div className="text-slate-500 py-6 text-center">Đang tải biểu mẫu...</div>
             ) : dailyData?.reported.length === 0 ? (
-              <div className="text-slate-500 py-6 text-center bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
-                Chưa có thiết bị nào được quét kiểm tra trong hôm nay.
+              <div className="text-slate-500 py-10 text-center bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+                Không tìm thấy báo cáo nào trong khoảng thời gian này.
               </div>
             ) : (
               <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
@@ -407,8 +411,11 @@ export default function ReportsPage() {
                             log.status === "WARNING" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
                           }`}>{log.status}</span>
                         </td>
-                        <td className="px-4 py-3 text-slate-500">
-                          {new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false })}
+                        <td className="px-4 py-3 text-slate-500 text-xs">
+                          <div className="font-medium text-slate-700 dark:text-slate-300">
+                            {new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false })}
+                          </div>
+                          <div>{new Date(log.createdAt).toLocaleDateString('vi-VN')}</div>
                         </td>
                       </tr>
                     ))}
@@ -420,8 +427,13 @@ export default function ReportsPage() {
 
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-red-200 dark:border-red-900/30 p-6">
             <h2 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5" /> Thiết bị CHƯA báo cáo hôm nay 
-              <span className="text-sm font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2.5 py-0.5 rounded-full ml-2">
+              <AlertTriangle className="w-5 h-5" /> Thiết bị CHƯA báo cáo 
+              <span className="text-xs font-medium text-slate-500 normal-case ml-1">
+                ({dailyFilters.startDate === dailyFilters.endDate 
+                  ? `ngày ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')}` 
+                  : `khoảng thời gian này`})
+              </span>
+              <span className="text-sm font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2.5 py-0.5 rounded-full ml-auto">
                 {dailyData?.missing.length || 0}
               </span>
             </h2>
