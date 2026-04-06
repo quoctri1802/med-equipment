@@ -79,6 +79,8 @@ export default function ReportsPage() {
         { header: "Trạng Thái", key: "status", width: 25 },
         { header: "Mức Rủi Ro", key: "riskScore", width: 15 },
         { header: "Ngày Mua", key: "purchaseDate", width: 15 },
+        { header: "Lịch Bảo Trì Tới", key: "nextMaintenance", width: 15 },
+        { header: "TT Bảo Trì", key: "maintenanceStatus", width: 15 },
         { header: "Số Lần Bảo Trì", key: "maintenanceCount", width: 15 },
         { header: "Tổng Chi Phí Bảo Trì (VND)", key: "totalCost", width: 25 },
       ];
@@ -92,12 +94,14 @@ export default function ReportsPage() {
           status: item["Trạng Thái"],
           riskScore: item["Mức Rủi Ro"],
           purchaseDate: item["Ngày Mua"],
+          nextMaintenance: item["Lịch Bảo Trì Tới"],
+          maintenanceStatus: item["Trạng Thái Bảo Trì"],
           maintenanceCount: item["Số Lần Bảo Trì"],
           totalCost: item["Tổng Chi Phí Bảo Trì (VND)"]
         });
 
-        // Nếu trạng thái không phải WORKING thì in đậm + đỏ
-        if (item["Trạng Thái"] !== "WORKING") {
+        // Nếu trạng thái không phải WORKING HOẶC bảo trì đã quá hạn thì in đậm + đỏ
+        if (item["Trạng Thái"] !== "WORKING" || item["isOverdue"] === true) {
           row.eachCell((cell) => {
             cell.font = { bold: true, color: { argb: "FFFF0000" } }; // Red
           });
@@ -364,21 +368,27 @@ export default function ReportsPage() {
                     <th className="px-6 py-4">Tên Thiết Bị</th>
                     <th className="px-6 py-4">Khoa / Phòng</th>
                     <th className="px-6 py-4">Trạng Thái</th>
-                    <th className="px-6 py-4">Mức Rủi Ro</th>
+                    <th className="px-6 py-4">Bảo Trì Tới</th>
+                    <th className="px-6 py-4">TT Bảo Trì</th>
                     <th className="px-6 py-4">Tổng Phí Nhận (VND)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {previewData.slice(0, 100).map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="px-6 py-3 font-mono text-blue-600 dark:text-blue-400">{row["Mã Thiết Bị"]}</td>
-                      <td className="px-6 py-3 font-medium dark:text-white">{row["Tên Thiết Bị"]}</td>
-                      <td className="px-6 py-3 text-slate-600 dark:text-slate-300">{row["Khoa / Phòng"]}</td>
+                    <tr key={idx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+                      (row["Trạng Thái"] !== "WORKING" || row["isOverdue"]) ? "text-red-600 dark:text-red-400 font-bold" : ""
+                    }`}>
+                      <td className="px-6 py-3 font-mono">{row["Mã Thiết Bị"]}</td>
+                      <td className="px-6 py-3 font-medium">{row["Tên Thiết Bị"]}</td>
+                      <td className="px-6 py-3">{row["Khoa / Phòng"]}</td>
                       <td className="px-6 py-3">
-                        <span className="text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 dark:text-white font-medium">{row["Trạng Thái"]}</span>
+                        <span className={`text-xs px-2 py-1 rounded font-medium ${
+                           (row["Trạng Thái"] !== "WORKING") ? "bg-red-100 text-red-700" : "bg-slate-100 dark:bg-slate-700 dark:text-white"
+                        }`}>{row["Trạng Thái"]}</span>
                       </td>
-                      <td className="px-6 py-3">{row["Mức Rủi Ro"]}</td>
-                      <td className="px-6 py-3 font-medium text-slate-900 dark:text-white text-right">
+                      <td className={`px-6 py-3 ${row["isOverdue"] ? "underline decoration-double" : ""}`}>{row["Lịch Bảo Trì Tới"]}</td>
+                      <td className="px-6 py-3 text-xs">{row["Trạng Thái Bảo Trì"]}</td>
+                      <td className="px-6 py-3 text-right">
                         {(row["Tổng Chi Phí Bảo Trì (VND)"] || 0).toLocaleString()}đ
                       </td>
                     </tr>
