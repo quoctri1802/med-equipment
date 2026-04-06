@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { getReportData } from "@/app/actions/export"
 import { getDailyStatus } from "@/app/actions/dailyReport"
+import { saveAs } from "file-saver"
+import ExcelJS from "exceljs"
 import { Download, Filter, FileSpreadsheet, Search, Clock, AlertTriangle, CheckCircle2 } from "lucide-react"
 
 export default function ReportsPage() {
@@ -66,17 +68,53 @@ export default function ReportsPage() {
     }
 
     try {
-      const XLSX = await import("xlsx");
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport)
-      const workbook = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(workbook, worksheet, "BaoCao_ThietBi")
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("BaoCao_ThietBi");
 
-      const wscols = [
-        {wch: 20}, {wch: 30}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 25}
-      ]
-      worksheet['!cols'] = wscols
+      // Define Columns
+      sheet.columns = [
+        { header: "Mã Thiết Bị", key: "code", width: 20 },
+        { header: "Tên Thiết Bị", key: "name", width: 30 },
+        { header: "Khoa / Phòng", key: "department", width: 15 },
+        { header: "Trạng Thái", key: "status", width: 25 },
+        { header: "Mức Rủi Ro", key: "riskScore", width: 15 },
+        { header: "Ngày Mua", key: "purchaseDate", width: 15 },
+        { header: "Số Lần Bảo Trì", key: "maintenanceCount", width: 15 },
+        { header: "Tổng Chi Phí Bảo Trì (VND)", key: "totalCost", width: 25 },
+      ];
 
-      XLSX.writeFile(workbook, `BaoCao_ThietBi_${new Date().toISOString().split('T')[0]}.xlsx`)
+      // Add Data & Apply Styling
+      dataToExport.forEach((item: any) => {
+        const row = sheet.addRow({
+          code: item["Mã Thiết Bị"],
+          name: item["Tên Thiết Bị"],
+          department: item["Khoa / Phòng"],
+          status: item["Trạng Thái"],
+          riskScore: item["Mức Rủi Ro"],
+          purchaseDate: item["Ngày Mua"],
+          maintenanceCount: item["Số Lần Bảo Trì"],
+          totalCost: item["Tổng Chi Phí Bảo Trì (VND)"]
+        });
+
+        // Nếu trạng thái không phải WORKING thì in đậm + đỏ
+        if (item["Trạng Thái"] !== "WORKING") {
+          row.eachCell((cell) => {
+            cell.font = { bold: true, color: { argb: "FFFF0000" } }; // Red
+          });
+        }
+      });
+
+      // Format Header
+      sheet.getRow(1).font = { bold: true };
+      sheet.getRow(1).fill = {
+         type: 'pattern',
+         pattern: 'solid',
+         fgColor: { argb: 'FFEFEFEF' }
+      };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      saveAs(blob, `BaoCao_ThietBi_${new Date().toLocaleDateString('en-CA')}.xlsx`);
     } catch (e: any) {
       alert("Lỗi xuất Excel: " + e.message)
     } finally {
@@ -101,35 +139,74 @@ export default function ReportsPage() {
     if (!dailyData) return;
 
     try {
-      const XLSX = await import("xlsx");
-      const wb = XLSX.utils.book_new();
-
+      const workbook = new ExcelJS.Workbook();
+      
       // Sheet 1: Đã báo cáo
-      const reportedData = dailyData.reported.map(log => ({
-        "Mã Thiết Bị": log.equipment.code,
-        "Tên Thiết Bị": log.equipment.name,
-        "Khoa / Phòng": log.equipment.department,
-        "Trạng Thái Ghi Nhận": log.status,
-        "Người Báo Cáo": log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
-        "Ngày": new Date(log.createdAt).toLocaleDateString('vi-VN'),
-        "Giờ": new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false }),
-        "Ghi Chú": log.note || ""
-      }));
-      const ws1 = XLSX.utils.json_to_sheet(reportedData);
-      XLSX.utils.book_append_sheet(wb, ws1, "DA_KIEM_TRA");
+      const sheet1 = workbook.addWorksheet("DA_KIEM_TRA");
+      sheet1.columns = [
+        { header: "Mã Thiết Bị", key: "code", width: 20 },
+        { header: "Tên Thiết Bị", key: "name", width: 30 },
+        { header: "Khoa / Phòng", key: "department", width: 15 },
+        { header: "Trạng Thái Ghi Nhận", key: "status", width: 25 },
+        { header: "Người Báo Cáo", key: "reporter", width: 20 },
+        { header: "Ngày", key: "date", width: 15 },
+        { header: "Giờ", key: "time", width: 12 },
+        { header: "Ghi Chú", key: "note", width: 30 },
+      ];
+
+      dailyData.reported.forEach(log => {
+        const row = sheet1.addRow({
+          code: log.equipment.code,
+          name: log.equipment.name,
+          department: log.equipment.department,
+          status: log.status,
+          reporter: log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
+          date: new Date(log.createdAt).toLocaleDateString('vi-VN'),
+          time: new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false }),
+          note: log.note || ""
+        });
+
+        // Highlight if not working
+        if (log.status !== "WORKING") {
+          row.eachCell((cell) => {
+            cell.font = { bold: true, color: { argb: "FFFF0000" } };
+          });
+        }
+      });
+      sheet1.getRow(1).font = { bold: true };
 
       // Sheet 2: Chưa báo cáo
-      const missingData = dailyData.missing.map(eq => ({
-        "Mã Thiết Bị": eq.code,
-        "Tên Thiết Bị": eq.name,
-        "Khoa / Phòng": eq.department,
-        "Trạng Thái Hiện Tại": eq.status,
-        "Mức Độ Rủi Ro": eq.riskScore
-      }));
-      const ws2 = XLSX.utils.json_to_sheet(missingData);
-      XLSX.utils.book_append_sheet(wb, ws2, "CHUA_KIEM_TRA");
+      const sheet2 = workbook.addWorksheet("CHUA_KIEM_TRA");
+      sheet2.columns = [
+        { header: "Mã Thiết Bị", key: "code", width: 20 },
+        { header: "Tên Thiết Bị", key: "name", width: 30 },
+        { header: "Khoa / Phòng", key: "department", width: 15 },
+        { header: "Trạng Thái Hiện Tại", key: "status", width: 20 },
+        { header: "Mức Rủi Ro", key: "risk", width: 15 },
+      ];
 
-      XLSX.writeFile(wb, `BaoCao_HangNgay_${dailyFilters.startDate}${dailyFilters.startDate !== dailyFilters.endDate ? '_den_' + dailyFilters.endDate : ''}.xlsx`);
+      dailyData.missing.forEach(eq => {
+        const row = sheet2.addRow({
+          code: eq.code,
+          name: eq.name,
+          department: eq.department,
+          status: eq.status,
+          risk: eq.riskScore
+        });
+
+        // Tương tự, nếu trạng thái hiện tại không phải WORKING
+        if (eq.status !== "WORKING") {
+          row.eachCell((cell) => {
+            cell.font = { bold: true, color: { argb: "FFFF0000" } };
+          });
+        }
+      });
+      sheet2.getRow(1).font = { bold: true };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const filename = `BaoCao_HangNgay_${dailyFilters.startDate}${dailyFilters.startDate !== dailyFilters.endDate ? '_den_' + dailyFilters.endDate : ''}.xlsx`;
+      saveAs(blob, filename);
     } catch (e: any) {
       alert("Lỗi xuất Excel: " + e.message);
     }

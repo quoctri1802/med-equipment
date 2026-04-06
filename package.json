@@ -16,6 +16,8 @@
     "@prisma/client": "^5.10.0",
     "camelcase-css": "^2.0.1",
     "clsx": "^2.1.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.368.0",
     "next": "14.2.15",
@@ -26,9 +28,12 @@
     "react-dom": "^18.2.0",
     "recharts": "^3.8.1",
     "tailwind-merge": "^2.2.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
+    "@types/exceljs": "^0.5.3",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20.11.24",
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^18.2.61",
