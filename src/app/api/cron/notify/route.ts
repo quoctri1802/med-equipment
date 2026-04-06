@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { sendMaintenanceAlert } from '@/lib/mailer'
-
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
+import { sendMaintenanceAlert } from '@/lib/email'
 
 export async function GET(request: Request) {
   try {
     // 1. Phân tích khoảng thời gian ranh giới. 
-    // Theo yêu cầu: <= 1 ngày kể từ bây giờ
-    const currentDate = new Date()
-    const targetDate = new Date()
-    targetDate.setDate(currentDate.getDate() + 1)
+    // Theo yêu cầu: <= 1 ngày kể từ bây giờ (giờ Việt Nam)
+    const VIETNAM_OFFSET = 7;
+    const nowLocal = new Date(new Date().getTime() + (VIETNAM_OFFSET * 60 * 60 * 1000));
+    
+    const targetDate = new Date(nowLocal);
+    targetDate.setDate(nowLocal.getDate() + 1);
     
     // 2. Tìm tất cả các phiếu PENDING, chưa gửi báo (isNotified == false) 
     // và date <= targetDate 
@@ -69,3 +69,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }
+
