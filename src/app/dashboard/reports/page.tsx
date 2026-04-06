@@ -111,7 +111,8 @@ export default function ReportsPage() {
         "Khoa / Phòng": log.equipment.department,
         "Trạng Thái Ghi Nhận": log.status,
         "Người Báo Cáo": log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
-        "Thời Điểm": new Date(log.createdAt).toLocaleString('vi-VN', { hour12: false }),
+        "Ngày": new Date(log.createdAt).toLocaleDateString('vi-VN'),
+        "Giờ": new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false }),
         "Ghi Chú": log.note || ""
       }));
       const ws1 = XLSX.utils.json_to_sheet(reportedData);
