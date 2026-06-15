@@ -20,6 +20,7 @@ model User {
 
   logs          Log[]
   maintenances  Maintenance[]
+  usageLogs     UsageLog[]
 }
 
 model Equipment {
@@ -41,6 +42,7 @@ model Equipment {
 
   logs          Log[]
   maintenances  Maintenance[]
+  usageLogs     UsageLog[]
 }
 
 model Log {
@@ -55,6 +57,9 @@ model Log {
 
   equipment   Equipment @relation(fields: [equipmentId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
+
+  @@index([equipmentId])
+  @@index([userId])
 }
 
 model Maintenance {
@@ -71,4 +76,25 @@ model Maintenance {
 
   equipment     Equipment @relation(fields: [equipmentId], references: [id])
   technician    User      @relation(fields: [technicianId], references: [id])
+
+  @@index([equipmentId])
+  @@index([technicianId])
+}
+
+model UsageLog {
+  id            String    @id @default(cuid())
+  equipmentId   String
+  userId        String?
+  userName      String
+  purpose       String
+  startTime     DateTime  @default(now())
+  endTime       DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+  user          User?     @relation(fields: [userId], references: [id])
+
+  @@index([equipmentId])
+  @@index([userId])
 }

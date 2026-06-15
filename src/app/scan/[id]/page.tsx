@@ -1,3 +1,4 @@
+import UsageManager from '@/components/UsageManager'
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import ReportForm from "@/components/ReportForm"
@@ -18,6 +19,17 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
   if (!equipment) {
     notFound()
   }
+
+  const activeUsage = await prisma.usageLog.findFirst({
+    where: { equipmentId: equipment.id, endTime: null },
+    orderBy: { startTime: 'desc' }
+  })
+  
+  const usageHistory = await prisma.usageLog.findMany({
+    where: { equipmentId: equipment.id },
+    orderBy: { startTime: 'desc' },
+    take: 10
+  })
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12">
@@ -96,6 +108,12 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
         </div>
 
         <ReportForm equipmentId={equipment.id} />
+        
+        <UsageManager
+          equipmentId={equipment.id}
+          initialActiveUsage={activeUsage as any}
+          initialHistory={usageHistory as any}
+        />
       </div>
     </div>
   )

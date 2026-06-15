@@ -1,3 +1,4 @@
+import UsageManager from '@/components/UsageManager'
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
@@ -18,6 +19,17 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
         include: { technician: true }
       }
     }
+  })
+
+  const activeUsage = await prisma.usageLog.findFirst({
+    where: { equipmentId: params.id, endTime: null },
+    orderBy: { startTime: 'desc' }
+  })
+  
+  const usageHistory = await prisma.usageLog.findMany({
+    where: { equipmentId: params.id },
+    orderBy: { startTime: 'desc' },
+    take: 10
   })
 
   if (!equipment) {
@@ -118,6 +130,13 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
             equipmentId={equipment.id} 
             equipmentCode={equipment.code} 
             equipmentName={equipment.name} 
+          />
+
+          {/* Usage Manager */}
+          <UsageManager
+            equipmentId={equipment.id}
+            initialActiveUsage={activeUsage as any}
+            initialHistory={usageHistory as any}
           />
         </div>
 
