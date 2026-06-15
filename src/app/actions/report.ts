@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 
-export async function submitScanReport(data: { equipmentId: string, status: string, note: string, reporterName: string }) {
+export async function submitScanReport(data: { equipmentId: string, status: string, note: string, reporterName: string, imageUrl?: string }) {
   // Try to get session, if unauthenticated, we'll try to find an admin or staff user to assign it to 
   // since scanning could potentially be done on a public tablet (depending on client requirement).
   // But ideally, requires session.
@@ -33,7 +33,8 @@ export async function submitScanReport(data: { equipmentId: string, status: stri
       userId: userId as string,
       status: data.status,
       reporterName: data.reporterName,
-      note: data.note || "Cập nhật qua quét QR Hệ thống."
+      note: data.note || "Cập nhật qua quét QR Hệ thống.",
+      imageUrl: data.imageUrl || null
     } as any
   })
 

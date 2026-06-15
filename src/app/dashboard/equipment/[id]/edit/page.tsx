@@ -12,17 +12,20 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
   const [fetching, setFetching] = useState(true)
   const [formData, setFormData] = useState({
     name: "",
+    code: "",
     department: "",
     status: "WORKING",
     riskScore: "LOW",
-    purchaseDate: ""
+    purchaseDate: "",
+    model: "",
+    serialNumber: "",
+    brand: "",
+    origin: "",
+    contactInfo: "",
+    usageNotes: ""
   })
 
   useEffect(() => {
-    // Fetch equipment data from a GET endpoint /api/equipment/[id]
-    // Since we don't have that endpoint, let's just make a simple API route or use Server Action.
-    // Actually, Server Components can pass data to Client Components. Let's convert this to handle that.
-    // We'll fetch within the component using fetch since it's a client component.
     const getEq = async () => {
       try {
         const res = await fetch(`/api/equipment/${params.id}`)
@@ -30,10 +33,17 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
           const data = await res.json()
           setFormData({
             name: data.name,
+            code: data.code || "",
             department: data.department,
             status: data.status,
             riskScore: data.riskScore,
-            purchaseDate: new Date(data.purchaseDate).toISOString().split('T')[0]
+            purchaseDate: new Date(data.purchaseDate).toISOString().split('T')[0],
+            model: data.model || "",
+            serialNumber: data.serialNumber || "",
+            brand: data.brand || "",
+            origin: data.origin || "",
+            contactInfo: data.contactInfo || "",
+            usageNotes: data.usageNotes || ""
           })
         } else {
           alert('Không tìm thấy thiết bị')
@@ -66,7 +76,7 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
   if (fetching) return <div className="p-8 text-center text-slate-500">Đang tải thông tin...</div>
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/dashboard/equipment" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
           <ArrowLeft className="w-6 h-6" />
@@ -79,23 +89,90 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Tên thiết bị
-            </label>
-            <input
-              required
-              value={formData.name}
-              onChange={e => setFormData({...formData, name: e.target.value})}
-              type="text"
-              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Khoa / Phòng ban
+                Tên thiết bị <span className="text-red-500">*</span>
+              </label>
+              <input
+                required
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Mã số thiết bị <span className="text-red-500">*</span>
+              </label>
+              <input
+                required
+                value={formData.code}
+                onChange={e => setFormData({...formData, code: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Model
+              </label>
+              <input
+                value={formData.model}
+                onChange={e => setFormData({...formData, model: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Số serial
+              </label>
+              <input
+                value={formData.serialNumber}
+                onChange={e => setFormData({...formData, serialNumber: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Hãng sản xuất
+              </label>
+              <input
+                value={formData.brand}
+                onChange={e => setFormData({...formData, brand: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Nước sản xuất
+              </label>
+              <input
+                value={formData.origin}
+                onChange={e => setFormData({...formData, origin: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Khoa / Phòng ban <span className="text-red-500">*</span>
               </label>
               <select
                 required
@@ -113,25 +190,22 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
 
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Đánh giá rủi ro
+                Thời gian nhận máy / đưa vào sử dụng <span className="text-red-500">*</span>
               </label>
-              <select
+              <input
                 required
-                value={formData.riskScore}
-                onChange={e => setFormData({...formData, riskScore: e.target.value})}
+                value={formData.purchaseDate}
+                onChange={e => setFormData({...formData, purchaseDate: e.target.value})}
+                type="date"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
-              >
-                <option value="LOW">Thấp (LOW)</option>
-                <option value="MEDIUM">Trung bình (MEDIUM)</option>
-                <option value="HIGH">Cao (HIGH)</option>
-              </select>
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Trạng thái hoạt động
+                Trạng thái hoạt động <span className="text-red-500">*</span>
               </label>
               <select
                 required
@@ -147,16 +221,43 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
 
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Ngày mua / Đưa vào sử dụng
+                Đánh giá rủi ro <span className="text-red-500">*</span>
               </label>
-              <input
+              <select
                 required
-                value={formData.purchaseDate}
-                onChange={e => setFormData({...formData, purchaseDate: e.target.value})}
-                type="date"
+                value={formData.riskScore}
+                onChange={e => setFormData({...formData, riskScore: e.target.value})}
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
-              />
+              >
+                <option value="LOW">Thấp (LOW)</option>
+                <option value="MEDIUM">Trung bình (MEDIUM)</option>
+                <option value="HIGH">Cao (HIGH)</option>
+              </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Thông tin liên hệ nhà phân phối / sản xuất
+            </label>
+            <input
+              value={formData.contactInfo}
+              onChange={e => setFormData({...formData, contactInfo: e.target.value})}
+              type="text"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Lưu ý, yêu cầu khi sử dụng
+            </label>
+            <textarea
+              value={formData.usageNotes}
+              onChange={e => setFormData({...formData, usageNotes: e.target.value})}
+              rows={3}
+              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+            />
           </div>
 
           <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-700">

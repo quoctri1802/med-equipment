@@ -1,5 +1,7 @@
 "use server"
 
+import { formatDateVN } from '@/lib/date'
+
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -52,7 +54,7 @@ export async function getReportData(filters: {
     }
 
     if (upcomingOrOverdue) {
-      maintenanceInfo.nextDate = new Date(upcomingOrOverdue.date).toLocaleDateString('vi-VN')
+      maintenanceInfo.nextDate = formatDateVN(upcomingOrOverdue.date)
       maintenanceInfo.status = upcomingOrOverdue.status // PENDING, IN_PROGRESS
       maintenanceInfo.isOverdue = new Date(upcomingOrOverdue.date) < now
     }
@@ -63,7 +65,7 @@ export async function getReportData(filters: {
       "Khoa / Phòng": eq.department,
       "Trạng Thái": eq.status,
       "Mức Rủi Ro": eq.riskScore,
-      "Ngày Mua": new Date(eq.purchaseDate).toLocaleDateString('vi-VN'),
+      "Ngày Mua": formatDateVN(eq.purchaseDate),
       "Số Lần Bảo Trì": eq.maintenances.length,
       "Tổng Chi Phí Bảo Trì (VND)": totalMaintenanceCost,
       // Thông tin bảo trì mới

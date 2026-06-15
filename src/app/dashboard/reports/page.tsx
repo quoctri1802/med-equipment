@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { formatDateVN, formatTimeVN, formatDateTimeVN } from '@/lib/date'
 import { getReportData } from "@/app/actions/export"
 import { getDailyStatus } from "@/app/actions/dailyReport"
 import { saveAs } from "file-saver"
@@ -165,8 +166,8 @@ export default function ReportsPage() {
           department: log.equipment.department,
           status: log.status,
           reporter: log.reporterName || log.user?.name || log.user?.email || "Hệ thống",
-          date: new Date(log.createdAt).toLocaleDateString('vi-VN'),
-          time: new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false }),
+          date: formatDateVN(log.createdAt),
+          time: formatTimeVN(log.createdAt),
           note: log.note || ""
         });
 
@@ -414,8 +415,8 @@ export default function ReportsPage() {
                 <CheckCircle2 className="w-5 h-5 text-green-500" /> 
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
                   Tình trạng kiểm tra {dailyFilters.startDate === dailyFilters.endDate 
-                    ? `ngày ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')}` 
-                    : `từ ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')} đến ${new Date(dailyFilters.endDate).toLocaleDateString('vi-VN')}`}
+                    ? `ngày ${formatDateVN(dailyFilters.startDate)}` 
+                    : `từ ${formatDateVN(dailyFilters.startDate)} đến ${formatDateVN(dailyFilters.endDate)}`}
                 </h2>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -501,9 +502,9 @@ export default function ReportsPage() {
                         </td>
                         <td className="px-4 py-3 text-slate-500 text-xs">
                           <div className="font-medium text-slate-700 dark:text-slate-300">
-                            {new Date(log.createdAt).toLocaleTimeString('vi-VN', { hour12: false })}
+                            {formatTimeVN(log.createdAt)}
                           </div>
-                          <div>{new Date(log.createdAt).toLocaleDateString('vi-VN')}</div>
+                          <div>{formatDateVN(log.createdAt)}</div>
                         </td>
                       </tr>
                     ))}
@@ -518,7 +519,7 @@ export default function ReportsPage() {
               <AlertTriangle className="w-5 h-5" /> Thiết bị CHƯA báo cáo 
               <span className="text-xs font-medium text-slate-500 normal-case ml-1">
                 ({dailyFilters.startDate === dailyFilters.endDate 
-                  ? `ngày ${new Date(dailyFilters.startDate).toLocaleDateString('vi-VN')}` 
+                  ? `ngày ${formatDateVN(dailyFilters.startDate)}` 
                   : `khoảng thời gian này`})
               </span>
               <span className="text-sm font-medium bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 px-2.5 py-0.5 rounded-full ml-auto">

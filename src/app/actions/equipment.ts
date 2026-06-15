@@ -23,9 +23,16 @@ export async function updateEquipment(id: string, data: any) {
 
   const updateData: any = {
     name: data.name,
+    code: data.code,
     department: data.department,
     status: data.status,
-    riskScore: data.riskScore
+    riskScore: data.riskScore,
+    model: data.model || null,
+    serialNumber: data.serialNumber || null,
+    brand: data.brand || null,
+    origin: data.origin || null,
+    contactInfo: data.contactInfo || null,
+    usageNotes: data.usageNotes || null
   }
 
   if (data.purchaseDate) {

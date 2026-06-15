@@ -30,6 +30,12 @@ model Equipment {
   status        String    @default("WORKING") // WORKING, WARNING, BROKEN
   purchaseDate  DateTime
   riskScore     String    @default("LOW") // LOW, MEDIUM, HIGH
+  model         String?
+  serialNumber  String?
+  brand         String?
+  origin        String?
+  contactInfo   String?
+  usageNotes    String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -44,6 +50,7 @@ model Log {
   status      String    // Trạng thái được nhân viên cập nhật
   reporterName  String?   // Tên người báo cáo nhập từ điện thoại
   note        String?
+  imageUrl   String?
   createdAt   DateTime  @default(now())
 
   equipment   Equipment @relation(fields: [equipmentId], references: [id])

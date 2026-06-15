@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client"
 import { Activity, ShieldAlert, CheckCircle2, Wrench, ClipboardList, Clock } from "lucide-react"
 import { StatusPieChart, DepartmentBarChart } from "@/components/DashboardCharts"
 import Link from "next/link"
+import { formatTimeVN } from '@/lib/date'
 
 const prisma = new PrismaClient()
 
@@ -165,7 +166,7 @@ export default async function DashboardPage() {
                         {log.status === 'WORKING' ? 'BÌNH THƯỜNG' : 'BÁO HỎNG'}
                       </span>
                       <span className="text-[10px] text-slate-400 italic">
-                        {new Date(log.createdAt).toLocaleTimeString('vi-VN')}
+                        {formatTimeVN(log.createdAt)}
                       </span>
                     </div>
                   </div>

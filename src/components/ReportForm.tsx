@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Camera, X, Upload } from "lucide-react"
 
 export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const router = useRouter()
@@ -14,6 +14,11 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   
+  // Image Upload State
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
   // Chế độ tự động
   const [isAutoMode, setIsAutoMode] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
@@ -27,18 +32,57 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
     setIsAutoMode(savedAuto)
   }, [])
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImageFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+  }
+
   const performSubmit = async (formData: { status: string, note: string, reporterName: string }) => {
     setLoading(true)
     try {
       // Lưu tên vào máy để lần sau không phải nhập lại
       localStorage.setItem("med_reporter_name", formData.reporterName)
 
-      await submitScanReport({ equipmentId, ...formData })
+      // Upload image if present
+      let uploadedUrl = ""
+      if (imageFile) {
+        setUploading(true)
+        const uploadData = new FormData()
+        uploadData.append("file", imageFile)
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        })
+
+        if (!res.ok) {
+          throw new Error("Không thể tải hình ảnh sự cố lên máy chủ.")
+        }
+
+        const result = await res.json()
+        uploadedUrl = result.url
+      }
+
+      await submitScanReport({ equipmentId, ...formData, imageUrl: uploadedUrl || undefined })
       setSuccess(true)
       setNote("")
+      setImageFile(null)
+      setImagePreview(null)
       router.refresh()
       
-      // Tự động chuyển về trang chủ sau 2 giây để người dùng kịp thấy thông báo thành công
+      // Tự động chuyển về trang chủ sau 2 giây
       setTimeout(() => {
         router.push("/")
       }, 2000)
@@ -47,6 +91,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
       alert("Lỗi kết nối: " + err.message)
     } finally {
       setLoading(false)
+      setUploading(false)
     }
   }
 
@@ -58,7 +103,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
 
   // Logic đếm ngược tự động gửi
   useEffect(() => {
-    if (isAutoMode && !success && !loading && reporterName.trim()) {
+    if (isAutoMode && !success && !loading && reporterName.trim() && !imageFile) {
       setCountdown(2)
       const timer = setInterval(() => {
         setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : 0))
@@ -75,7 +120,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
     } else {
         setCountdown(null)
     }
-  }, [isAutoMode, reporterName, success, loading])
+  }, [isAutoMode, reporterName, success, loading, imageFile])
 
   const toggleAutoMode = () => {
     const newVal = !isAutoMode
@@ -160,7 +205,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
           </label>
           <label className={`cursor-pointer flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${status === "BROKEN" ? "border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 transform scale-[1.02]" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
             <input type="radio" value="BROKEN" checked={status === "BROKEN"} onChange={(e) => setStatus(e.target.value)} className="sr-only" />
-            <span className="font-semibold">Hỏng/Ngừng HĐ</span>
+            <span className="font-semibold">Hỏng/Ngừng HD</span>
           </label>
         </div>
       </div>
@@ -179,12 +224,50 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
         />
       </div>
 
+      {/* Photo Capture & Upload Section */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          Hình ảnh đính kèm (Khi có sự cố)
+        </label>
+        
+        {imagePreview ? (
+          <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-w-xs">
+            <img src={imagePreview} alt="Xem trước" className="w-full h-auto object-cover max-h-48" />
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="absolute top-2 right-2 p-1.5 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              id="incident-photo"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <label
+              htmlFor="incident-photo"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-dashed"
+            >
+              <Camera className="w-4 h-4" />
+              Chụp ảnh / Tải ảnh sự cố
+            </label>
+          </div>
+        )}
+      </div>
+
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || uploading}
         className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 disabled:opacity-70 transition shadow-sm transform active:scale-[0.98]"
       >
-        {loading ? "Đang xử lý..." : "Lưu Báo Cáo"}
+        {uploading ? "Đang tải ảnh lên..." : loading ? "Đang xử lý..." : "Lưu Báo Cáo"}
       </button>
     </form>
   )

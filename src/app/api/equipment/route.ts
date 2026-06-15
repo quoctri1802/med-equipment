@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { name, department, purchaseDate } = body
+    const { name, department, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, code: customCode } = body
 
     // Generate KHOA-YYYYMMDD-STT string
     const dateObj = new Date(purchaseDate)
@@ -14,16 +14,23 @@ export async function POST(req: Request) {
     
     // Quick random STT for MVP (in production use sequence)
     const stt = Math.floor(100 + Math.random() * 900) 
-    const code = `${department}-${dateStr}-${stt}`
+    const generatedCode = `${department}-${dateStr}-${stt}`
+    const finalCode = customCode ? customCode.trim() : generatedCode
 
     const equipment = await prisma.equipment.create({
       data: {
         name,
-        code,
+        code: finalCode,
         department,
         purchaseDate: new Date(purchaseDate),
         status: "WORKING",
-        riskScore: "LOW"
+        riskScore: "LOW",
+        model: model || null,
+        serialNumber: serialNumber || null,
+        brand: brand || null,
+        origin: origin || null,
+        contactInfo: contactInfo || null,
+        usageNotes: usageNotes || null
       }
     })
 

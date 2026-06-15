@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Clock, Wrench } from "lucide-react"
 import QRCodeBox from "@/components/QRCodeBox"
+import { formatDateVN, formatDateTimeVN } from "@/lib/date"
 
 export default async function EquipmentDetailsPage({ params }: { params: { id: string } }) {
   const equipment = await prisma.equipment.findUnique({
@@ -63,11 +64,47 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                   'text-slate-600'
                 }`}>{equipment.riskScore}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Ngày mua</span>
-                <span className="font-bold">{new Date(equipment.purchaseDate).toLocaleDateString('vi-VN')}</span>
+              
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">Model</span>
+                <span className="font-bold text-slate-900 dark:text-white">{equipment.model || '--'}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">Số serial</span>
+                <span className="font-bold text-slate-900 dark:text-white">{equipment.serialNumber || '--'}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">Hãng sản xuất</span>
+                <span className="font-bold text-slate-900 dark:text-white">{equipment.brand || '--'}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">Nước sản xuất</span>
+                <span className="font-bold text-slate-900 dark:text-white">{equipment.origin || '--'}</span>
+              </div>
+              
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">Ngày nhận / sử dụng</span>
+                <span className="font-bold">{formatDateVN(equipment.purchaseDate)}</span>
               </div>
             </div>
+
+            {equipment.contactInfo && (
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-xs">
+                <span className="block text-slate-500 font-medium mb-1">Liên hệ nhà PP/sản xuất:</span>
+                <p className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 leading-relaxed">
+                  {equipment.contactInfo}
+                </p>
+              </div>
+            )}
+
+            {equipment.usageNotes && (
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-xs">
+                <span className="block text-slate-500 font-medium mb-1">Lưu ý khi sử dụng:</span>
+                <p className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 leading-relaxed">
+                  {equipment.usageNotes}
+                </p>
+              </div>
+            )}
             
             <div className="mt-8">
               <Link href={`/dashboard/equipment/${equipment.id}/edit`} className="block w-full text-center py-2.5 border border-slate-200 bg-slate-50 text-slate-700 rounded-xl font-bold text-sm tracking-wider hover:bg-slate-100 transition-colors uppercase">
@@ -108,7 +145,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                       <div className="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
                         <span>KTV: <span className="font-bold">{m.technician?.name || 'N/A'}</span></span>
                         <span>Chi phí: <span className="font-bold">{m.cost ? m.cost.toLocaleString() + 'đ' : '--'}</span></span>
-                        <span>Ngày thực hiện: <span className="font-bold">{new Date(m.date).toLocaleDateString('vi-VN')}</span></span>
+                        <span>Ngày thực hiện: <span className="font-bold">{formatDateVN(m.date)}</span></span>
                       </div>
                     </div>
                   ))}
@@ -138,10 +175,17 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                         }`}>
                           {log.status === 'WORKING' ? 'BÌNH THƯỜNG' : log.status === 'WARNING' ? 'CẢNH BÁO' : 'BÁO HỎNG'}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-mono italic">{new Date(log.createdAt).toLocaleString('vi-VN')}</span>
+                        <span className="text-[10px] text-slate-400 font-mono italic">{formatDateTimeVN(log.createdAt)}</span>
                       </div>
                       {log.note && <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{log.note}</p>}
-                      <p className="text-[10px] text-slate-500 mt-2 font-medium opacity-70">Người ghi nhận: {log.user?.name || log.user?.email || 'N/A'}</p>
+                      {log.imageUrl && (
+                        <div className="mt-2 rounded-lg overflow-hidden max-w-xs border border-slate-200 dark:border-slate-700">
+                          <a href={log.imageUrl} target="_blank" rel="noopener noreferrer">
+                            <img src={log.imageUrl} alt="Ảnh chụp sự cố" className="w-full h-auto object-cover max-h-48 hover:opacity-90 transition-opacity" />
+                          </a>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-slate-500 mt-2 font-medium opacity-70">Người ghi nhận: {log.reporterName || log.user?.name || log.user?.email || 'N/A'}</p>
                     </div>
                   ))}
                 </div>

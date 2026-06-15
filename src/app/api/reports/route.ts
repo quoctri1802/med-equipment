@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { equipmentId, status, note, userId } = body
+    const { equipmentId, status, note, userId, imageUrl } = body
 
     // Create log
     await prisma.log.create({
@@ -14,7 +14,8 @@ export async function POST(req: Request) {
         equipmentId,
         userId: userId || "anonymous-staff", // If no auth available for simple QR scan
         status,
-        note
+        note,
+        imageUrl: imageUrl || null
       }
     })
 

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import ReportForm from "@/components/ReportForm"
+import { formatDateVN } from "@/lib/date"
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
   const cleanId = params.id.trim().replace(/\/$/, "");
@@ -37,19 +38,60 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
               equipment.status === "WARNING" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
               "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
             }`}>
-              {equipment.status}
+              {equipment.status === "WORKING" ? "HOẠT ĐỘNG" : equipment.status === "WARNING" ? "CẢNH BÁO" : "HỎNG/NGƯNG HD"}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm mb-2">
+          <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
             <div>
               <p className="text-slate-500 dark:text-slate-400">Khoa / Phòng</p>
-              <p className="font-medium text-slate-900 dark:text-white">{equipment.department}</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.department}</p>
             </div>
             <div>
               <p className="text-slate-500 dark:text-slate-400">Đánh giá rủi ro AI</p>
-              <p className="font-medium text-slate-900 dark:text-white">{equipment.riskScore}</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.riskScore}</p>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+            <div>
+              <p className="text-slate-500 dark:text-slate-400">Model</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.model || '--'}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 dark:text-slate-400">Số serial</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.serialNumber || '--'}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+            <div>
+              <p className="text-slate-500 dark:text-slate-400">Hãng sản xuất</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.brand || '--'}</p>
+            </div>
+            <div>
+              <p className="text-slate-500 dark:text-slate-400">Nước sản xuất</p>
+              <p className="font-bold text-slate-900 dark:text-white">{equipment.origin || '--'}</p>
+            </div>
+          </div>
+
+          <div className="text-sm space-y-3">
+            <div>
+              <p className="text-slate-500 dark:text-slate-400">Thời gian nhận máy / sử dụng</p>
+              <p className="font-bold text-slate-900 dark:text-white">{formatDateVN(equipment.purchaseDate)}</p>
+            </div>
+            {equipment.contactInfo && (
+              <div>
+                <p className="text-slate-500 dark:text-slate-400">Liên hệ nhà phân phối / sản xuất</p>
+                <p className="font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-xs mt-1 leading-relaxed">{equipment.contactInfo}</p>
+              </div>
+            )}
+            {equipment.usageNotes && (
+              <div>
+                <p className="text-slate-500 dark:text-slate-400">Lưu ý, yêu cầu khi sử dụng</p>
+                <p className="font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-xs mt-1 leading-relaxed">{equipment.usageNotes}</p>
+              </div>
+            )}
           </div>
         </div>
 
