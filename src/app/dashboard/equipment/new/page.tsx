@@ -23,6 +23,7 @@ export default function NewEquipmentPage() {
       origin: formData.get("origin"),
       contactInfo: formData.get("contactInfo"),
       usageNotes: formData.get("usageNotes"),
+      qcTechnician: formData.get("qcTechnician"),
     }
 
     try {
@@ -63,7 +64,7 @@ export default function NewEquipmentPage() {
                 required
                 name="name"
                 type="text"
-                placeholder="VD: Máy đo huyết áp điện tử Omron"
+                placeholder="VD: Máy ly tâm lạnh cao tốc Eppendorf"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               />
             </div>
@@ -75,7 +76,7 @@ export default function NewEquipmentPage() {
               <input
                 name="code"
                 type="text"
-                placeholder="VD: CC-20260615-001"
+                placeholder="VD: XN-LT-20260615-001"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               />
             </div>
@@ -89,7 +90,7 @@ export default function NewEquipmentPage() {
               <input
                 name="model"
                 type="text"
-                placeholder="VD: HEM-7120"
+                placeholder="VD: 5810 R"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               />
             </div>
@@ -115,7 +116,7 @@ export default function NewEquipmentPage() {
               <input
                 name="brand"
                 type="text"
-                placeholder="VD: Omron Healthcare"
+                placeholder="VD: Eppendorf"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               />
             </div>
@@ -127,7 +128,7 @@ export default function NewEquipmentPage() {
               <input
                 name="origin"
                 type="text"
-                placeholder="VD: Nhật Bản"
+                placeholder="VD: Đức"
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               />
             </div>
@@ -144,10 +145,10 @@ export default function NewEquipmentPage() {
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               >
                 <option value="">Chọn Khoa</option>
-                <option value="CC">Cấp Cứu</option>
+                <option value="CC">Khoa Cấp cứu</option>
                 <option value="HSTC">Hồi sức tích cực</option>
-                <option value="NTH">Nội Tổng hợp</option>
-                <option value="XN">Xét nghiệm</option>
+                <option value="NTH">Nội tổng hợp</option>
+                <option value="XN">Khoa Xét nghiệm</option>
                 <option value="CDHA">Chẩn đoán hình ảnh</option>
               </select>
             </div>
@@ -165,16 +166,30 @@ export default function NewEquipmentPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Thông tin liên hệ nhà phân phối / sản xuất
-            </label>
-            <input
-              name="contactInfo"
-              type="text"
-              placeholder="VD: Cty TNHH Thiết bị Y Tế ABC - SĐT: 0909123456"
-              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                KTV hiệu chuẩn QC
+              </label>
+              <input
+                name="qcTechnician"
+                type="text"
+                placeholder="VD: KTV. Nguyễn Văn A"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Thông tin liên hệ nhà phân phối / sản xuất
+              </label>
+              <input
+                name="contactInfo"
+                type="text"
+                placeholder="VD: Cty TNHH Thiết bị Y Tế ABC - SĐT: 0909123456"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
           </div>
 
           <div>
@@ -184,7 +199,7 @@ export default function NewEquipmentPage() {
             <textarea
               name="usageNotes"
               rows={3}
-              placeholder="VD: Cần vệ sinh sau mỗi lần đo, bảo quản nơi khô ráo..."
+              placeholder="VD: Cân bằng ống ly tâm đối xứng trước khi vận hành, vệ sinh buồng ly tâm sau khi sử dụng..."
               className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
             />
           </div>

@@ -15,7 +15,7 @@ export default function LandingPage() {
             <ActivitySquare className="h-6 w-6 text-blue-500 animate-pulse" />
           </div>
           <span className="font-extrabold text-xl tracking-tight text-white hidden sm:block">
-            MedEquip <span className="text-blue-500">Manager</span>
+            LabEquip <span className="text-blue-500">Manager</span>
           </span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-8 items-center">
@@ -45,18 +45,18 @@ export default function LandingPage() {
         <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-950/50 px-4 py-1.5 text-xs font-semibold text-blue-300 backdrop-blur-sm">
             <span className="flex w-2 h-2 rounded-full bg-blue-500 mr-2 animate-ping"></span>
-            Hệ thống quản lý thông minh mới v2.0
+            Hệ thống quản lý thông minh v2.0
           </div>
           
           <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-none">
-            Quản Lý Thiết Bị Y Tế <br />
+            Quản Lý Thiết Bị Khoa Xét Nghiệm <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600">
-              TTYT Quận Liên Chiểu
+              TTYT Khu vực Liên Chiểu
             </span>
           </h1>
           
           <p className="text-lg lg:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            Giải pháp số hóa toàn diện giúp theo dõi, bảo trì, quản lý trạng thái, và giám sát người sử dụng/bảo quản thiết bị y tế tức thì qua mã QR. Tối ưu hiệu suất và đảm bảo an toàn thiết bị.
+            Giải pháp số hóa toàn diện giúp theo dõi, bảo trì, hiệu chuẩn, quản lý trạng thái và giám sát người sử dụng/bảo quản thiết bị xét nghiệm tức thời qua mã QR. Tối ưu hiệu suất và đảm bảo chất lượng kết quả xét nghiệm.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
@@ -83,9 +83,9 @@ export default function LandingPage() {
             <div className="p-3 bg-blue-500/10 text-blue-500 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform border border-blue-500/20">
               <QrCode className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-white">Quét QR & Báo cáo Lỗi</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Quét QR & Báo lỗi nhanh</h3>
             <p className="text-slate-400 leading-relaxed text-sm">
-              Tra cứu hồ sơ, lý lịch sửa chữa và lập báo cáo sự cố ngay lập tức bằng điện thoại thông qua camera quét mã QR tích hợp sẵn.
+              Tra cứu hồ sơ, lịch sử hiệu chuẩn, sửa chữa và lập báo cáo sự cố ngay lập tức bằng điện thoại thông minh thông qua quét mã QR tích hợp sẵn.
             </p>
           </div>
           
@@ -93,9 +93,9 @@ export default function LandingPage() {
             <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform border border-cyan-500/20">
               <ClipboardList className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-white">Quản lý Người sử dụng</h3>
+            <h3 className="text-xl font-bold mb-3 text-white">Theo dõi Vận hành & QC</h3>
             <p className="text-slate-400 leading-relaxed text-sm">
-              Theo dõi chính xác ai đang mượn/sử dụng hoặc chịu trách nhiệm bảo quản thiết bị, thời gian mượn, cùng mục đích sử dụng chi tiết.
+              Theo dõi chính xác ai đang vận hành hoặc chịu trách nhiệm bảo quản thiết bị xét nghiệm, thời gian sử dụng, mục đích cụ thể và KTV hiệu chuẩn QC.
             </p>
           </div>
 
@@ -105,14 +105,14 @@ export default function LandingPage() {
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">Phân quyền chặt chẽ</h3>
             <p className="text-slate-400 leading-relaxed text-sm">
-              Hệ thống phân quyền chi tiết cho Quản trị viên (Admin), Kỹ thuật viên bảo trì (Technician) và Nhân viên y tế/Bác sĩ sử dụng máy.
+              Hệ thống phân quyền chi tiết cho Quản trị viên (Admin), Kỹ thuật viên bảo trì (Technician) và Nhân viên xét nghiệm sử dụng máy.
             </p>
           </div>
         </div>
       </main>
       
       <footer className="py-8 text-center text-xs text-slate-600 border-t border-slate-900 z-10 mt-auto bg-slate-950">
-        &copy; {new Date().getFullYear()} Trung tâm Y tế Quận Liên Chiểu. Tất cả quyền được bảo lưu.
+        &copy; {new Date().getFullYear()} TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm. Tất cả các quyền được bảo lưu.
       </footer>
     </div>
   );

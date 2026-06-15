@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 import {
   LayoutDashboard,
-  Stethoscope,
+  FlaskConical,
   Wrench,
   LogOut,
   Settings,
@@ -24,11 +24,11 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
   ]
 
   if (isAdmin || perms.includes("EQUIPMENT_VIEW")) {
-    navItems.push({ name: "Thiết bị", href: "/dashboard/equipment", icon: Stethoscope })
+    navItems.push({ name: "Thiết bị xét nghiệm", href: "/dashboard/equipment", icon: FlaskConical })
   }
   
   if (isAdmin || perms.includes("MAINTENANCE_MANAGE")) {
-    navItems.push({ name: "Bảo trì", href: "/dashboard/maintenance", icon: Wrench })
+    navItems.push({ name: "Lịch bảo trì", href: "/dashboard/maintenance", icon: Wrench })
   }
 
   if (isAdmin) {
@@ -51,8 +51,8 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
             <Image src="/logo.png" alt="Logo" width={48} height={48} className="rounded-full" />
           </div>
           <div className="flex flex-col">
-            <span className="text-white font-black text-sm tracking-tighter leading-tight">TTYT LIÊN CHIỂU</span>
-            <span className="text-[10px] text-blue-500 font-bold tracking-widest uppercase">Management</span>
+            <span className="text-white font-black text-sm tracking-tighter leading-tight">TTYT KV LIÊN CHIỂU</span>
+            <span className="text-[10px] text-blue-500 font-bold tracking-widest uppercase">Khoa Xét nghiệm</span>
           </div>
         </div>
         
@@ -125,5 +125,4 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
       </div>
     </>
   )
-
 }

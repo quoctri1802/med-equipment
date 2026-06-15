@@ -31,16 +31,28 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
     take: 10
   })
 
+  // Map department codes to readable labels
+  const getDeptLabel = (code: string) => {
+    const deptLabels: Record<string, string> = {
+      CC: "Khoa Cấp cứu",
+      HSTC: "Hồi sức tích cực",
+      NTH: "Nội tổng hợp",
+      XN: "Khoa Xét nghiệm",
+      CDHA: "Chẩn đoán hình ảnh"
+    }
+    return deptLabels[code] || code;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12">
       <div className="bg-blue-600 pb-20 pt-8 px-4 text-center">
-        <h1 className="text-xl font-bold text-white uppercase tracking-wider">TTYT Liên Chiểu</h1>
-        <p className="text-blue-100 text-sm mt-1">Cổng nộp báo cáo thiết bị y tế</p>
+        <h1 className="text-xl font-bold text-white uppercase tracking-wider">TTYT KHU VỰC LIÊN CHIỂU</h1>
+        <p className="text-blue-100 text-sm mt-1">Hệ thống Quản lý Thiết bị Khoa Xét nghiệm</p>
       </div>
 
       <div className="max-w-xl mx-auto px-4 -mt-12 space-y-6">
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 p-6">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
             <div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">{equipment.name}</h2>
               <p className="font-mono text-slate-500 text-sm mt-1">{equipment.code}</p>
@@ -50,14 +62,14 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
               equipment.status === "WARNING" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
               "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
             }`}>
-              {equipment.status === "WORKING" ? "HOẠT ĐỘNG" : equipment.status === "WARNING" ? "CẢNH BÁO" : "HỎNG/NGƯNG HD"}
+              {equipment.status === "WORKING" ? "SẴN SÀNG" : equipment.status === "WARNING" ? "CẦN HIỆU CHUẨN" : "SỰ CỐ / HỎNG"}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
             <div>
               <p className="text-slate-500 dark:text-slate-400">Khoa / Phòng</p>
-              <p className="font-bold text-slate-900 dark:text-white">{equipment.department}</p>
+              <p className="font-bold text-slate-900 dark:text-white">{getDeptLabel(equipment.department)}</p>
             </div>
             <div>
               <p className="text-slate-500 dark:text-slate-400">Đánh giá rủi ro AI</p>
@@ -88,6 +100,10 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
           </div>
 
           <div className="text-sm space-y-3">
+            <div className="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+              <span className="text-slate-500 dark:text-slate-400">KTV hiệu chuẩn QC</span>
+              <span className="font-bold text-slate-900 dark:text-white">{equipment.qcTechnician || '--'}</span>
+            </div>
             <div>
               <p className="text-slate-500 dark:text-slate-400">Thời gian nhận máy / sử dụng</p>
               <p className="font-bold text-slate-900 dark:text-white">{formatDateVN(equipment.purchaseDate)}</p>
@@ -100,7 +116,7 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
             )}
             {equipment.usageNotes && (
               <div>
-                <p className="text-slate-500 dark:text-slate-400">Lưu ý, yêu cầu khi sử dụng</p>
+                <p className="text-slate-500 dark:text-slate-400">Lưu ý khi sử dụng</p>
                 <p className="font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-xs mt-1 leading-relaxed">{equipment.usageNotes}</p>
               </div>
             )}

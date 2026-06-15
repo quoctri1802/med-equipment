@@ -18,11 +18,23 @@ export default async function DashboardPage() {
   const pendingMaintenance = await prisma.maintenance.count({ where: { status: "PENDING" } })
 
   // Data for Charts
-  const equipmentStatusCounts = await prisma.equipment.groupBy({
+  const equipmentStatusCountsRaw = await prisma.equipment.groupBy({
     by: ['status'],
     _count: { status: true }
   })
   
+  // Map statuses for charts
+  const statusLabels: Record<string, string> = {
+    WORKING: "Sẵn sàng",
+    WARNING: "Cần hiệu chuẩn",
+    BROKEN: "Sự cố / Hỏng"
+  }
+  
+  const equipmentStatusCounts = equipmentStatusCountsRaw.map(item => ({
+    status: statusLabels[item.status] || item.status,
+    _count: item._count
+  }))
+
   const equipmentByDepartment = await prisma.equipment.groupBy({
     by: ['department'],
     _count: { department: true }
@@ -46,7 +58,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tổng quan hệ thống</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Giám sát Thiết bị Xét nghiệm</h1>
           <p className="text-slate-500 dark:text-slate-400">Chào mừng {session?.user?.name || session?.user?.email}</p>
         </div>
       </div>
@@ -67,7 +79,7 @@ export default async function DashboardPage() {
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Đang hoạt động</p>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Sẵn sàng / Vận hành</p>
             <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{workingEquipments}</p>
           </div>
         </div>
@@ -77,7 +89,7 @@ export default async function DashboardPage() {
             <ShieldAlert className="w-8 h-8" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Đang báo hỏng</p>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Đang sự cố / hỏng</p>
             <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{brokenEquipments}</p>
           </div>
         </div>
@@ -87,7 +99,7 @@ export default async function DashboardPage() {
             <Wrench className="w-8 h-8" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Bảo trì mới</p>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Yêu cầu bảo trì</p>
             <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{pendingMaintenance}</p>
           </div>
         </div>
@@ -130,7 +142,7 @@ export default async function DashboardPage() {
                       m.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
                       m.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-700'
                     }`}>
-                      {m.status}
+                      {m.status === 'COMPLETED' ? 'HOÀN THÀNH' : m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}
                     </span>
                   </div>
                 </div>
@@ -161,9 +173,11 @@ export default async function DashboardPage() {
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                        log.status === "WORKING" ? "text-green-600 border-green-200 bg-green-50" : "text-red-600 border-red-200 bg-red-50"
+                        log.status === "WORKING" ? "text-green-600 border-green-200 bg-green-50" : 
+                        log.status === "WARNING" ? "text-yellow-600 border-yellow-200 bg-yellow-50" :
+                        "text-red-600 border-red-200 bg-red-50"
                       }`}>
-                        {log.status === 'WORKING' ? 'BÌNH THƯỜNG' : 'BÁO HỎNG'}
+                        {log.status === 'WORKING' ? 'SẴN SÀNG' : log.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ'}
                       </span>
                       <span className="text-[10px] text-slate-400 italic">
                         {formatDateTimeVN(log.createdAt)}

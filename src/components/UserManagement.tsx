@@ -45,13 +45,17 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
   }
 
   const handleDelete = async (id: string, email: string | null) => {
-    if (!confirm(`Bạn có chắc muốn xoá tài khoản ${email}?`)) return
+    if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản ${email}?`)) return
     
     try {
-      await deleteUser(id)
-      setUsers(prev => prev.filter(u => u.id !== id))
-    } catch (e: any) {
-      alert("Lỗi khi xoá: " + e.message)
+      const res = await deleteUser(id)
+      if (res.success) {
+        setUsers(prev => prev.filter(u => u.id !== id))
+      } else {
+        alert("Xóa tài khoản thất bại")
+      }
+    } catch (err: any) {
+      alert(err.message || "Lỗi khi xóa tài khoản")
     }
   }
 
@@ -62,70 +66,84 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
 
     try {
       if (editingUser) {
-        // Edit mode
-        await updateUser(editingUser.id, formData)
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, name: formData.name, email: formData.email, role: formData.role, permissions: formData.permissions, department: formData.department } as any : u))
+        const res = await updateUser(editingUser.id, formData)
+        if (res.success && res.user) {
+          const updated = res.user as User
+          setUsers(prev => prev.map(u => u.id === updated.id ? updated : u))
+          setIsModalOpen(false)
+        }
       } else {
-        // Add mode
-        if (!formData.password) throw new Error("Vui lòng nhập mật khẩu")
-        await createUser(formData)
-        // Refresh full page to get new generated ID from DB
-        window.location.reload()
+        const res = await createUser(formData)
+        if (res.success && res.user) {
+          const created = res.user as User
+          setUsers(prev => [created, ...prev])
+          setIsModalOpen(false)
+        }
       }
-      setIsModalOpen(false)
     } catch (err: any) {
-      setErrorMSG(err.message || "Đã xảy ra lỗi hệ thống")
+      setErrorMSG(err.message || "Lỗi khi lưu thông tin tài khoản")
     } finally {
       setLoading(false)
     }
   }
 
+  // Map department codes to readable labels
+  const getDeptLabel = (code: string | null | undefined) => {
+    if (!code) return "Không phân khoa";
+    if (code === "ALL") return "Tất cả khoa";
+    const deptLabels: Record<string, string> = {
+      CC: "Khoa Cấp cứu",
+      HSTC: "Hồi sức tích cực",
+      NTH: "Nội tổng hợp",
+      XN: "Khoa Xét nghiệm",
+      CDHA: "Chẩn đoán hình ảnh"
+    }
+    return deptLabels[code] || code;
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-600" /> Quản lý Người dùng
-        </h3>
-        <button 
-          onClick={openAddModal}
-          className="text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-lg transition"
-        >
-          + Thêm tài khoản
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-6">
+      <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Users className="w-5 h-5 text-slate-500" /> Quản lý Người dùng hệ thống
+        </h2>
+        <button onClick={openAddModal} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+          + Thêm Tài khoản
         </button>
       </div>
-      
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+
+      <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-700">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
-            <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-700">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700">
               <tr>
-                <th className="px-6 py-4 font-semibold">Tên & Email</th>
-                <th className="px-6 py-4 font-semibold">Vai trò</th>
-                <th className="px-6 py-4 font-semibold">Khoa phụ trách</th>
-                <th className="px-6 py-4 font-semibold">Ngày tạo</th>
-                <th className="px-6 py-4 font-semibold text-right">Hành động</th>
+                <th className="px-6 py-3 font-semibold">Họ và Tên / Email</th>
+                <th className="px-6 py-3 font-semibold">Vai trò</th>
+                <th className="px-6 py-3 font-semibold">Khoa phụ trách</th>
+                <th className="px-6 py-3 font-semibold">Ngày tạo</th>
+                <th className="px-6 py-3 font-semibold text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900 dark:text-white">{u.name || "Chưa có tên"}</div>
-                    <div className="text-xs text-slate-500">{u.email}</div>
+                    <div className="font-bold text-slate-950 dark:text-white">{u.name || "N/A"}</div>
+                    <div className="text-xs text-slate-500 font-mono mt-0.5">{u.email}</div>
                   </td>
-                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30' : 
-                      u.role === 'TECHNICIAN' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30' : 
-                      'bg-slate-100 text-slate-700 dark:bg-slate-800'
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                      u.role === "ADMIN" ? "bg-red-50 text-red-600 border-red-200" :
+                      u.role === "TECHNICIAN" ? "bg-amber-50 text-amber-600 border-amber-200" :
+                      "bg-blue-50 text-blue-600 border-blue-200"
                     }`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-xs font-bold text-slate-500">
-                    {(u as any).department || "—"}
+                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">
+                    {getDeptLabel(u.department)}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-slate-500">
                     {new Date(u.createdAt).toLocaleDateString("vi-VN")}
                   </td>
                   <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
@@ -133,7 +151,7 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                       <Edit className="w-4 h-4"/> Sửa
                     </button>
                     <button onClick={() => handleDelete(u.id, u.email)} className="text-red-500 hover:text-red-700 font-medium cursor-pointer flex items-center gap-1">
-                      <Trash2 className="w-4 h-4"/> Xoá
+                      <Trash2 className="w-4 h-4"/> Xóa
                     </button>
                   </td>
                 </tr>
@@ -210,10 +228,10 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                 >
                   <option value="">Không phân khoa</option>
                   <option value="ALL">Tất cả khoa (ADMIN)</option>
-                  <option value="CC">Cấp Cứu</option>
+                  <option value="CC">Khoa Cấp cứu</option>
                   <option value="HSTC">Hồi sức tích cực</option>
-                  <option value="NTH">Nội Tổng hợp</option>
-                  <option value="XN">Xét nghiệm</option>
+                  <option value="NTH">Nội tổng hợp</option>
+                  <option value="XN">Khoa Xét nghiệm</option>
                   <option value="CDHA">Chẩn đoán hình ảnh</option>
                 </select>
               </div>
@@ -222,15 +240,15 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Quyền hạn (Permissions)</label>
                 <div className="space-y-2 border border-slate-200 dark:border-slate-700 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/30">
                   <PermissionCheckbox label="Xem Thiết Bị" permKey="EQUIPMENT_VIEW" formData={formData} setFormData={setFormData} />
-                  <PermissionCheckbox label="Chỉnh sửa/Xoá Thiết Bị" permKey="EQUIPMENT_EDIT" formData={formData} setFormData={setFormData} />
-                  <PermissionCheckbox label="Quản lý Bảo Trì" permKey="MAINTENANCE_MANAGE" formData={formData} setFormData={setFormData} />
+                  <PermissionCheckbox label="Chỉnh sửa/Xóa Thiết Bị" permKey="EQUIPMENT_EDIT" formData={formData} setFormData={setFormData} />
+                  <PermissionCheckbox label="Quản lý Bảo Trí" permKey="MAINTENANCE_MANAGE" formData={formData} setFormData={setFormData} />
                   <PermissionCheckbox label="Xem Báo Cáo & Kiểm kê" permKey="REPORT_VIEW" formData={formData} setFormData={setFormData} />
                 </div>
               </div>
 
               <div className="pt-4 flex gap-3 justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
-                  Huỷ
+                  Hủy
                 </button>
                 <button disabled={loading} type="submit" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-70 transition">
                   {loading ? "Đang xử lý..." : "Lưu lại"}

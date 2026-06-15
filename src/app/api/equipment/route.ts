@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { name, department, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, code: customCode } = body
+    const { name, department, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, qcTechnician, code: customCode } = body
 
     // Generate KHOA-YYYYMMDD-STT string
     const dateObj = new Date(purchaseDate)
@@ -30,7 +30,8 @@ export async function POST(req: Request) {
         brand: brand || null,
         origin: origin || null,
         contactInfo: contactInfo || null,
-        usageNotes: usageNotes || null
+        usageNotes: usageNotes || null,
+        qcTechnician: qcTechnician || null
       }
     })
 

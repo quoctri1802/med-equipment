@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
-import { CheckCircle2, Camera, X, Upload } from "lucide-react"
+import { CheckCircle2, Camera, X } from "lucide-react"
 
 export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const router = useRouter()
@@ -19,7 +19,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
-  // Chế độ tự động
+  // Chế độ tự động gửi
   const [isAutoMode, setIsAutoMode] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -52,75 +52,75 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
   const performSubmit = async (formData: { status: string, note: string, reporterName: string }) => {
     setLoading(true)
     try {
-      // Lưu tên vào máy để lần sau không phải nhập lại
-      localStorage.setItem("med_reporter_name", formData.reporterName)
+      let photoUrl = null
 
-      // Upload image if present
-      let uploadedUrl = ""
+      // If image exists, upload it first
       if (imageFile) {
         setUploading(true)
-        const uploadData = new FormData()
-        uploadData.append("file", imageFile)
-
-        const res = await fetch("/api/upload", {
+        const uploadFormData = new FormData()
+        uploadFormData.append("file", imageFile)
+        
+        const uploadRes = await fetch("/api/upload", {
           method: "POST",
-          body: uploadData,
+          body: uploadFormData
         })
-
-        if (!res.ok) {
-          throw new Error("Không thể tải hình ảnh sự cố lên máy chủ.")
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json()
+          photoUrl = uploadData.url
+        } else {
+          alert("Lỗi khi tải ảnh lên hệ thống. Đang gửi báo cáo không có ảnh...")
         }
-
-        const result = await res.json()
-        uploadedUrl = result.url
+        setUploading(false)
       }
 
-      await submitScanReport({ equipmentId, ...formData, imageUrl: uploadedUrl || undefined })
-      setSuccess(true)
-      setNote("")
-      setImageFile(null)
-      setImagePreview(null)
-      router.refresh()
-      
-      // Tự động chuyển về trang chủ sau 2 giây
-      setTimeout(() => {
-        router.push("/")
-      }, 2000)
-      
+      const res = await submitScanReport(equipmentId, {
+        status: formData.status,
+        note: formData.note,
+        reporterName: formData.reporterName,
+        photoUrl
+      })
+
+      if (res.success) {
+        // Save name for next time
+        localStorage.setItem("med_reporter_name", formData.reporterName)
+        setSuccess(true)
+        setNote("")
+        setImageFile(null)
+        setImagePreview(null)
+        router.refresh()
+      } else {
+        alert("Gửi báo cáo thất bại")
+      }
     } catch (err: any) {
-      alert("Lỗi kết nối: " + err.message)
+      alert(err.message || "Đã xảy ra lỗi")
     } finally {
       setLoading(false)
-      setUploading(false)
     }
   }
 
-  const handleAutoSubmit = () => {
-     if (!loading && !success && reporterName.trim()) {
-        performSubmit({ status: "WORKING", note: "Báo cáo tự động (Quick Mode)", reporterName })
-     }
-  }
-
-  // Logic đếm ngược tự động gửi
+  // Countdown for Auto Mode
   useEffect(() => {
-    if (isAutoMode && !success && !loading && reporterName.trim() && !imageFile) {
-      setCountdown(2)
-      const timer = setInterval(() => {
-        setCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : 0))
-      }, 1000)
-
-      const autoSubmit = setTimeout(() => {
-        handleAutoSubmit()
-      }, 2000)
-
-      return () => {
-        clearInterval(timer)
-        clearTimeout(autoSubmit)
-      }
-    } else {
-        setCountdown(null)
+    if (!isAutoMode || status !== "WORKING" || !reporterName.trim() || success) {
+      setCountdown(null)
+      return
     }
-  }, [isAutoMode, reporterName, success, loading, imageFile])
+
+    setCountdown(5)
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === null) return null
+        if (prev <= 1) {
+          clearInterval(interval)
+          performSubmit({ status, note, reporterName })
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isAutoMode, status, reporterName, success])
 
   const toggleAutoMode = () => {
     const newVal = !isAutoMode
@@ -185,27 +185,27 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
           value={reporterName}
           onChange={(e) => setReporterName(e.target.value)}
           required
-          placeholder="Nhập tên của bạn... (VD: Nguyễn Văn A)"
+          placeholder="Nhập tên của bạn... (VD: KTV. Nguyễn Văn A)"
           className="w-full rounded-lg border border-slate-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-          1. Đánh giá tình trạng thiết bị:
+          Đánh giá tình trạng thiết bị:
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <label className={`cursor-pointer flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${status === "WORKING" ? "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 transform scale-[1.02]" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
             <input type="radio" value="WORKING" checked={status === "WORKING"} onChange={(e) => setStatus(e.target.value)} className="sr-only" />
-            <span className="font-semibold">Bình thường</span>
+            <span className="font-semibold">Vận hành tốt / Sẵn sàng</span>
           </label>
           <label className={`cursor-pointer flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${status === "WARNING" ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 transform scale-[1.02]" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
             <input type="radio" value="WARNING" checked={status === "WARNING"} onChange={(e) => setStatus(e.target.value)} className="sr-only" />
-            <span className="font-semibold">Có vấn đề/Cảnh báo</span>
+            <span className="font-semibold">Cần hiệu chuẩn / Có lỗi</span>
           </label>
           <label className={`cursor-pointer flex flex-col items-center justify-center p-4 border rounded-xl transition-all ${status === "BROKEN" ? "border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 transform scale-[1.02]" : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"}`}>
             <input type="radio" value="BROKEN" checked={status === "BROKEN"} onChange={(e) => setStatus(e.target.value)} className="sr-only" />
-            <span className="font-semibold">Hỏng/Ngừng HD</span>
+            <span className="font-semibold">Sự cố / Báo hỏng</span>
           </label>
         </div>
       </div>
@@ -219,7 +219,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
           onChange={(e) => setNote(e.target.value)}
           rows={3}
           required={status === "BROKEN" || status === "WARNING"}
-          placeholder="Nhập chi tiết về tình trạng thiết bị... VD: Phát ra tiếng kêu lạ ở động cơ."
+          placeholder="Nhập chi tiết về tình trạng thiết bị... VD: Chỉ số QC nằm ngoài dải biên độ cho phép."
           className="w-full rounded-lg border border-slate-300 px-4 py-3 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
         />
       </div>

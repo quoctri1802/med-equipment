@@ -57,8 +57,8 @@ export default async function SettingsPage() {
                 <span className="font-medium">1.0.0-Beta</span>
               </div>
               <div className="flex justify-between">
-                <span>Bảo trì CC:</span>
-                <span className="font-medium">Tắt</span>
+                <span>Bảo trì CSDL:</span>
+                <span className="font-medium">Tốt</span>
               </div>
             </div>
             <button className="w-full mt-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 py-2 rounded-lg text-sm font-medium transition">

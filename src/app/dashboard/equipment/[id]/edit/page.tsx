@@ -22,7 +22,8 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
     brand: "",
     origin: "",
     contactInfo: "",
-    usageNotes: ""
+    usageNotes: "",
+    qcTechnician: ""
   })
 
   useEffect(() => {
@@ -43,14 +44,15 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
             brand: data.brand || "",
             origin: data.origin || "",
             contactInfo: data.contactInfo || "",
-            usageNotes: data.usageNotes || ""
+            usageNotes: data.usageNotes || "",
+            qcTechnician: data.qcTechnician || ""
           })
         } else {
           alert('Không tìm thấy thiết bị')
           router.push('/dashboard/equipment')
         }
-      } catch (e) {
-        console.error(e)
+      } catch (err) {
+        alert('Lỗi tải dữ liệu thiết bị')
       } finally {
         setFetching(false)
       }
@@ -63,27 +65,33 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
     setLoading(true)
 
     try {
-      await updateEquipment(params.id, formData)
-      router.push("/dashboard/equipment")
-      router.refresh()
+      const res = await updateEquipment(params.id, formData)
+      if (res.success) {
+        router.push(`/dashboard/equipment/${params.id}`)
+        router.refresh()
+      } else {
+        alert('Lỗi khi cập nhật thiết bị')
+      }
     } catch (err: any) {
-      alert(err.message || "Đã xảy ra lỗi")
+      alert(err.message || 'Đã xảy ra lỗi')
     } finally {
       setLoading(false)
     }
   }
 
-  if (fetching) return <div className="p-8 text-center text-slate-500">Đang tải thông tin...</div>
+  if (fetching) {
+    return <div className="text-center py-20 text-slate-500">Đang tải dữ liệu thiết bị...</div>
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Link href="/dashboard/equipment" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
+      <div className="flex items-center gap-4 mb-2">
+        <Link href={`/dashboard/equipment/${params.id}`} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
           <ArrowLeft className="w-6 h-6" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Sửa Thiết Bị</h1>
-          <p className="text-slate-500 dark:text-slate-400">Cập nhật thông tin thiết bị y tế</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Chỉnh Sửa Hồ Sơ Thiết Bị</h1>
+          <p className="text-slate-500 dark:text-slate-400">Cập nhật thông tin chi tiết và trạng thái vận hành</p>
         </div>
       </div>
 
@@ -180,10 +188,10 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
                 onChange={e => setFormData({...formData, department: e.target.value})}
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               >
-                <option value="CC">Cấp Cứu</option>
+                <option value="CC">Khoa Cấp cứu</option>
                 <option value="HSTC">Hồi sức tích cực</option>
-                <option value="NTH">Nội Tổng hợp</option>
-                <option value="XN">Xét nghiệm</option>
+                <option value="NTH">Nội tổng hợp</option>
+                <option value="XN">Khoa Xét nghiệm</option>
                 <option value="CDHA">Chẩn đoán hình ảnh</option>
               </select>
             </div>
@@ -213,9 +221,9 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
                 onChange={e => setFormData({...formData, status: e.target.value})}
                 className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
               >
-                <option value="WORKING">Hoạt động (WORKING)</option>
-                <option value="WARNING">Cảnh báo lỗi (WARNING)</option>
-                <option value="BROKEN">Đang hỏng (BROKEN)</option>
+                <option value="WORKING">Sẵn sàng / Vận hành (WORKING)</option>
+                <option value="WARNING">Cần hiệu chuẩn (WARNING)</option>
+                <option value="BROKEN">Sự cố / Hỏng (BROKEN)</option>
               </select>
             </div>
 
@@ -236,16 +244,31 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Thông tin liên hệ nhà phân phối / sản xuất
-            </label>
-            <input
-              value={formData.contactInfo}
-              onChange={e => setFormData({...formData, contactInfo: e.target.value})}
-              type="text"
-              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                KTV hiệu chuẩn QC
+              </label>
+              <input
+                value={formData.qcTechnician}
+                onChange={e => setFormData({...formData, qcTechnician: e.target.value})}
+                type="text"
+                placeholder="VD: KTV. Nguyễn Văn A"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Thông tin liên hệ nhà phân phối / sản xuất
+              </label>
+              <input
+                value={formData.contactInfo}
+                onChange={e => setFormData({...formData, contactInfo: e.target.value})}
+                type="text"
+                className="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
+              />
+            </div>
           </div>
 
           <div>

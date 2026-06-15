@@ -36,6 +36,18 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
     notFound()
   }
 
+  // Map department codes to readable labels
+  const getDeptLabel = (code: string) => {
+    const deptLabels: Record<string, string> = {
+      CC: "Khoa Cấp cứu",
+      HSTC: "Hồi sức tích cực",
+      NTH: "Nội tổng hợp",
+      XN: "Khoa Xét nghiệm",
+      CDHA: "Chẩn đoán hình ảnh"
+    }
+    return deptLabels[code] || code;
+  }
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-20">
       <div className="flex items-center gap-4 mb-2">
@@ -49,34 +61,27 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lớp thông tin & QR */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-            <h2 className="text-lg font-black mb-4 uppercase tracking-tight text-blue-600 dark:text-blue-400">{equipment.name}</h2>
-            <div className="space-y-4 text-sm">
-              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
-                <span className="text-slate-500">Trạng thái</span>
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                  equipment.status === "WORKING" ? "bg-green-100 text-green-700" :
-                  equipment.status === "WARNING" ? "bg-yellow-100 text-yellow-700" :
-                  "bg-red-100 text-red-700"
-                }`}>
-                  {equipment.status === 'WORKING' ? 'HOẠT ĐỘNG' : equipment.status === 'WARNING' ? 'CẢNH BÁO' : 'ĐANG HỎNG'}
+        {/* Left column: Info & QR */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-4">
+            <div className="flex justify-between items-start border-b border-slate-100 dark:border-slate-700 pb-3">
+              <div>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-lg uppercase leading-tight">{equipment.name}</h3>
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mt-1 block">
+                  {getDeptLabel(equipment.department)}
                 </span>
               </div>
-              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
-                <span className="text-slate-500">Khoa / Phòng</span>
-                <span className="font-bold text-slate-900 dark:text-white">{equipment.department}</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
-                <span className="text-slate-500">Mức độ rủi ro</span>
-                <span className={`font-bold ${
-                  equipment.riskScore === 'HIGH' ? 'text-red-500' :
-                  equipment.riskScore === 'MEDIUM' ? 'text-orange-500' :
-                  'text-slate-600'
-                }`}>{equipment.riskScore}</span>
-              </div>
               
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+                equipment.status === "WORKING" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800" :
+                equipment.status === "WARNING" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800" :
+                "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+              }`}>
+                {equipment.status === 'WORKING' ? 'SẴN SÀNG' : equipment.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ / HỎNG'}
+              </span>
+            </div>
+
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
                 <span className="text-slate-500">Model</span>
                 <span className="font-bold text-slate-900 dark:text-white">{equipment.model || '--'}</span>
@@ -93,10 +98,13 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                 <span className="text-slate-500">Nước sản xuất</span>
                 <span className="font-bold text-slate-900 dark:text-white">{equipment.origin || '--'}</span>
               </div>
-              
+              <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                <span className="text-slate-500">KTV hiệu chuẩn QC</span>
+                <span className="font-bold text-slate-900 dark:text-white">{equipment.qcTechnician || '--'}</span>
+              </div>
               <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
                 <span className="text-slate-500">Ngày nhận / sử dụng</span>
-                <span className="font-bold">{formatDateVN(equipment.purchaseDate)}</span>
+                <span className="font-bold text-slate-900 dark:text-white">{formatDateVN(equipment.purchaseDate)}</span>
               </div>
             </div>
 
@@ -119,7 +127,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
             )}
             
             <div className="mt-8">
-              <Link href={`/dashboard/equipment/${equipment.id}/edit`} className="block w-full text-center py-2.5 border border-slate-200 bg-slate-50 text-slate-700 rounded-xl font-bold text-sm tracking-wider hover:bg-slate-100 transition-colors uppercase">
+              <Link href={`/dashboard/equipment/${equipment.id}/edit`} className="block w-full text-center py-2.5 border border-slate-200 bg-slate-50 text-slate-700 rounded-xl font-bold text-sm tracking-wider hover:bg-slate-100 transition-colors uppercase dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800">
                 Chỉnh sửa hồ sơ
               </Link>
             </div>
@@ -140,7 +148,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
           />
         </div>
 
-        {/* Lớp nhật ký & bảo trì */}
+        {/* Right column: Logs & Maintenances */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
@@ -159,7 +167,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                         <h4 className="font-bold text-slate-900 dark:text-white text-sm">{m.description}</h4>
                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                           m.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                        }`}>{m.status}</span>
+                        }`}>{m.status === 'COMPLETED' ? 'HOÀN THÀNH' : m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}</span>
                       </div>
                       <div className="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
                         <span>KTV: <span className="font-bold">{m.technician?.name || 'N/A'}</span></span>
@@ -192,7 +200,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                            log.status === "WARNING" ? "text-yellow-600 border-yellow-200 bg-yellow-50" :
                            "text-red-600 border-red-200 bg-red-50"
                         }`}>
-                          {log.status === 'WORKING' ? 'BÌNH THƯỜNG' : log.status === 'WARNING' ? 'CẢNH BÁO' : 'BÁO HỎNG'}
+                          {log.status === 'WORKING' ? 'SẴN SÀNG' : log.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ'}
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono italic">{formatDateTimeVN(log.createdAt)}</span>
                       </div>

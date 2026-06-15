@@ -32,7 +32,8 @@ export async function updateEquipment(id: string, data: any) {
     brand: data.brand || null,
     origin: data.origin || null,
     contactInfo: data.contactInfo || null,
-    usageNotes: data.usageNotes || null
+    usageNotes: data.usageNotes || null,
+    qcTechnician: data.qcTechnician || null
   }
 
   if (data.purchaseDate) {
@@ -53,16 +54,19 @@ export async function deleteEquipment(id: string) {
   const session = await checkAuth()
   const perms = session.user?.permissions?.split(',') || []
   if (session.user?.role !== "ADMIN" && !perms.includes("EQUIPMENT_EDIT")) {
-    throw new Error("Bạn không có quyền xoá thiết bị.")
+    throw new Error("Bạn không có quyền xóa thiết bị.")
   }
 
-  // Đầu tiên cần xoá lịch sử logs và bảo trì liên quan đến thiết bị này (nếu có cascades thì Prisma tự làm, nhưng Sqlite cần check schema.prisma).
-  // Vì trong schema The equipment and user are standard relations, we should delete them manually first just in case to avoid foreign key constraints.
+  // Đầu tiên cần xóa lịch sử logs và bảo trì liên quan đến thiết bị này
   await prisma.log.deleteMany({
     where: { equipmentId: id }
   })
   
   await prisma.maintenance.deleteMany({
+    where: { equipmentId: id }
+  })
+
+  await prisma.usageLog.deleteMany({
     where: { equipmentId: id }
   })
 

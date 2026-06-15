@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, Laptop, AlertCircle, CheckCircle, Info } from "lucide-react"
+import { Search, Filter, FlaskConical, AlertCircle, CheckCircle, Info } from "lucide-react"
 import EquipmentActions from "./EquipmentActions"
 
 type Equipment = {
@@ -30,6 +30,18 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
     return matchesSearch && matchesStatus && matchesDept
   })
 
+  // Map department codes to readable labels
+  const getDeptLabel = (code: string) => {
+    const deptLabels: Record<string, string> = {
+      CC: "Khoa Cấp cứu",
+      HSTC: "Hồi sức tích cực",
+      NTH: "Nội tổng hợp",
+      XN: "Khoa Xét nghiệm",
+      CDHA: "Chẩn đoán hình ảnh"
+    }
+    return deptLabels[code] || code;
+  }
+
   return (
     <div className="space-y-6">
       {/* Search and Filter Bar */}
@@ -41,7 +53,7 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
             placeholder="Tìm kiếm theo tên hoặc mã thiết bị..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-900 dark:text-white"
           />
         </div>
         
@@ -51,12 +63,12 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none min-w-[140px]"
+              className="pl-10 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none min-w-[140px] text-slate-900 dark:text-white"
             >
               <option value="ALL">Tất cả trạng thái</option>
-              <option value="WORKING">Hoạt động</option>
-              <option value="WARNING">Cảnh báo</option>
-              <option value="BROKEN">Đang hỏng</option>
+              <option value="WORKING">Sẵn sàng / Vận hành</option>
+              <option value="WARNING">Cần hiệu chuẩn</option>
+              <option value="BROKEN">Sự cố / Hỏng</option>
             </select>
           </div>
 
@@ -64,11 +76,11 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
             <select 
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="pl-4 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none min-w-[140px]"
+              className="pl-4 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm appearance-none min-w-[140px] text-slate-900 dark:text-white"
             >
-              <option value="ALL">Tất cả khoa</option>
+              <option value="ALL">Tất cả khoa / phòng</option>
               {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
+                <option key={dept} value={dept}>{getDeptLabel(dept)}</option>
               ))}
             </select>
           </div>
@@ -81,7 +93,7 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-slate-500 uppercase bg-slate-50 dark:bg-slate-900 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-6 py-4 font-medium">Thiết bị</th>
+                <th className="px-6 py-4 font-medium">Thiết bị xét nghiệm</th>
                 <th className="px-6 py-4 font-medium">Khoa / Phòng</th>
                 <th className="px-6 py-4 font-medium">Trạng thái</th>
                 <th className="px-6 py-4 font-medium">Mức độ rủi ro</th>
@@ -108,7 +120,7 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
                             eq.status === 'WARNING' ? 'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20' :
                             'bg-red-50 text-red-600 dark:bg-red-900/20'
                         }`}>
-                            <Laptop className="w-5 h-5" />
+                            <FlaskConical className="w-5 h-5" />
                         </div>
                         <div>
                           <div className="font-bold text-slate-900 dark:text-white uppercase text-[13px]">{eq.name}</div>
@@ -117,7 +129,7 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">
-                      {eq.department}
+                      {getDeptLabel(eq.department)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
@@ -129,7 +141,7 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
                           eq.status === "WARNING" ? "text-yellow-700 dark:text-yellow-400" :
                           "text-red-700 dark:text-red-400"
                         }`}>
-                          {eq.status === 'WORKING' ? 'HOẠT ĐỘNG' : eq.status === 'WARNING' ? 'CẢNH BÁO' : 'ĐANG HỎNG'}
+                          {eq.status === 'WORKING' ? 'SẴN SÀNG' : eq.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ / HỎNG'}
                         </span>
                       </div>
                     </td>

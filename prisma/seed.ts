@@ -56,35 +56,39 @@ async function main() {
       data: [
         {
           name: "Máy Chụp X-Quang Kỹ Thuật Số",
-          code: "KHOA-20260401-001",
-          department: "Khoa Chẩn Đoán Hình Ảnh",
+          code: "CDHA-20260401-001",
+          department: "CDHA",
           status: "WORKING",
           purchaseDate: new Date('2023-01-15'),
-          riskScore: "LOW"
+          riskScore: "LOW",
+          qcTechnician: "KTV. Nguyễn Văn A"
         },
         {
           name: "Máy Siêu Âm 4D",
-          code: "KHOA-20260401-002",
-          department: "Khoa Sản",
+          code: "CDHA-20260401-002",
+          department: "CDHA",
           status: "WORKING",
           purchaseDate: new Date('2024-05-20'),
-          riskScore: "LOW"
+          riskScore: "LOW",
+          qcTechnician: "KTV. Trần Thị B"
         },
         {
           name: "Máy Trợ Thở",
-          code: "KHOA-20260401-003",
-          department: "Khoa Cấp Cứu",
+          code: "CC-20260401-003",
+          department: "CC",
           status: "WARNING",
           purchaseDate: new Date('2022-11-10'),
-          riskScore: "HIGH"
+          riskScore: "HIGH",
+          qcTechnician: "KTV. Nguyễn Văn A"
         },
         {
           name: "Máy Đo Điện Tâm Đồ",
-          code: "KHOA-20260401-004",
-          department: "Khoa Tim Mạch",
+          code: "HSTC-20260401-004",
+          department: "HSTC",
           status: "BROKEN",
           purchaseDate: new Date('2021-08-05'),
-          riskScore: "MEDIUM"
+          riskScore: "MEDIUM",
+          qcTechnician: "KTV. Phạm Văn C"
         }
       ]
     });
@@ -102,7 +106,7 @@ async function main() {
         data: {
           equipmentId: brokenEq.id,
           technicianId: techUser.id,
-          description: "Thay thế bo mạch chủ màn hình hiển thị.",
+          description: "Thay thế bo mạch màn hình hiển thị.",
           cost: 1500000,
           status: "IN_PROGRESS",
           date: new Date()

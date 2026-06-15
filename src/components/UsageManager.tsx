@@ -43,29 +43,17 @@ export default function UsageManager({
 
   const handleStartUsage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!userName.trim() || !purpose.trim()) {
-      alert("Vui lòng điền đầy đủ thông tin.")
-      return
-    }
+    if (!userName.trim() || !purpose.trim()) return
 
     setLoading(true)
     try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("med_reporter_name", userName)
-      }
-
-      const res = await startEquipmentUsage({
-        equipmentId,
-        userName,
-        purpose
-      })
-
+      const res = await startEquipmentUsage(equipmentId, userName, purpose)
       if (res.success && res.log) {
         const newLog = res.log as unknown as UsageLog
         setActiveUsage(newLog)
         setHistory(prev => [newLog, ...prev])
-        setPurpose("")
         setShowForm(false)
+        setPurpose("")
       }
     } catch (err: any) {
       alert(err.message || "Đã xảy ra lỗi")
@@ -76,11 +64,11 @@ export default function UsageManager({
 
   const handleEndUsage = async () => {
     if (!activeUsage) return
-    if (!confirm("Xác nhận trả thiết bị này và hoàn tất lượt sử dụng?")) return
+    if (!confirm("Bạn có chắc chắn muốn kết thúc ca sử dụng và trả thiết bị này không?")) return
 
     setLoading(true)
     try {
-      const res = await endEquipmentUsage(activeUsage.id, equipmentId)
+      const res = await endEquipmentUsage(activeUsage.id)
       if (res.success && res.log) {
         const updatedLog = res.log as unknown as UsageLog
         setActiveUsage(null)
@@ -109,7 +97,7 @@ export default function UsageManager({
             <div className="p-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 rounded-xl">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-xs text-orange-600 dark:text-orange-400 font-semibold uppercase tracking-wider">Đang mượn / sử dụng</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 font-semibold uppercase tracking-wider">Đang sử dụng / bảo quản</p>
                   <h4 className="font-bold text-slate-900 dark:text-white mt-1 text-base">Họ tên: {activeUsage.userName}</h4>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">Mục đích: {activeUsage.purpose}</p>
                 </div>
@@ -156,7 +144,7 @@ export default function UsageManager({
                     required
                     value={userName}
                     onChange={e => setUserName(e.target.value)}
-                    placeholder="VD: Bác sĩ Nguyễn Văn A"
+                    placeholder="VD: KTV. Nguyễn Văn A"
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
                   />
                 </div>
@@ -167,7 +155,7 @@ export default function UsageManager({
                     required
                     value={purpose}
                     onChange={e => setPurpose(e.target.value)}
-                    placeholder="VD: Đo huyết áp cho bệnh nhân phòng 102"
+                    placeholder="VD: Chạy mẫu sinh hóa ca sáng"
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-slate-600 dark:text-white transition-colors"
                   />
                 </div>
