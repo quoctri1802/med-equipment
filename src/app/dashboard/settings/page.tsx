@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { Settings, ShieldAlert, BadgeInfo, Bell } from "lucide-react"
 import UserManagement from "@/components/UserManagement"
+import EmailTestButton from "@/components/EmailTestButton"
 
 const prisma = new PrismaClient()
 
@@ -43,6 +44,9 @@ export default async function SettingsPage() {
 
         {/* System Settings Side Panel */}
         <div className="space-y-6">
+          {/* Email Test and Diagnostic Card */}
+          <EmailTestButton adminEmail={session.user?.email || ""} />
+
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 space-y-4">
             <h3 className="font-bold flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3 text-slate-900 dark:text-white">
               <BadgeInfo className="w-5 h-5 text-slate-500" /> Về Hệ Thống
