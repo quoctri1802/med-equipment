@@ -77,10 +77,7 @@ export default async function DashboardPage() {
             <h1 className="text-3xl font-black tracking-tight">Hệ thống Giám sát & Quản lý Máy Xét nghiệm</h1>
             <p className="text-blue-200 text-sm mt-1.5 opacity-90">Chào mừng trở lại, <span className="font-bold text-white">{session?.user?.name || session?.user?.email}</span></p>
           </div>
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl backdrop-blur-sm self-start md:self-center">
-            <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
-            <span className="text-xs font-bold tracking-wide uppercase">AI Compliance: 100%</span>
-          </div>
+
         </div>
       </div>
 
