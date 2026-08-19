@@ -45,17 +45,25 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
 
   return (
     <>
-      <div className="w-64 shrink-0 bg-slate-900 border-r border-white/5 flex-col h-full shadow-2xl hidden md:flex z-50">
-        <div className="h-24 flex items-center px-6 border-b border-white/5 gap-3">
-          <div className="bg-white p-1 rounded-full shadow-lg">
-            <Image src="/logo.png" alt="Logo" width={48} height={48} className="rounded-full" />
+      {/* Sidebar Desktop */}
+      <div className="w-64 shrink-0 bg-slate-950 border-r border-white/5 flex flex-col h-full shadow-2xl hidden md:flex z-50">
+        {/* Header containing the hospital logo and full name */}
+        <div className="h-24 flex items-center px-5 border-b border-white/5 gap-3 bg-slate-950">
+          <div className="bg-white p-1 rounded-full shadow-md flex-shrink-0">
+            <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-full" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-white font-black text-sm tracking-tighter leading-tight">TTYT KV LIÊN CHIỂU</span>
-            <span className="text-[10px] text-blue-500 font-bold tracking-widest uppercase">Khoa Xét nghiệm</span>
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-white font-extrabold text-[11px] tracking-tight leading-tight uppercase">
+              Trung tâm Y tế <br />
+              <span className="text-slate-350">Quận Liên Chiểu</span>
+            </span>
+            <span className="text-[9px] text-blue-500 font-extrabold tracking-wider uppercase mt-1">
+              Khoa Xét nghiệm
+            </span>
           </div>
         </div>
         
+        {/* Navigation items */}
         <div className="flex-1 py-6 flex flex-col gap-1.5 px-4 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => {
             const isActive = pathname === item.href
@@ -64,32 +72,33 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 group ${
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-bold transition-all duration-300 group border ${
                   isActive 
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    ? "bg-gradient-to-r from-blue-600 to-cyan-550 text-white border-white/10 shadow-lg shadow-blue-500/20" 
+                    : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-white" : "text-slate-500"}`} />
+                <Icon className={`w-4.5 h-4.5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-white animate-pulse" : "text-slate-500"}`} />
                 {item.name}
               </Link>
             )
           })}
         </div>
 
+        {/* Footer Logout button */}
         <div className="p-4 border-t border-white/5 bg-black/20">
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex w-full items-center gap-3 px-4 py-3 text-[13px] font-bold text-red-500 rounded-xl hover:bg-red-500/10 transition-all group"
+            className="flex w-full items-center gap-3 px-4 py-3.5 text-xs font-bold text-red-500 rounded-xl hover:bg-red-500/10 border border-transparent hover:border-red-500/10 transition-all group"
           >
-            <LogOut className="w-5 h-5 shrink-0 group-hover:-translate-x-1 transition-transform" />
+            <LogOut className="w-4.5 h-4.5 shrink-0 group-hover:-translate-x-1 transition-transform" />
             Đăng xuất
           </button>
         </div>
       </div>
 
       {/* Bottom Navigation for Mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 flex items-center shadow-2xl z-[100] pb-env-safe rounded-t-3xl">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-xl border-t border-white/10 flex items-center shadow-2xl z-[100] pb-env-safe rounded-t-3xl">
         <div className="flex-1 flex items-center overflow-x-auto hide-scrollbar px-2 py-2 gap-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href
@@ -100,7 +109,7 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
                 href={item.href}
                 className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all min-w-[76px] ${
                   isActive
-                    ? "text-blue-500 bg-white/5"
+                    ? "text-blue-500 bg-white/5 font-extrabold"
                     : "text-slate-400"
                 }`}
               >
@@ -111,13 +120,13 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
           })}
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-red-500 transition-colors min-w-[76px]"
+            className="flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-red-550 transition-colors min-w-[76px]"
           >
             <LogOut className="w-5 h-5 mb-1" />
             <span className="text-[9px] font-bold uppercase tracking-tighter text-center">Thoát</span>
           </button>
         </div>
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 border border-white/10 px-3 py-1 rounded-full shadow-2xl">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-950 border border-white/10 px-3 py-1 rounded-full shadow-2xl">
            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">
               Design by <span className="text-blue-500">tritnq</span> | <span className="text-slate-400">0905924194</span>
            </p>

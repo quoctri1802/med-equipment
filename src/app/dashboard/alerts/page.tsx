@@ -16,17 +16,18 @@ export default async function AlertsAIPage() {
         <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Truy cập bị từ chối</h2>
         <p className="text-slate-500 max-w-md mt-2">Chỉ có Quản trị viên mới có thể xem Cảnh báo và báo cáo phân tích AI.</p>
-        <Link href="/dashboard" className="mt-6 bg-blue-600 text-white px-4 py-2 rounded">
+        <Link href="/dashboard" className="mt-6 bg-blue-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase transition hover:bg-blue-700">
           Quay lại tổng quan
         </Link>
       </div>
     )
   }
 
-  // Fetch broken and warning equipments
+  // Fetch broken and warning equipments strictly for Laboratory Department (XN)
   const urgentEquipments = await prisma.equipment.findMany({
     where: {
-      status: { in: ["BROKEN", "WARNING"] }
+      status: { in: ["BROKEN", "WARNING"] },
+      department: "XN"
     },
     orderBy: { riskScore: 'desc' }
   })
@@ -36,7 +37,7 @@ export default async function AlertsAIPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <ShieldAlert className="w-6 h-6 text-red-600" /> Cảnh báo & Trí tuệ Nhân tạo
+          <ShieldAlert className="w-6 h-6 text-red-650 animate-pulse" /> Cảnh báo & Trí tuệ Nhân tạo
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">
           Giám sát rủi ro tự động và dự đoán lịch trình bảo trì máy móc.
@@ -54,27 +55,27 @@ export default async function AlertsAIPage() {
         </h3>
         
         {urgentEquipments.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700/50 text-center">
             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
               <Sparkles className="w-6 h-6" />
             </div>
-            <p className="text-slate-600 font-medium">Hệ thống đang hoạt động an toàn, không có thiết bị hỏng hóc.</p>
+            <p className="text-slate-650 font-bold dark:text-slate-300">Hệ thống đang hoạt động an toàn, không có thiết bị hỏng hóc.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {urgentEquipments.map((eq) => (
-              <div key={eq.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                <div className={`p-3 rounded-full ${eq.status === 'BROKEN' ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30'}`}>
+              <div key={eq.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                <div className={`p-3 rounded-full flex-shrink-0 ${eq.status === 'BROKEN' ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30'}`}>
                   {eq.status === 'BROKEN' ? <ShieldAlert className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-slate-900 dark:text-white">{eq.name}</h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Mã: {eq.code} • Khoa: {eq.department}</p>
-                  <p className="text-sm font-medium mt-1 mt-2">
-                    Mức độ nguy hiểm: <span className={eq.riskScore === 'HIGH' ? 'text-red-500' : 'text-yellow-600'}>{eq.riskScore}</span>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-slate-900 dark:text-white truncate">{eq.name}</h4>
+                  <p className="text-xs text-slate-550 dark:text-slate-400 mt-0.5">Mã: <span className="font-mono">{eq.code}</span></p>
+                  <p className="text-xs font-bold mt-2">
+                    Mức độ rủi ro: <span className={eq.riskScore === 'HIGH' ? 'text-red-500' : eq.riskScore === 'MEDIUM' ? 'text-orange-500' : 'text-blue-500'}>{eq.riskScore}</span>
                   </p>
                 </div>
-                <button className="w-full sm:w-auto px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                <button className="w-full sm:w-auto px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition active:scale-95 flex-shrink-0">
                   Xử lý ngay
                 </button>
               </div>
