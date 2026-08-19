@@ -53,11 +53,11 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
             <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-full" />
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-white font-extrabold text-[11px] tracking-tight leading-tight uppercase">
+            <span className="text-white font-extrabold text-[15px] tracking-tight leading-tight uppercase">
               Trung tâm Y tế <br />
-              <span className="text-slate-350">Quận Liên Chiểu</span>
+              <span className="text-slate-350">Khu vực Liên Chiểu</span>
             </span>
-            <span className="text-[9px] text-blue-500 font-extrabold tracking-wider uppercase mt-1">
+            <span className="text-[10px] text-blue-500 font-extrabold tracking-wider uppercase mt-1">
               Khoa Xét nghiệm
             </span>
           </div>
