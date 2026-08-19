@@ -199,7 +199,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      <span className="font-bold">{log.user?.name || log.user?.email}</span> cập nhật <span className="text-blue-600 dark:text-blue-400 font-bold uppercase">{log.equipment.code}</span>
+                      <span className="font-bold">{log.user?.name || log.user?.email}</span> cập nhật <span className="text-blue-600 dark:text-blue-400 font-bold uppercase">{log.equipment.name}</span>
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
