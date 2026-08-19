@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { name, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, qcTechnician, code: customCode } = body
+    const { name, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, qcTechnician, testGroup, code: customCode } = body
 
     // Force department to XN (Laboratory)
     const department = "XN"
@@ -34,7 +34,8 @@ export async function POST(req: Request) {
         origin: origin || null,
         contactInfo: contactInfo || null,
         usageNotes: usageNotes || null,
-        qcTechnician: qcTechnician || null
+        qcTechnician: qcTechnician || null,
+        testGroup: testGroup || null
       }
     })
 

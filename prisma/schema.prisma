@@ -38,6 +38,7 @@ model Equipment {
   contactInfo   String?
   usageNotes    String?
   qcTechnician  String?
+  testGroup     String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

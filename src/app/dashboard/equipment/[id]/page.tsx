@@ -74,6 +74,12 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                 <span className="text-slate-500">Mã thiết bị</span>
                 <span className="font-bold font-mono text-slate-900 dark:text-white">{equipment.code}</span>
               </div>
+              {equipment.testGroup && (
+                <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
+                  <span className="text-slate-500">Nhóm xét nghiệm</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">{equipment.testGroup}</span>
+                </div>
+              )}
               <div className="flex justify-between border-b border-slate-50 dark:border-slate-700 pb-2">
                 <span className="text-slate-500">Model</span>
                 <span className="font-bold text-slate-900 dark:text-white">{equipment.model || '--'}</span>

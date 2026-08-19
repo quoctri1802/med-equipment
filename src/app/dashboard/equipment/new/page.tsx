@@ -26,6 +26,7 @@ export default function NewEquipmentPage() {
       contactInfo: formData.get("contactInfo"),
       usageNotes: formData.get("usageNotes"),
       qcTechnician: formData.get("qcTechnician"),
+      testGroup: formData.get("testGroup"),
     }
 
     try {
@@ -163,6 +164,20 @@ export default function NewEquipmentPage() {
                 name="purchaseDate"
                 type="date"
                 className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none text-slate-750"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                Nhóm xét nghiệm
+              </label>
+              <input
+                name="testGroup"
+                type="text"
+                placeholder="VD: Sinh hóa, Huyết học, Vi sinh, Miễn dịch..."
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none"
               />
             </div>
           </div>

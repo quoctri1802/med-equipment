@@ -23,7 +23,8 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
     origin: "",
     contactInfo: "",
     usageNotes: "",
-    qcTechnician: ""
+    qcTechnician: "",
+    testGroup: ""
   })
 
   useEffect(() => {
@@ -45,7 +46,8 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
             origin: data.origin || "",
             contactInfo: data.contactInfo || "",
             usageNotes: data.usageNotes || "",
-            qcTechnician: data.qcTechnician || ""
+            qcTechnician: data.qcTechnician || "",
+            testGroup: data.testGroup || ""
           })
         } else {
           alert('Không tìm thấy thiết bị')
@@ -201,6 +203,21 @@ export default function EditEquipmentPage({ params }: { params: { id: string } }
                 onChange={e => setFormData({...formData, purchaseDate: e.target.value})}
                 type="date"
                 className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none text-slate-750"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-slate-650 dark:text-slate-300 mb-1.5">
+                Nhóm xét nghiệm
+              </label>
+              <input
+                value={formData.testGroup}
+                onChange={e => setFormData({...formData, testGroup: e.target.value})}
+                type="text"
+                placeholder="VD: Sinh hóa, Huyết học, Vi sinh, Miễn dịch..."
+                className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none"
               />
             </div>
           </div>

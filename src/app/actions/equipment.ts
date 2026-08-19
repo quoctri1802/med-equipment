@@ -33,7 +33,8 @@ export async function updateEquipment(id: string, data: any) {
     origin: data.origin || null,
     contactInfo: data.contactInfo || null,
     usageNotes: data.usageNotes || null,
-    qcTechnician: data.qcTechnician || null
+    qcTechnician: data.qcTechnician || null,
+    testGroup: data.testGroup || null
   }
 
   if (data.purchaseDate) {
