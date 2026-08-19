@@ -6,7 +6,7 @@ async function main() {
   console.log("Seeding data...")
 
   // --- Seed Admin User ---
-  const adminEmail = "admin@med.com"
+  const adminEmail = "quoctri1802@gmail.com"
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail }
   })
