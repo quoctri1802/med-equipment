@@ -6,13 +6,16 @@ const prisma = new PrismaClient()
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { name, department, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, qcTechnician, code: customCode } = body
+    const { name, purchaseDate, model, serialNumber, brand, origin, contactInfo, usageNotes, qcTechnician, code: customCode } = body
 
-    // Generate KHOA-YYYYMMDD-STT string
+    // Force department to XN (Laboratory)
+    const department = "XN"
+
+    // Generate XN-YYYYMMDD-STT string
     const dateObj = new Date(purchaseDate)
     const dateStr = dateObj.toISOString().slice(0, 10).replace(/-/g, "")
     
-    // Quick random STT for MVP (in production use sequence)
+    // Quick random STT
     const stt = Math.floor(100 + Math.random() * 900) 
     const generatedCode = `${department}-${dateStr}-${stt}`
     const finalCode = customCode ? customCode.trim() : generatedCode

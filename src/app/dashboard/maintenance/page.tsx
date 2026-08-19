@@ -12,8 +12,14 @@ export default async function MaintenancePage() {
     return <div>Bạn cần đăng nhập để xem trang này.</div>
   }
 
+  // Lọc chỉ lấy bảo trì của thiết bị Khoa Xét nghiệm
   const [maintenanceRecords, equipments, technicians] = await Promise.all([
     prisma.maintenance.findMany({
+      where: {
+        equipment: {
+          department: "XN"
+        }
+      },
       include: {
         equipment: true,
         technician: true
@@ -23,11 +29,14 @@ export default async function MaintenancePage() {
       }
     }),
     prisma.equipment.findMany({
+      where: {
+        department: "XN"
+      },
       select: { id: true, name: true, code: true },
       orderBy: { name: 'asc' }
     }),
     prisma.user.findMany({
-      where: { role: { in: ['TECHNICIAN', 'ADMIN'] } }, // Anyone who can do maintenance
+      where: { role: { in: ['TECHNICIAN', 'ADMIN'] } }, // Bất kỳ ai có quyền sửa chữa
       select: { id: true, name: true, email: true },
       orderBy: { name: 'asc' }
     })

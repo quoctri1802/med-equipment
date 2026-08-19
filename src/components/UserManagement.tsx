@@ -14,23 +14,23 @@ type User = {
 }
 
 export default function UserManagement({ initialUsers }: { initialUsers: User[] }) {
-  const [users, setUsers] = useState<User[]>(initialUsers)
+  const [users, setUsers] = useState(initialUsers)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [editingUser, setEditingUser] = useState(null)
   
   // Form states
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "" })
+  const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "XN" })
   const [loading, setLoading] = useState(false)
   const [errorMSG, setErrorMSG] = useState("")
 
   const openAddModal = () => {
     setEditingUser(null)
-    setFormData({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "" })
+    setFormData({ name: "", email: "", password: "", role: "STAFF", permissions: "", department: "XN" })
     setErrorMSG("")
     setIsModalOpen(true)
   }
 
-  const openEditModal = (user: any) => {
+  const openEditModal = (user) => {
     setEditingUser(user)
     setFormData({ 
       name: user.name || "", 
@@ -38,14 +38,14 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
       password: "", 
       role: user.role, 
       permissions: user.permissions || "",
-      department: user.department || ""
+      department: "XN" // Enforced
     })
     setErrorMSG("")
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string, email: string | null) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản ${email}?`)) return
+  const handleDelete = async (id, email) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa tài khoản " + email + "?")) return
     
     try {
       const res = await deleteUser(id)
@@ -54,12 +54,12 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
       } else {
         alert("Xóa tài khoản thất bại")
       }
-    } catch (err: any) {
+    } catch (err) {
       alert(err.message || "Lỗi khi xóa tài khoản")
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setErrorMSG("")
@@ -67,90 +67,78 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
     try {
       if (editingUser) {
         const res = await updateUser(editingUser.id, formData)
-        if (res.success && res.user) {
-          const updated = res.user as User
-          setUsers(prev => prev.map(u => u.id === updated.id ? updated : u))
+        if (res.success) {
+          setUsers(prev => prev.map(u => u.id === editingUser.id ? res.user : u))
           setIsModalOpen(false)
+        } else {
+          setErrorMSG(res.error || "Cập nhật thất bại")
         }
       } else {
         const res = await createUser(formData)
-        if (res.success && res.user) {
-          const created = res.user as User
-          setUsers(prev => [created, ...prev])
+        if (res.success) {
+          setUsers(prev => [...prev, res.user])
           setIsModalOpen(false)
+        } else {
+          setErrorMSG(res.error || "Tạo tài khoản thất bại")
         }
       }
-    } catch (err: any) {
-      setErrorMSG(err.message || "Lỗi khi lưu thông tin tài khoản")
+    } catch (err) {
+      setErrorMSG(err.message || "Đã xảy ra lỗi")
     } finally {
       setLoading(false)
     }
   }
 
-  // Map department codes to readable labels
-  const getDeptLabel = (code: string | null | undefined) => {
-    if (!code) return "Không phân khoa";
-    if (code === "ALL") return "Tất cả khoa";
-    const deptLabels: Record<string, string> = {
-      CC: "Khoa Cấp cứu",
-      HSTC: "Hồi sức tích cực",
-      NTH: "Nội tổng hợp",
-      XN: "Khoa Xét nghiệm",
-      CDHA: "Chẩn đoán hình ảnh"
-    }
-    return deptLabels[code] || code;
-  }
-
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-6">
-      <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Users className="w-5 h-5 text-slate-500" /> Quản lý Người dùng hệ thống
-        </h2>
-        <button onClick={openAddModal} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
-          + Thêm Tài khoản
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-md border border-slate-100 dark:border-slate-700">
+        <h3 className="font-extrabold text-sm uppercase text-slate-800 dark:text-white flex items-center gap-2">
+          <Users className="w-5 h-5 text-blue-500" /> Quản lý danh sách người dùng
+        </h3>
+        <button 
+          onClick={openAddModal}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-blue-500/10 active:scale-95"
+        >
+          + Thêm tài khoản
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-700">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700">
+            <thead className="text-xs text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-150 dark:border-slate-700">
               <tr>
-                <th className="px-6 py-3 font-semibold">Họ và Tên / Email</th>
-                <th className="px-6 py-3 font-semibold">Vai trò</th>
-                <th className="px-6 py-3 font-semibold">Khoa phụ trách</th>
-                <th className="px-6 py-3 font-semibold">Ngày tạo</th>
-                <th className="px-6 py-3 font-semibold text-right">Thao tác</th>
+                <th className="px-6 py-4 font-bold">Họ và tên</th>
+                <th className="px-6 py-4 font-bold">Email</th>
+                <th className="px-6 py-4 font-bold">Vai trò</th>
+                <th className="px-6 py-4 font-bold">Ngày tạo</th>
+                <th className="px-6 py-4 font-bold text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-105 dark:divide-slate-800/80">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/20 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-slate-950 dark:text-white">{u.name || "N/A"}</div>
-                    <div className="text-xs text-slate-500 font-mono mt-0.5">{u.email}</div>
+                <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/10 transition-colors">
+                  <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white uppercase text-xs">
+                    {u.name || "--"}
+                  </td>
+                  <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">
+                    {u.email}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                      u.role === "ADMIN" ? "bg-red-50 text-red-600 border-red-200" :
-                      u.role === "TECHNICIAN" ? "bg-amber-50 text-amber-600 border-amber-200" :
-                      "bg-blue-50 text-blue-600 border-blue-200"
-                    }`}>
-                      {u.role}
-                    </span>
+                    <span className={"px-2.5 py-0.5 rounded-full text-[9px] font-black border " + (
+                      u.role === "ADMIN" ? "bg-red-50 text-red-700 border-red-200" :
+                      u.role === "TECHNICIAN" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                      "bg-slate-50 text-slate-700 border-slate-200"
+                    )}>{u.role}</span>
                   </td>
-                  <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">
-                    {getDeptLabel(u.department)}
-                  </td>
-                  <td className="px-6 py-4 text-slate-500">
+                  <td className="px-6 py-4 text-slate-500 text-xs font-semibold">
                     {new Date(u.createdAt).toLocaleDateString("vi-VN")}
                   </td>
                   <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                    <button onClick={() => openEditModal(u)} className="text-blue-600 dark:text-blue-400 font-medium cursor-pointer hover:underline flex items-center gap-1">
+                    <button onClick={() => openEditModal(u)} className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 cursor-pointer">
                       <Edit className="w-4 h-4"/> Sửa
                     </button>
-                    <button onClick={() => handleDelete(u.id, u.email)} className="text-red-500 hover:text-red-700 font-medium cursor-pointer flex items-center gap-1">
+                    <button onClick={() => handleDelete(u.id, u.email)} className="text-red-550 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer">
                       <Trash2 className="w-4 h-4"/> Xóa
                     </button>
                   </td>
@@ -163,9 +151,9 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">
+              <h3 className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-sm">
                 {editingUser ? "Chỉnh sửa tài khoản" : "Tạo tài khoản mới"}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
@@ -174,83 +162,67 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {errorMSG && <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm font-medium">{errorMSG}</div>}
+              {errorMSG && <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold">{errorMSG}</div>}
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Họ và Tên</label>
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1.5">Họ và Tên</label>
                 <input 
                   required
                   type="text" 
                   value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm focus:border-blue-500 outline-none dark:bg-slate-900 dark:text-white transition-all font-semibold"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1.5">Email</label>
                 <input 
                   required
                   type="email" 
                   value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm focus:border-blue-500 outline-none dark:bg-slate-900 dark:text-white transition-all font-semibold"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Mật khẩu {editingUser && <span className="text-xs text-slate-400 font-normal">(Bỏ trống nếu không đổi)</span>}
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1.5">
+                  Mật khẩu {editingUser && <span className="text-[10px] text-slate-400 font-normal font-sans">(Bỏ trống nếu không đổi)</span>}
                 </label>
                 <input 
                   required={!editingUser}
                   type="password" 
                   value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm focus:border-blue-500 outline-none dark:bg-slate-900 dark:text-white transition-all font-semibold"
                 />
               </div>
 
                <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vai trò</label>
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-1.5">Vai trò quản lý</label>
                 <select 
                   value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm focus:border-blue-500 outline-none dark:bg-slate-900 dark:text-white transition-all font-bold"
                 >
-                  <option value="STAFF">STAFF (Nhân viên)</option>
-                  <option value="TECHNICIAN">TECHNICIAN (Kỹ thuật viên)</option>
+                  <option value="STAFF">STAFF (Nhân viên khoa)</option>
+                  <option value="TECHNICIAN">TECHNICIAN (Kỹ thuật viên QC)</option>
                   <option value="ADMIN">ADMIN (Quản trị viên)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Khoa / Phòng phụ trách</label>
-                <select 
-                  value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                >
-                  <option value="">Không phân khoa</option>
-                  <option value="ALL">Tất cả khoa (ADMIN)</option>
-                  <option value="CC">Khoa Cấp cứu</option>
-                  <option value="HSTC">Hồi sức tích cực</option>
-                  <option value="NTH">Nội tổng hợp</option>
-                  <option value="XN">Khoa Xét nghiệm</option>
-                  <option value="CDHA">Chẩn đoán hình ảnh</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Quyền hạn (Permissions)</label>
-                <div className="space-y-2 border border-slate-200 dark:border-slate-700 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/30">
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-2">Quy kết phân quyền (Permissions)</label>
+                <div className="space-y-2 border border-slate-200 dark:border-slate-700 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/30">
                   <PermissionCheckbox label="Xem Thiết Bị" permKey="EQUIPMENT_VIEW" formData={formData} setFormData={setFormData} />
                   <PermissionCheckbox label="Chỉnh sửa/Xóa Thiết Bị" permKey="EQUIPMENT_EDIT" formData={formData} setFormData={setFormData} />
-                  <PermissionCheckbox label="Quản lý Bảo Trí" permKey="MAINTENANCE_MANAGE" formData={formData} setFormData={setFormData} />
+                  <PermissionCheckbox label="Quản lý Bảo Trì" permKey="MAINTENANCE_MANAGE" formData={formData} setFormData={setFormData} />
                   <PermissionCheckbox label="Xem Báo Cáo & Kiểm kê" permKey="REPORT_VIEW" formData={formData} setFormData={setFormData} />
                 </div>
               </div>
 
-              <div className="pt-4 flex gap-3 justify-end">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+              <div className="pt-4 flex gap-3 justify-end border-t border-slate-100 dark:border-slate-700/80">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-350 dark:hover:bg-slate-700 transition">
                   Hủy
                 </button>
-                <button disabled={loading} type="submit" className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-70 transition">
+                <button disabled={loading} type="submit" className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-blue-500/10">
                   {loading ? "Đang xử lý..." : "Lưu lại"}
                 </button>
               </div>
@@ -262,7 +234,7 @@ export default function UserManagement({ initialUsers }: { initialUsers: User[] 
   )
 }
 
-function PermissionCheckbox({ label, permKey, formData, setFormData }: { label: string, permKey: string, formData: any, setFormData: any }) {
+function PermissionCheckbox({ label, permKey, formData, setFormData }) {
   const currentPerms = formData.permissions ? formData.permissions.split(',') : []
   const hasPerm = currentPerms.includes(permKey)
 
@@ -277,9 +249,9 @@ function PermissionCheckbox({ label, permKey, formData, setFormData }: { label: 
   }
 
   return (
-    <label className="flex items-center gap-2 cursor-pointer p-1">
-      <input type="checkbox" checked={hasPerm} onChange={toggle} className="w-4 h-4 text-blue-600 rounded" />
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+    <label className="flex items-center gap-2.5 cursor-pointer p-1">
+      <input type="checkbox" checked={hasPerm} onChange={toggle} className="w-4 h-4 text-blue-600 rounded border-slate-305 focus:ring-blue-500" />
+      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{label}</span>
     </label>
   )
 }

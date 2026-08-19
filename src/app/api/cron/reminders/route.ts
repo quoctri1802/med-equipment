@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     });
 
     // 2. Lấy thông tin chung (dùng cho Admin) - Các khoa chưa báo cáo hôm qua
-    const allDepartments = ["CC", "HSTC", "NTH", "XN", "CDHA"];
+    const allDepartments = ["XN"];
     const reportedDepts = await prisma.log.findMany({
       where: {
         createdAt: { gte: yesterdayStart, lte: yesterdayEnd }
@@ -52,9 +52,7 @@ export async function GET(request: Request) {
       if (!user.email) continue;
 
       // --- LỌC DỮ LIỆU THEO KHOA ---
-      const deptFilter = (user as any).department && (user as any).department !== "ALL" 
-        ? { department: (user as any).department } 
-        : {};
+      const deptFilter = { department: "XN" };
 
       // A. Thiết bị hỏng/cảnh báo
       const issues = await prisma.equipment.findMany({
