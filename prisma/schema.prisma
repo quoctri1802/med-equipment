@@ -21,6 +21,8 @@ model User {
   logs          Log[]
   maintenances  Maintenance[]
   usageLogs     UsageLog[]
+  qcs           QualityControl[]
+  sampleRuns    SampleRun[]
 }
 
 model Equipment {
@@ -45,6 +47,10 @@ model Equipment {
   logs          Log[]
   maintenances  Maintenance[]
   usageLogs     UsageLog[]
+  totalSamples  Int           @default(0)
+  calibrations  Calibration[]
+  qcs           QualityControl[]
+  sampleRuns    SampleRun[]
 }
 
 model Log {
@@ -105,4 +111,55 @@ model EquipmentGroup {
   id        String   @id @default(cuid())
   name      String   @unique
   createdAt DateTime @default(now())
+}
+
+
+model Calibration {
+  id             String    @id @default(cuid())
+  equipmentId    String
+  date           DateTime  // Ngày hiệu chuẩn
+  expireDate     DateTime  // Ngày hết hạn hiệu chuẩn (thường sau 1 năm)
+  organization   String    // Đơn vị thực hiện hiệu chuẩn
+  certificateUrl String?   // Đường dẫn tệp PDF chứng nhận
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  equipment      Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  @@index([equipmentId])
+}
+
+model QualityControl {
+  id            String    @id @default(cuid())
+  equipmentId   String
+  userId        String
+  type          String    // "IQC" hoặc "EQC"
+  controlName   String    // Tên mẫu chuẩn (Ví dụ: Level 1, Level 2)
+  lotNumber     String    // Số lô (Lot)
+  parameterName String    // Chỉ số xét nghiệm (Ví dụ: Glucose, WBC, RBC, PLT)
+  measuredValue Float     // Giá trị đo thực tế của KTV
+  targetValue   Float     // Giá trị trung bình nhà sản xuất (Mean)
+  sdValue       Float     // Độ lệch chuẩn nhà sản xuất (SD)
+  resultStatus  String    // Trạng thái kiểm định: PASS, WARNING, FAIL
+  runDate       DateTime  @default(now())
+  notes         String?
+
+  equipment     Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  @@index([equipmentId])
+  @@index([userId])
+}
+
+model SampleRun {
+  id            String    @id @default(cuid())
+  equipmentId   String
+  userId        String
+  runDate       DateTime  @default(now())
+  sampleCount   Int       // Số mẫu chạy trong ngày
+  notes         String?
+
+  equipment     Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  @@index([equipmentId])
+  @@index([userId])
 }

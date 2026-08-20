@@ -1,3 +1,6 @@
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import EquipmentTabs from "@/components/EquipmentTabs"
 import UsageManager from '@/components/UsageManager'
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
@@ -7,6 +10,8 @@ import QRCodeBox from "@/components/QRCodeBox"
 import { formatDateVN, formatDateTimeVN } from "@/lib/date"
 
 export default async function EquipmentDetailsPage({ params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions)
+
   const equipment = await prisma.equipment.findUnique({
     where: { id: params.id },
     include: {
@@ -17,6 +22,17 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
       maintenances: {
         orderBy: { createdAt: 'desc' },
         include: { technician: true }
+      },
+      calibrations: {
+        orderBy: { date: 'desc' }
+      },
+      qcs: {
+        orderBy: { runDate: 'desc' },
+        include: { user: true }
+      },
+      sampleRuns: {
+        orderBy: { runDate: 'desc' },
+        include: { user: true }
       }
     }
   })
@@ -148,39 +164,16 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
 
         {/* Right column: Logs & Maintenances */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm uppercase tracking-wider">
-                <Wrench className="w-4 h-4 text-blue-500" /> Nhật ký Bảo trì (Maintenance)
-              </h3>
-            </div>
-            <div className="p-5">
-              {equipment.maintenances.length === 0 ? (
-                <p className="text-slate-500 text-center py-8 text-sm italic">Chưa có dữ liệu bảo trì cho thiết bị này.</p>
-              ) : (
-                <div className="space-y-4">
-                  {equipment.maintenances.map(m => (
-                    <div key={m.id} className="p-4 border border-slate-150 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">{m.description}</h4>
-                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${
-                          m.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800' :
-                          m.status === 'IN_PROGRESS' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800' :
-                          'bg-slate-55 text-slate-650 border-slate-200 dark:bg-slate-900 dark:text-slate-400'
-                        }`}>{m.status === 'COMPLETED' ? 'HOÀN THÀNH' : m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}</span>
-                      </div>
-                      <div className="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1 mt-3 border-t border-slate-100 dark:border-slate-800/80 pt-2 font-medium">
-                        <span>KTV: <span className="font-bold text-slate-700 dark:text-slate-350">{m.technician?.name || 'N/A'}</span></span>
-                        <span>Chi phí: <span className="font-bold text-slate-700 dark:text-slate-350">{m.cost ? m.cost.toLocaleString() + ' đ' : '--'}</span></span>
-                        <span>Ngày thực hiện: <span className="font-bold text-slate-700 dark:text-slate-350">{formatDateVN(m.date)}</span></span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
+          <EquipmentTabs
+            equipmentId={equipment.id}
+            initialTotalSamples={equipment.totalSamples}
+            initialMaintenances={equipment.maintenances as any}
+            initialCalibrations={equipment.calibrations as any}
+            initialQcs={equipment.qcs as any}
+            initialSampleRuns={equipment.sampleRuns as any}
+            currentUser={session?.user ? { id: session.user.id, role: session.user.role, name: session.user.name || null } : null}
+          />
+          
           <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
              <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
               <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 text-sm uppercase tracking-wider">

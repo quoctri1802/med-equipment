@@ -97,7 +97,19 @@ export async function GET(req: Request) {
         include: { equipment: true }
       })
 
-      const hasAlerts = issues.length > 0 || upcomingMaintenances.length > 0 || overdueMaintenances.length > 0 || (user.role === 'ADMIN' && missingDepts.length > 0);
+      // D. Hiệu chuẩn / Kiểm định sắp/đã hết hạn (trong 30 ngày)
+      const expiringCalibrations = await prisma.calibration.findMany({
+        where: {
+          equipment: deptFilter,
+          expireDate: {
+            lte: new Date(nowLocal.getTime() + (30 * 24 * 60 * 60 * 1000))
+          }
+        },
+        include: { equipment: true },
+        orderBy: { expireDate: 'asc' }
+      })
+
+      const hasAlerts = issues.length > 0 || upcomingMaintenances.length > 0 || overdueMaintenances.length > 0 || expiringCalibrations.length > 0 || (user.role === 'ADMIN' && missingDepts.length > 0);
 
       // 3. Gửi Email với Template thiết kế lại đẹp mắt
       const html = `
@@ -183,6 +195,33 @@ export async function GET(req: Request) {
                         <td style="padding: 10px; border: 1px solid #cffafe; color: #0891b2; font-weight: bold; text-align: center;">${new Date(m.date).toLocaleDateString('vi-VN')}</td>
                       </tr>
                     `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : ''}
+
+            ${expiringCalibrations.length > 0 ? `
+              <div style="margin-top: 25px; padding: 20px; border-left: 4px solid #ea580c; background: #fff7ed; border-radius: 8px;">
+                <h3 style="color: #c2410c; margin: 0 0 10px 0; font-size: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">📅 Thiết bị sắp/đã hết hạn kiểm định (${expiringCalibrations.length})</h3>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px;">
+                  <thead>
+                    <tr style="background: #ffedd5; text-align: left; font-weight: bold; color: #c2410c;">
+                      <th style="padding: 10px; border: 1px solid #fed7aa;">Thiết bị xét nghiệm</th>
+                      <th style="padding: 10px; border: 1px solid #fed7aa; width: 110px;">Hạn kiểm định</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${expiringCalibrations.map(c => {
+                      const daysLeft = Math.ceil((new Date(c.expireDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                      const text = daysLeft <= 0 ? 'Đã hết hạn' : `Còn ${daysLeft} ngày`;
+                      const color = daysLeft <= 0 ? '#ef4444' : '#ea580c';
+                      return `
+                        <tr style="background: #ffffff;">
+                          <td style="padding: 10px; border: 1px solid #fed7aa; font-weight: bold;">${c.equipment.name} (${c.equipment.code})</td>
+                          <td style="padding: 10px; border: 1px solid #fed7aa; color: ${color}; font-weight: bold; text-align: center;">${new Date(c.expireDate).toLocaleDateString('vi-VN')}<br><span style="font-size: 10px; font-weight: normal;">(${text})</span></td>
+                        </tr>
+                      `;
+                    }).join('')}
                   </tbody>
                 </table>
               </div>
