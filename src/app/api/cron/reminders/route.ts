@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic"
-import { PrismaClient } from "@prisma/client"
 import { NextResponse } from "next/server"
 import { sendEmail } from "@/lib/email"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export async function GET(req: Request) {
   try {

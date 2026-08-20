@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client"
 import { notFound } from "next/navigation"
 import { QRCodeSVG } from "qrcode.react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import PrintQRButton from "@/components/PrintQRButton"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function EquipmentQRPage({ params }: { params: { id: string } }) {
   const equipment = await prisma.equipment.findUnique({

@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import MaintenanceManager from "@/components/MaintenanceManager"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function MaintenancePage() {
   const session = await getServerSession(authOptions)

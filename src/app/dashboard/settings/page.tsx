@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { Settings, ShieldAlert, BadgeInfo, Bell } from "lucide-react"
@@ -6,7 +5,7 @@ import UserManagement from "@/components/UserManagement"
 import EmailTestButton from "@/components/EmailTestButton"
 import GroupManagement from "@/components/GroupManagement"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions)

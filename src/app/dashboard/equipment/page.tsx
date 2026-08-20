@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import EquipmentList from "./EquipmentList"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function EquipmentPage() {
   // Lọc chỉ lấy thiết bị Khoa Xét nghiệm

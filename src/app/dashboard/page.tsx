@@ -1,12 +1,11 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
 import { FlaskConical, ShieldAlert, CheckCircle2, Wrench, ClipboardList, Clock, Sparkles } from "lucide-react"
 import { StatusPieChart, RiskBarChart } from "@/components/DashboardCharts"
 import Link from "next/link"
 import { formatDateTimeVN } from '@/lib/date'
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)

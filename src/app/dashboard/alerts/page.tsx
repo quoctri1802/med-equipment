@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { ShieldAlert, AlertTriangle, Activity, Sparkles } from "lucide-react"
 import Link from "next/link"
 import AIPredictionCard from "@/components/AIPredictionCard"
 
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 export default async function AlertsAIPage() {
   const session = await getServerSession(authOptions)
