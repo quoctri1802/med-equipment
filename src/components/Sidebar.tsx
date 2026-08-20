@@ -2,8 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
+import { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   FlaskConical,
@@ -11,15 +10,39 @@ import {
   LogOut,
   Settings,
   ShieldAlert,
-  FileSpreadsheet, Dna } from "lucide-react"
+  FileSpreadsheet,
+  Dna,
+  QrCode
+} from "lucide-react"
 
 export default function Sidebar({ userRole, userPermissions = "" }: { userRole: string, userPermissions?: string }) {
   const pathname = usePathname()
   const perms = userPermissions.split(',')
   const isAdmin = userRole === "ADMIN"
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+
+  useEffect(() => {
+    const handlePrompt = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+    }
+    window.addEventListener("beforeinstallprompt", handlePrompt)
+    return () => window.removeEventListener("beforeinstallprompt", handlePrompt)
+  }, [])
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === "accepted") {
+      setDeferredPrompt(null)
+    }
+  }
+
   const navItems = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Quét mã QR", href: "/scanner", icon: QrCode },
   ]
 
   if (isAdmin || perms.includes("EQUIPMENT_VIEW")) {
@@ -87,6 +110,20 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
             )
           })}
         </div>
+
+        {/* PWA Install Banner */}
+        {deferredPrompt && (
+          <div className="p-4 mx-4 mb-4 bg-gradient-to-r from-blue-600 to-indigo-650 rounded-2xl border border-white/10 text-white space-y-2 shadow-lg shadow-blue-500/10">
+            <p className="text-[10px] font-bold leading-tight">Cài đặt ứng dụng di động để truy cập nhanh hơn và chạy offline!</p>
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              className="w-full py-2 bg-white text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:bg-slate-50 active:scale-95 transition-all"
+            >
+              Cài đặt ngay
+            </button>
+          </div>
+        )}
 
         {/* Footer Logout button */}
         <div className="p-4 border-t border-white/5 bg-black/20">
