@@ -207,13 +207,18 @@ export async function GET(req: Request) {
         </div>
       `
 
-      await sendEmail({
+      const sendRes = await sendEmail({
         to: user.email,
         subject: `[LabEquip Center] Báo cáo tình trạng thiết bị ngày ${nowLocal.toLocaleDateString('vi-VN')}`,
         html
       })
 
-      results.push({ email: user.email, role: user.role })
+      results.push({ 
+        email: user.email, 
+        role: user.role, 
+        success: sendRes.success,
+        ...(sendRes.success ? {} : { error: sendRes.error?.message || JSON.stringify(sendRes.error) })
+      })
     }
 
     return NextResponse.json({ success: true, processed: results })
