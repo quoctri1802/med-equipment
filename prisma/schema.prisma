@@ -51,6 +51,7 @@ model Equipment {
   calibrations  Calibration[]
   qcs           QualityControl[]
   sampleRuns    SampleRun[]
+  reagents      Reagent[]
 }
 
 model Log {
@@ -162,4 +163,23 @@ model SampleRun {
   user          User      @relation(fields: [userId], references: [id])
   @@index([equipmentId])
   @@index([userId])
+}
+
+
+model Reagent {
+  id                    String    @id @default(cuid())
+  name                  String
+  code                  String    // Mã hóa chất/SKU
+  lotNumber             String    // Số lô
+  expiryDate            DateTime  // Hạn sử dụng
+  volume                Float     // Thể tích / Số lượng hiện tại trong kho
+  unit                  String    // Đơn vị (ml, test, hộp)
+  minSafetyVolume       Float     // Ngưỡng báo động tồn kho tối thiểu
+  consumptionPerSample  Float     @default(0) // Định mức tiêu hao trên 1 mẫu
+  equipmentId           String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  equipment             Equipment? @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
+  @@index([equipmentId])
 }
