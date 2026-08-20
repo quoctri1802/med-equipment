@@ -30,12 +30,7 @@ export default function LandingPage() {
           >
             Bảng điều khiển
           </Link>
-          <Link
-            className="text-xs font-bold uppercase tracking-wider hover:text-blue-400 transition-colors text-slate-350"
-            href="/scanner"
-          >
-            Quét mã QR
-          </Link>
+          
           <Link
             className="text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-blue-600 to-cyan-550 hover:from-blue-700 hover:to-cyan-600 text-white px-5 py-2.5 rounded-2xl transition shadow-lg shadow-blue-500/15 hover:shadow-blue-500/35 border border-white/5 active:scale-95"
             href="/login"
@@ -80,13 +75,7 @@ export default function LandingPage() {
                 Vào bảng điều khiển
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                href="/scanner"
-                className="inline-flex items-center justify-center gap-2 bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-850/80 text-white font-bold text-sm px-8 py-3.5 rounded-2xl transition-all active:scale-98"
-              >
-                <QrCode className="w-4 h-4 text-cyan-400" />
-                Quét QR Thiết bị
-              </Link>
+              
             </div>
           </div>
 
