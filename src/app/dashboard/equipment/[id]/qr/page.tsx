@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client"
 import { notFound } from "next/navigation"
 import { QRCodeSVG } from "qrcode.react"
 import Link from "next/link"
-import { ArrowLeft, Printer } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
+import PrintQRButton from "@/components/PrintQRButton"
 
 const prisma = new PrismaClient()
 
@@ -25,13 +26,7 @@ export default async function EquipmentQRPage({ params }: { params: { id: string
           <ArrowLeft className="w-5 h-5" />
           <span className="font-bold">Quay lại</span>
         </Link>
-        <button 
-          className="flex items-center gap-2 text-blue-600 bg-blue-50 px-4 py-2.5 rounded-xl font-bold hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors"
-          onClick={() => {}} // Printable is triggered natively by default print media styles below
-        >
-          <Printer className="w-5 h-5" />
-          <span>In Mã QR</span>
-        </button>
+        <PrintQRButton />
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-150 dark:border-slate-700/60 p-8 text-center" id="printable-qr">
