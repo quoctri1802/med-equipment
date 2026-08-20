@@ -8,7 +8,17 @@ const prisma = new PrismaClient()
 export async function GET(req: Request) {
   try {
     const authHeader = req.headers.get("authorization")
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const url = new URL(req.url)
+    const secretParam = url.searchParams.get("secret")
+    const expectedSecret = process.env.CRON_SECRET
+
+    const isAuthorized = 
+      (authHeader === `Bearer ${expectedSecret}`) || 
+      (secretParam && secretParam === expectedSecret) ||
+      (!expectedSecret) || // If CRON_SECRET is not set in Env, allow bypass for testing
+      (process.env.NODE_ENV === "development")
+
+    if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
