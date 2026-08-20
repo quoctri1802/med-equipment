@@ -20,7 +20,8 @@ export default async function DashboardPage() {
     equipmentStatusCountsRaw,
     equipmentByRiskRaw,
     recentMaintenances,
-    recentLogs
+    recentLogs,
+    equipmentByGroupRaw
   ] = await Promise.all([
     prisma.equipment.count({ where: { department: "XN" } }),
     prisma.equipment.count({ where: { status: "BROKEN", department: "XN" } }),
@@ -47,6 +48,11 @@ export default async function DashboardPage() {
       where: { equipment: { department: "XN" } },
       orderBy: { createdAt: 'desc' },
       include: { equipment: true, user: true }
+    }),
+    prisma.equipment.groupBy({
+      by: ['testGroup'],
+      where: { department: "XN" },
+      _count: { id: true }
     })
   ])
 
@@ -61,6 +67,11 @@ export default async function DashboardPage() {
     status: statusLabels[item.status] || item.status,
     _count: item._count
   }))
+
+  const equipmentByGroup = equipmentByGroupRaw.map(item => ({
+    name: item.testGroup || "Chưa phân nhóm",
+    _count: item._count.id
+  })).sort((a, b) => b._count - a._count)
 
   return (
     <div className="space-y-8">
@@ -128,19 +139,53 @@ export default async function DashboardPage() {
         </div>
       </div>
       
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts & Groups Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Status Chart */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-150 dark:border-slate-700/50">
           <h3 className="font-bold text-slate-900 dark:text-white mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" /> Trạng thái hoạt động
           </h3>
           <StatusPieChart data={equipmentStatusCounts} />
         </div>
+
+        {/* Risk Chart */}
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-150 dark:border-slate-700/50">
           <h3 className="font-bold text-slate-900 dark:text-white mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" /> Phân bổ mức độ rủi ro thiết bị
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" /> Mức độ rủi ro thiết bị
           </h3>
           <RiskBarChart data={equipmentByRiskRaw} />
+        </div>
+
+        {/* Equipment Groups distribution */}
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-150 dark:border-slate-700/50 flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-6 text-sm uppercase tracking-wider flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" /> Nhóm thiết bị xét nghiệm
+            </h3>
+            <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
+              {equipmentByGroup.map((group) => {
+                const percentage = totalEquipments > 0 ? (group._count / totalEquipments) * 100 : 0;
+                return (
+                  <div key={group.name} className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <span>{group.name}</span>
+                      <span className="tabular-nums">{group._count} máy ({percentage.toFixed(0)}%)</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-emerald-500 h-2 rounded-full transition-all duration-500" 
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+                            {equipmentByGroup.length === 0 && (
+                <div className="text-center py-8 text-slate-450 dark:text-slate-500 text-sm">Chưa có thiết bị nào được gán nhóm</div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

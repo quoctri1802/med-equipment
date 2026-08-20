@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { Settings, ShieldAlert, BadgeInfo, Bell } from "lucide-react"
 import UserManagement from "@/components/UserManagement"
 import EmailTestButton from "@/components/EmailTestButton"
+import GroupManagement from "@/components/GroupManagement"
 
 const prisma = new PrismaClient()
 
@@ -44,6 +45,9 @@ export default async function SettingsPage() {
 
         {/* System Settings Side Panel */}
         <div className="space-y-6">
+          {/* Group Management */}
+          <GroupManagement />
+
           {/* Email Test and Diagnostic Card */}
           <EmailTestButton adminEmail={session.user?.email || ""} />
 

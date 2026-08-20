@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -8,6 +8,18 @@ import Link from "next/link"
 export default function NewEquipmentPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [groups, setGroups] = useState<{ id: string, name: string }[]>([])
+
+  useEffect(() => {
+    fetch("/api/groups")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setGroups(data)
+        }
+      })
+      .catch(err => console.error("Error loading groups:", err))
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -170,15 +182,20 @@ export default function NewEquipmentPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
+              <div>
               <label className="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                 Nhóm xét nghiệm
               </label>
-              <input
+              <select
                 name="testGroup"
-                type="text"
-                placeholder="VD: Sinh hóa, Huyết học, Vi sinh, Miễn dịch..."
                 className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none"
-              />
+              >
+                <option value="">-- Chọn nhóm xét nghiệm --</option>
+                {groups.map(g => (
+                  <option key={g.id} value={g.name}>{g.name}</option>
+                ))}
+              </select>
+            </div>
             </div>
           </div>
 
