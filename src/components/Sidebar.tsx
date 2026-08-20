@@ -1,8 +1,10 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import { signOut } from "next-auth/react"
 import {
   LayoutDashboard,
   FlaskConical,
@@ -20,10 +22,10 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
   const perms = userPermissions.split(',')
   const isAdmin = userRole === "ADMIN"
 
-  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
 
   useEffect(() => {
-    const handlePrompt = (e) => {
+    const handlePrompt = (e: any) => {
       e.preventDefault()
       setDeferredPrompt(e)
     }
@@ -113,7 +115,7 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
 
         {/* PWA Install Banner */}
         {deferredPrompt && (
-          <div className="p-4 mx-4 mb-4 bg-gradient-to-r from-blue-600 to-indigo-650 rounded-2xl border border-white/10 text-white space-y-2 shadow-lg shadow-blue-500/10">
+          <div className="p-4 mx-4 mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl border border-white/10 text-white space-y-2 shadow-lg shadow-blue-500/10">
             <p className="text-[10px] font-bold leading-tight">Cài đặt ứng dụng di động để truy cập nhanh hơn và chạy offline!</p>
             <button
               type="button"
