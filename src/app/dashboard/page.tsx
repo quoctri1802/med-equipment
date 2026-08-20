@@ -21,7 +21,8 @@ export default async function DashboardPage() {
     equipmentByRiskRaw,
     recentMaintenances,
     recentLogs,
-    equipmentByGroupRaw
+    equipmentByGroupRaw,
+    reagentsRaw
   ] = await Promise.all([
     prisma.equipment.count({ where: { department: "XN" } }),
     prisma.equipment.count({ where: { status: "BROKEN", department: "XN" } }),
@@ -53,7 +54,8 @@ export default async function DashboardPage() {
       by: ['testGroup'],
       where: { department: "XN" },
       _count: { id: true }
-    })
+    }),
+    prisma.reagent.findMany()
   ])
 
   // Map status labels
@@ -73,6 +75,11 @@ export default async function DashboardPage() {
     _count: item._count.id
   })).sort((a, b) => b._count - a._count)
 
+  const criticalReagentsCount = reagentsRaw.filter(r => {
+    const daysDiff = Math.ceil((new Date(r.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    return r.volume <= r.minSafetyVolume || daysDiff <= 30
+  }).length
+
   return (
     <div className="space-y-8">
       {/* Header Banner */}
@@ -91,6 +98,19 @@ export default async function DashboardPage() {
 
         </div>
       </div>
+
+      {/* Reagent Warning Banner */}
+      {criticalReagentsCount > 0 && (
+        <div className="bg-red-50 border border-red-150 dark:bg-red-950/20 dark:border-red-900/30 p-4 px-5 rounded-3xl flex items-center justify-between text-xs font-semibold text-red-800 dark:text-red-400">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping shrink-0" />
+            <span>Có <strong>{criticalReagentsCount}</strong> hóa chất/vật tư tiêu hao sắp hết hạn hoặc tồn kho dưới mức an toàn!</span>
+          </div>
+          <Link href="/dashboard/reagents" className="underline hover:text-red-900 dark:hover:text-red-300 font-extrabold uppercase shrink-0">
+            Kiểm tra ngay
+          </Link>
+        </div>
+      )}
 
       {/* Grid Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

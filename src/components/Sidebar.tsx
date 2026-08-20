@@ -11,8 +11,7 @@ import {
   LogOut,
   Settings,
   ShieldAlert,
-  FileSpreadsheet
-} from "lucide-react"
+  FileSpreadsheet, Dna } from "lucide-react"
 
 export default function Sidebar({ userRole, userPermissions = "" }: { userRole: string, userPermissions?: string }) {
   const pathname = usePathname()
@@ -25,6 +24,10 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
 
   if (isAdmin || perms.includes("EQUIPMENT_VIEW")) {
     navItems.push({ name: "Thiết bị xét nghiệm", href: "/dashboard/equipment", icon: FlaskConical })
+  }
+  
+  if (isAdmin || perms.includes("EQUIPMENT_VIEW")) {
+    navItems.push({ name: "Hóa chất & Vật tư", href: "/dashboard/reagents", icon: Dna })
   }
   
   if (isAdmin || perms.includes("MAINTENANCE_MANAGE")) {

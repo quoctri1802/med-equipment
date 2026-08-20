@@ -117,6 +117,22 @@ export async function addSampleRun(data: {
       }
     })
 
+    // Tự động khấu trừ số lượng hóa chất trong kho dựa trên số mẫu chạy thực tế
+    const linkedReagents = await tx.reagent.findMany({
+      where: { equipmentId: data.equipmentId }
+    })
+
+    for (const r of linkedReagents) {
+      if (r.consumptionPerSample > 0) {
+        const consumption = count * r.consumptionPerSample
+        const newVolume = Math.max(0, r.volume - consumption)
+        await tx.reagent.update({
+          where: { id: r.id },
+          data: { volume: newVolume }
+        })
+      }
+    }
+
     return sampleRun
   })
 
