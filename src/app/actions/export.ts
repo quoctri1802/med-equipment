@@ -85,3 +85,106 @@ export async function getReportData(filters: {
 
   return excelData
 }
+
+export async function getEquipmentSelectList() {
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    throw new Error("Vui lòng đăng nhập.")
+  }
+
+  return prisma.equipment.findMany({
+    where: { department: "XN" },
+    select: {
+      id: true,
+      name: true,
+      code: true
+    },
+    orderBy: { name: "asc" }
+  })
+}
+
+export async function getIsoExportData(filters: {
+  startDate?: string
+  endDate?: string
+  equipmentId?: string
+}) {
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    throw new Error("Vui lòng đăng nhập.")
+  }
+
+  // Define date range
+  const startDay = filters.startDate 
+    ? new Date(filters.startDate + 'T00:00:00+07:00') 
+    : new Date(new Date().setDate(new Date().getDate() - 30))
+  const endDay = filters.endDate 
+    ? new Date(filters.endDate + 'T23:59:59.999+07:00') 
+    : new Date()
+
+  // 1. Daily checklists (Nhật ký vận hành)
+  const logWhere: any = {
+    createdAt: { gte: startDay, lte: endDay },
+    equipment: { department: "XN" }
+  }
+  if (filters.equipmentId && filters.equipmentId !== "ALL") {
+    logWhere.equipmentId = filters.equipmentId
+  }
+  const logs = await prisma.log.findMany({
+    where: logWhere,
+    include: {
+      equipment: true,
+      user: true
+    },
+    orderBy: { createdAt: 'asc' }
+  })
+
+  // 2. Equipment profile & maintenance/calibration history
+  const eqWhere: any = { department: "XN" }
+  if (filters.equipmentId && filters.equipmentId !== "ALL") {
+    eqWhere.id = filters.equipmentId
+  }
+  const equipments = await prisma.equipment.findMany({
+    where: eqWhere,
+    include: {
+      maintenances: {
+        include: { technician: true },
+        orderBy: { date: 'desc' }
+      },
+      calibrations: {
+        orderBy: { date: 'desc' }
+      }
+    },
+    orderBy: { name: 'asc' }
+  })
+
+  // 3. Incident and troubleshooting records (Sổ sự cố & Khắc phục)
+  const incidentWhere: any = {
+    status: { in: ["WARNING", "BROKEN"] },
+    createdAt: { gte: startDay, lte: endDay },
+    equipment: { department: "XN" }
+  }
+  if (filters.equipmentId && filters.equipmentId !== "ALL") {
+    incidentWhere.equipmentId = filters.equipmentId
+  }
+  const incidents = await prisma.log.findMany({
+    where: incidentWhere,
+    include: {
+      equipment: {
+        include: {
+          maintenances: {
+            include: { technician: true },
+            orderBy: { date: 'desc' }
+          }
+        }
+      },
+      user: true
+    },
+    orderBy: { createdAt: 'desc' }
+  })
+
+  return {
+    logs,
+    equipments,
+    incidents
+  }
+}
