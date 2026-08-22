@@ -81,11 +81,11 @@ export default async function DashboardLayout({
                 </li>
                 <li className="flex gap-2.5 items-center">
                   <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="font-mono font-bold text-slate-700 dark:text-slate-300">0905924194</span>
+                  <span className="font-mono font-bold text-slate-700 dark:text-slate-300">0906440970</span>
                 </li>
                 <li className="flex gap-2.5 items-center">
                   <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="font-mono">support@ttytlienchieu.org</span>
+                  <span className="font-mono">tranquangvu230789@gmail.com</span>
                 </li>
               </ul>
             </div>
