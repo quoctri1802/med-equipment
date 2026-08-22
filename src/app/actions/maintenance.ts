@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
 
 import prisma from "@/lib/prisma"
@@ -32,19 +33,17 @@ export async function createMaintenance(data: { equipmentId: string, technicianI
     }
   })
 
-  // If completed, potentially auto-update the equipment status
-  if (data.status === "COMPLETED") {
+  // Chỉ khi xác nhận nghiệm thu (VERIFIED), thiết bị mới trở lại trạng thái hoạt động bình thường (WORKING)
+  if (data.status === "VERIFIED") {
     await prisma.equipment.update({
       where: { id: data.equipmentId },
       data: { status: "WORKING" }
     })
-  } else if (data.status === "IN_PROGRESS" || data.status === "PENDING") {
-      // If maintenance is ongoing, we might want to flag the equipment differently, but let's just make sure it's at least WARNING or BROKEN.
-      // Easiest is to not force it unless specified. 
   }
 
   revalidatePath("/dashboard/maintenance")
   revalidatePath("/dashboard/alerts")
+  revalidatePath("/dashboard")
   return { success: true, record: newRecord }
 }
 
@@ -66,8 +65,8 @@ export async function updateMaintenance(id: string, data: { equipmentId?: string
     data: updateData
   })
 
-  // Auto update equipment status if marked as COMPLETED
-  if (data.status === "COMPLETED" && currentSettings?.status !== "COMPLETED") {
+  // Chỉ khi xác nhận nghiệm thu (VERIFIED), thiết bị mới trở lại trạng thái hoạt động bình thường (WORKING)
+  if (data.status === "VERIFIED" && currentSettings?.status !== "VERIFIED") {
     await prisma.equipment.update({
       where: { id: data.equipmentId || currentSettings?.equipmentId },
       data: { status: "WORKING" }
@@ -76,6 +75,36 @@ export async function updateMaintenance(id: string, data: { equipmentId?: string
 
   revalidatePath("/dashboard/maintenance")
   revalidatePath("/dashboard/alerts")
+  revalidatePath("/dashboard")
+  return { success: true }
+}
+
+export async function verifyMaintenance(id: string) {
+  const session = await checkAuth()
+  if (session.user?.role !== "ADMIN") {
+    throw new Error("Chỉ quản trị viên mới có quyền xác nhận nghiệm thu bảo trì.")
+  }
+
+  const record = await prisma.maintenance.findUnique({ where: { id } })
+  if (!record) {
+    throw new Error("Không tìm thấy phiếu bảo trì.")
+  }
+
+  // Cập nhật trạng thái phiếu bảo trì thành VERIFIED
+  await prisma.maintenance.update({
+    where: { id },
+    data: { status: "VERIFIED" }
+  })
+
+  // Cập nhật trạng thái thiết bị thành WORKING
+  await prisma.equipment.update({
+    where: { id: record.equipmentId },
+    data: { status: "WORKING" }
+  })
+
+  revalidatePath("/dashboard/maintenance")
+  revalidatePath("/dashboard/alerts")
+  revalidatePath("/dashboard")
   return { success: true }
 }
 
@@ -91,5 +120,7 @@ export async function deleteMaintenance(id: string) {
   })
 
   revalidatePath("/dashboard/maintenance")
+  revalidatePath("/dashboard/alerts")
+  revalidatePath("/dashboard")
   return { success: true }
 }

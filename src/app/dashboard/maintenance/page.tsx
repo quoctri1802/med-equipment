@@ -46,6 +46,7 @@ export default async function MaintenancePage() {
       records={maintenanceRecords as any}
       equipments={equipments}
       technicians={technicians}
+      userRole={session.user.role}
     />
   )
 }
