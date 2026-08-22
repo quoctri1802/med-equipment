@@ -121,7 +121,7 @@ export default async function DashboardLayout({
             </div>
             <div className="text-[10px] uppercase tracking-[0.2em] flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
               <span>Design by</span>
-              <span className="text-blue-500">tritnq</span>
+              <span className="text-blue-500">QUỐC TRÍ</span>
               <span className="text-slate-350 dark:text-slate-700">|</span>
               <span className="text-slate-500 dark:text-slate-400 font-normal normal-case">Hỗ trợ kỹ thuật: 0906440970</span>
             </div>
