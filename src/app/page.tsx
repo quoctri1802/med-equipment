@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ActivitySquare, ShieldCheck, QrCode, ArrowRight, ClipboardList, Thermometer, FlaskConical } from "lucide-react";
+import { ShieldCheck, QrCode, ArrowRight, ClipboardList, FlaskConical, MapPin, Phone, Mail } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -150,8 +150,109 @@ export default function LandingPage() {
       </main>
       
       {/* Footer */}
-      <footer className="py-8 text-center text-xs text-slate-650 border-t border-slate-900/60 z-10 mt-auto bg-slate-950/40 backdrop-blur-md font-semibold">
-        &copy; {new Date().getFullYear()} TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm. Tất cả các quyền được bảo lưu.
+      <footer className="relative bg-slate-950/70 border-t border-slate-900/60 text-slate-400 text-xs py-12 px-6 lg:px-14 backdrop-blur-md z-10 mt-auto">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+          {/* Cột 1: Thương hiệu */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 group">
+              <div className="p-2 bg-blue-600/10 rounded-xl border border-blue-500/20 shadow-inner">
+                <FlaskConical className="h-5 w-5 text-blue-500" />
+              </div>
+              <span className="font-black text-sm tracking-tight text-white uppercase">
+                LabEquip <span className="text-blue-500">Center</span>
+              </span>
+            </div>
+            <p className="text-[11px] font-bold text-slate-350 uppercase tracking-wider">
+              TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm
+            </p>
+            <p className="text-slate-500 leading-relaxed font-medium">
+              Giải pháp số hóa toàn diện giúp giám sát, kiểm định, hiệu chuẩn QC và theo dõi thiết bị xét nghiệm y khoa theo tiêu chuẩn chất lượng.
+            </p>
+          </div>
+
+          {/* Cột 2: Liên kết nhanh */}
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
+              Liên kết nhanh
+            </h4>
+            <ul className="space-y-2.5 font-bold">
+              <li>
+                <Link href="/" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
+                  Trang chủ
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
+                  Bảng điều khiển
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
+                  Đăng nhập hệ thống
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Cột 3: Liên hệ */}
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
+              Liên hệ & Hỗ trợ
+            </h4>
+            <ul className="space-y-3 font-medium text-slate-500">
+              <li className="flex gap-2.5 items-start">
+                <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Trung tâm Y tế khu vực Liên Chiểu : 525 Tôn Đức Thắng, phường Hòa Khánh, TP. Đà Nẵng
+                </span>
+              </li>
+              <li className="flex gap-2.5 items-center">
+                <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <span className="font-mono font-bold text-slate-400">0905924194</span>
+              </li>
+              <li className="flex gap-2.5 items-center">
+                <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <span className="font-mono">support@ttytlienchieu.org</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Cột 4: Tiêu chuẩn */}
+          <div className="space-y-4">
+            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
+              Tiêu chuẩn kỹ thuật
+            </h4>
+            <div className="space-y-3 font-medium">
+              <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-900/60 p-2.5 rounded-xl">
+                <ShieldCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <div>
+                  <div className="text-[10px] font-extrabold text-white">ISO 15189 COMPLIANT</div>
+                  <div className="text-[9px] text-slate-500">Quản lý chất lượng xét nghiệm</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-900/60 p-2.5 rounded-xl">
+                <QrCode className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                <div>
+                  <div className="text-[10px] font-extrabold text-white">QR IDENTIFIER</div>
+                  <div className="text-[9px] text-slate-500">Định danh số hóa thiết bị</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider & Copyright */}
+        <div className="max-w-7xl mx-auto border-t border-slate-900/60 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-650 font-bold">
+          <div>
+            &copy; {new Date().getFullYear()} TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm. Tất cả các quyền được bảo lưu.
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.2em] flex items-center gap-1.5">
+            <span>Design by</span>
+            <span className="text-blue-500">tritnq</span>
+            <span className="text-slate-800">|</span>
+            <span className="text-slate-600 font-normal normal-case">Hỗ trợ kỹ thuật: 0905924194</span>
+          </div>
+        </div>
       </footer>
     </div>
   );
