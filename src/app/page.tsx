@@ -208,7 +208,7 @@ export default function LandingPage() {
               </li>
               <li className="flex gap-2.5 items-center">
                 <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <span className="font-mono font-bold text-slate-400">0905924194</span>
+                <span className="font-mono font-bold text-slate-400">0906440970</span>
               </li>
               <li className="flex gap-2.5 items-center">
                 <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
