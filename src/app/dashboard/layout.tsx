@@ -123,7 +123,7 @@ export default async function DashboardLayout({
               <span>Design by</span>
               <span className="text-blue-500">tritnq</span>
               <span className="text-slate-350 dark:text-slate-700">|</span>
-              <span className="text-slate-500 dark:text-slate-400 font-normal normal-case">Hỗ trợ kỹ thuật: 0905924194</span>
+              <span className="text-slate-500 dark:text-slate-400 font-normal normal-case">Hỗ trợ kỹ thuật: 0906440970</span>
             </div>
           </div>
         </footer>
