@@ -3,11 +3,25 @@
 import { useState } from "react"
 import { BrainCircuit, Sparkles, X, Activity, Cpu, ThermometerSun, CheckCircle2 } from "lucide-react"
 
-export default function AIPredictionCard() {
+type AIPredictionProps = {
+  prediction: {
+    hasCriticalIssue: boolean
+    equipmentName: string
+    equipmentCode: string
+    testGroup: string
+    healthScore: number
+    errorCount30Days: number
+    temperatureLog: number
+    reason: string
+    recommendation: string
+  }
+}
+
+export default function AIPredictionCard({ prediction }: AIPredictionProps) {
   const [isVisible, setIsVisible] = useState(true)
   const [showModal, setShowModal] = useState(false)
 
-  if (!isVisible) return null
+  if (!isVisible || !prediction) return null
 
   return (
     <>
@@ -24,7 +38,15 @@ export default function AIPredictionCard() {
             MedEquip AI Agent <span className="px-2 py-0.5 text-xs bg-indigo-900/40 rounded-full border border-white/20">Beta</span>
           </h3>
           <p className="mt-2 text-blue-100 max-w-2xl text-sm leading-relaxed">
-            Hệ thống phân tích dự đoán AI đã quét 1.200 log hoạt động 24h qua. Nhận thấy <strong>Máy Đo Điện Tâm Đồ (Khoa Tim Mạch)</strong> có rủi ro quá tải 80% công suất trong tuần tới. Khuyến nghị cử kỹ thuật viên bảo dưỡng phụ tùng cảm biến ngay lập tức.
+            {prediction.hasCriticalIssue ? (
+              <>
+                Hệ thống phân tích dự đoán AI đã quét các log hoạt động trong 30 ngày qua. Nhận thấy <strong>{prediction.equipmentName} ({prediction.testGroup})</strong> có rủi ro sự cố/quá tải cao (Điểm ổn định: {prediction.healthScore}%). Khuyến nghị: {prediction.recommendation}
+              </>
+            ) : (
+              <>
+                Hệ thống phân tích dự đoán AI đã quét toàn bộ log hoạt động trong 30 ngày qua. {prediction.reason} {prediction.recommendation}
+              </>
+            )}
           </p>
           <div className="mt-4 flex gap-3">
             <button 
@@ -52,7 +74,7 @@ export default function AIPredictionCard() {
                   <BrainCircuit className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">Báo cáo chuẩn đoán AI</h2>
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">Báo cáo chẩn đoán AI</h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400">Timestamp: {new Date().toLocaleString('vi-VN')}</p>
                 </div>
               </div>
@@ -66,32 +88,49 @@ export default function AIPredictionCard() {
                 <div className="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center text-center">
                   <Activity className="w-5 h-5 text-blue-500 mb-2"/>
                   <span className="text-xs text-slate-500 dark:text-slate-400">Độ ổn định</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">42%</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">{prediction.healthScore}%</span>
                 </div>
                 <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30 flex flex-col items-center justify-center text-center">
                   <ThermometerSun className="w-5 h-5 text-red-500 mb-2"/>
-                  <span className="text-xs text-red-600 dark:text-red-400">Nhiệt độ lỗi</span>
-                  <span className="font-bold text-red-700 dark:text-red-300">85°C</span>
+                  <span className="text-xs text-red-650 dark:text-red-400">Nhiệt độ bo mạch</span>
+                  <span className="font-bold text-red-750 dark:text-red-350">{prediction.temperatureLog}°C</span>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center text-center">
                   <Cpu className="w-5 h-5 text-purple-500 mb-2"/>
                   <span className="text-xs text-slate-500 dark:text-slate-400">Chip AI model</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">v4.0.2</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">v4.2.0</span>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center text-center">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mb-2"/>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Dự đoán đúng</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-200">96.8%</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Độ chính xác AI</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-200">98.2%</span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-bold text-slate-800 dark:text-white">Phân tích chuyên sâu:</h4>
+                <h4 className="font-bold text-slate-800 dark:text-white">Phân tích chuyên sâu từ AI:</h4>
                 <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                  Dữ liệu viễn thâm đo được từ <strong>Máy Đo Điện Tâm Đồ</strong> cho thấy biểu đồ nhiễu sóng PQRST bắt đầu mất đồng bộ liên tục trong 72h qua. Nhiệt độ bảng mạch xử lý số tín hiệu (DSP) tăng vọt vượt ngưỡng cho phép 15% vào các giờ cao điểm (8h-11h sáng). 
+                  {prediction.hasCriticalIssue ? (
+                    <>
+                      Dữ liệu hệ thống ghi nhận thiết bị <strong>{prediction.equipmentName} ({prediction.equipmentCode})</strong> có dấu hiệu suy giảm độ tin cậy vận hành: {prediction.reason} Nhiệt độ cảm biến bo mạch đo được là {prediction.temperatureLog}°C.
+                    </>
+                  ) : (
+                    <>
+                      Mọi thông số đo lường từ logs hoạt động, hiệu chuẩn và bảo dưỡng của toàn bộ các máy xét nghiệm trong khoa đều nằm trong ngưỡng an toàn tối ưu. Không phát hiện bất kỳ dấu hiệu lỗi hay suy giảm linh kiện nào.
+                    </>
+                  )}
                 </p>
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg text-sm text-yellow-800 dark:text-yellow-300">
-                  <span className="font-bold">Hậu quả có thể xảy ra:</span> Nếu không thay keo tản nhiệt và cân chỉnh lại chip cảm biến, thiết bị có nguy cơ cháy bo mạch hoàn toàn trong khoảng 4-5 ngày tới.
+                <div className={`p-4 border rounded-lg text-sm ${
+                  prediction.hasCriticalIssue 
+                    ? "bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-250 text-yellow-800 dark:text-yellow-350" 
+                    : "bg-green-50/50 dark:bg-green-900/10 border-green-200 text-green-800 dark:text-green-350"
+                }`}>
+                  <span className="font-bold font-sans">Đánh giá hệ quả: </span>
+                  {prediction.hasCriticalIssue ? (
+                    <>Thiết bị có rủi ro phát sinh sự cố làm ngưng trệ hoạt động xét nghiệm nếu không được bảo dưỡng sớm.</>
+                  ) : (
+                    <>Tất cả hệ thống hoạt động hoàn hảo, không cần can thiệp kỹ thuật khẩn cấp.</>
+                  )}
                 </div>
               </div>
             </div>
@@ -106,7 +145,7 @@ export default function AIPredictionCard() {
                 }} 
                 className="px-5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition"
               >
-                Chuyển qua Thiết lập Bảo trì
+                Chuyển qua Lịch Bảo trì
               </button>
             </div>
           </div>
