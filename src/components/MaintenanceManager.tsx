@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Wrench, X, Trash2, Edit, CheckCircle } from "lucide-react"
 import { createMaintenance, updateMaintenance, deleteMaintenance, verifyMaintenance } from "@/app/actions/maintenance"
 
@@ -30,9 +31,18 @@ export default function MaintenanceManager({
   technicians: { id: string, name: string | null, email: string | null }[],
   userRole: string
 }) {
+  const router = useRouter()
   const [viewMode, setViewMode] = useState<"LIST" | "CALENDAR">("LIST")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState<any>(null)
+  
+  // Local records state for Optimistic UI updates
+  const [localRecords, setLocalRecords] = useState<MaintenanceRecord[]>(records)
+
+  // Sync local records when server props change
+  useEffect(() => {
+    setLocalRecords(records)
+  }, [records])
   
   // State for Calendar Month/Year
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
@@ -80,24 +90,46 @@ export default function MaintenanceManager({
 
   const handleDelete = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa phiếu bảo trì này?")) return
+    
+    // Optimistic UI: remove from display immediately
+    const originalRecords = localRecords
+    setLocalRecords(prev => prev.filter(r => r.id !== id))
+    
     try {
-      await deleteMaintenance(id)
-      window.location.reload()
+      const res = await deleteMaintenance(id)
+      if (res.success) {
+        router.refresh()
+      } else {
+        // Rollback
+        setLocalRecords(originalRecords)
+        alert("Lỗi: Xóa phiếu bảo trì thất bại.")
+      }
     } catch (e: any) {
+      // Rollback
+      setLocalRecords(originalRecords)
       alert("Lỗi: " + e.message)
     }
   }
 
   const handleVerify = async (id: string) => {
     if (!confirm("Xác nhận nghiệm thu thiết bị hoạt động bình thường trở lại và chuyển sang trạng thái Sẵn Sàng (WORKING)?")) return
+    
+    // Optimistic UI: update status immediately
+    const originalRecords = localRecords
+    setLocalRecords(prev => prev.map(r => r.id === id ? { ...r, status: "VERIFIED" } : r))
+    
     try {
       const res = await verifyMaintenance(id)
       if (res.success) {
-        window.location.reload()
+        router.refresh()
       } else {
+        // Rollback
+        setLocalRecords(originalRecords)
         alert("Lỗi nghiệm thu phiếu bảo trì.")
       }
     } catch (e: any) {
+      // Rollback
+      setLocalRecords(originalRecords)
       alert("Lỗi: " + e.message)
     }
   }
@@ -120,14 +152,16 @@ export default function MaintenanceManager({
       if (editingRecord) {
         const res = await updateMaintenance(editingRecord.id, payload)
         if (res.success) {
-          window.location.reload()
+          setIsModalOpen(false)
+          router.refresh()
         } else {
           setErrorMSG(res.error || "Cập nhật phiếu thất bại")
         }
       } else {
         const res = await createMaintenance(payload)
         if (res.success) {
-          window.location.reload()
+          setIsModalOpen(false)
+          router.refresh()
         } else {
           setErrorMSG(res.error || "Tạo phiếu thất bại")
         }
@@ -298,7 +332,7 @@ export default function MaintenanceManager({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-                {records.map(record => (
+                {localRecords.map(record => (
                   <tr key={record.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/10 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-extrabold text-slate-900 dark:text-white uppercase text-xs">{record.equipment.name}</div>
@@ -341,7 +375,7 @@ export default function MaintenanceManager({
                     </td>
                   </tr>
                 ))}
-                {records.length === 0 && (
+                {localRecords.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-medium">
                       Chưa có lịch sử bảo trì nào trong khoa xét nghiệm.
@@ -392,7 +426,7 @@ export default function MaintenanceManager({
           {/* Days grid */}
           <div className="grid grid-cols-7 gap-2">
             {daysGrid.map((day, idx) => {
-              const dayRecords = records.filter(r => isSameDay(new Date(r.date), day.date))
+              const dayRecords = localRecords.filter(r => isSameDay(new Date(r.date), day.date))
               
               return (
                 <div 
