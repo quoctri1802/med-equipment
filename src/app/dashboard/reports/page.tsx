@@ -7,7 +7,8 @@ import { getReportData, getEquipmentSelectList, getIsoExportData } from "@/app/a
 import { getDailyStatus } from "@/app/actions/dailyReport"
 import { saveAs } from "file-saver"
 import ExcelJS from "exceljs"
-import { Download, Filter, FileSpreadsheet, Clock, AlertTriangle, ShieldCheck, ClipboardList, ShieldAlert, Award } from "lucide-react"
+import { Download, Filter, FileSpreadsheet, Clock, AlertTriangle, ShieldCheck, ClipboardList, ShieldAlert, Award, ClipboardCheck } from "lucide-react"
+import DailyReportModal from "@/components/DailyReportModal"
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState("EXPORT")
@@ -32,6 +33,7 @@ export default function ReportsPage() {
     startDate: new Date().toLocaleDateString('en-CA'), // "YYYY-MM-DD"
     endDate: new Date().toLocaleDateString('en-CA')
   })
+  const [selectedEquipmentForReport, setSelectedEquipmentForReport] = useState<any>(null)
 
   // --- TAB 3: ISO 15189 STATES ---
   const [loadingIso, setLoadingIso] = useState(false)
@@ -1075,13 +1077,30 @@ export default function ReportsPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {dailyData.missing.map((eq: any) => (
-                  <div key={eq.id} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 hover:border-red-300 dark:hover:border-red-800 bg-slate-50/30 dark:bg-slate-900/20 transition-all">
-                     <p className="font-mono text-[10px] text-red-500 font-bold mb-1">{eq.code}</p>
-                     <h4 className="font-extrabold text-slate-800 dark:text-white leading-tight mb-2 uppercase text-[12px]">{eq.name}</h4>
-                     <div className="text-xs text-slate-500 font-medium space-y-0.5 mt-1 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
-                       <p>Model: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.model || '--'}</span></p>
-                       <p>QC KTV: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.qcTechnician || '--'}</span></p>
-                     </div>
+                  <div
+                    key={eq.id}
+                    onClick={() => setSelectedEquipmentForReport(eq)}
+                    className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50/30 dark:bg-slate-900/20 hover:bg-blue-50/20 dark:hover:bg-blue-950/10 transition-all cursor-pointer group hover:shadow-md hover:-translate-y-0.5 relative flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-mono text-[10px] text-red-500 font-bold">{eq.code}</p>
+                        <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          <ClipboardCheck className="w-3.5 h-3.5" /> Báo cáo ngay
+                        </span>
+                      </div>
+                      <h4 className="font-extrabold text-slate-800 dark:text-white leading-tight mb-2 uppercase text-[12px] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {eq.name}
+                      </h4>
+                      <div className="text-xs text-slate-500 font-medium space-y-0.5 mt-1 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
+                        <p>Model: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.model || '--'}</span></p>
+                        <p>QC KTV: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.qcTechnician || '--'}</span></p>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-2 border-t border-dashed border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400 font-semibold group-hover:text-blue-500 transition-colors">
+                      <span>Nhấp để thực hiện báo cáo</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-0.5 transition-transform">→</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1214,7 +1233,15 @@ export default function ReportsPage() {
             </div>
           </div>
         </div>
-      )}
+      {/* Modal báo cáo kiểm kê hằng ngày */}
+      <DailyReportModal
+        equipment={selectedEquipmentForReport}
+        isOpen={!!selectedEquipmentForReport}
+        onClose={() => setSelectedEquipmentForReport(null)}
+        onSuccess={() => {
+          fetchDailyReport()
+        }}
+      />
     </div>
   )
 }
