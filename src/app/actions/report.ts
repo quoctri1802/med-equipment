@@ -214,7 +214,7 @@ export async function triggerTestEmailReport() {
     } else {
       return { success: false, error: emailRes.error?.message || "Gửi email thất bại nhưng không có thông báo chi tiết." }
     }
-  } catch (err) {
+  } catch (err: any) {
     return { success: false, error: err.message || err.toString() }
   }
 }
