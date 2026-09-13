@@ -1233,6 +1233,8 @@ export default function ReportsPage() {
             </div>
           </div>
         </div>
+      )}
+
       {/* Modal báo cáo kiểm kê hằng ngày */}
       <DailyReportModal
         equipment={selectedEquipmentForReport}
