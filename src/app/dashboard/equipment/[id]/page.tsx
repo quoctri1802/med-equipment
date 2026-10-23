@@ -79,9 +79,11 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
               <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
                 equipment.status === "WORKING" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800" :
                 equipment.status === "WARNING" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800" :
+                equipment.status === "PENDING_LIQUIDATION" ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800" :
+                equipment.status === "LIQUIDATED" ? "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700" :
                 "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
               }`}>
-                {equipment.status === 'WORKING' ? 'SẴN SÀNG' : equipment.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ / HỎNG'}
+                {equipment.status === 'WORKING' ? 'SẴN SÀNG' : equipment.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : equipment.status === 'PENDING_LIQUIDATION' ? 'CHỜ THANH LÝ' : equipment.status === 'LIQUIDATED' ? 'ĐÃ THANH LÝ' : 'SỰ CỐ / HỎNG'}
               </span>
             </div>
 
@@ -140,9 +142,12 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
               </div>
             )}
             
-            <div className="mt-8">
+            <div className="mt-8 space-y-2">
               <Link href={`/dashboard/equipment/${equipment.id}/edit`} className="block w-full text-center py-3 border border-slate-200 bg-slate-50 text-slate-750 rounded-2xl font-bold text-sm tracking-wider hover:bg-slate-100 transition-colors uppercase dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-800">
                 Chỉnh sửa hồ sơ
+              </Link>
+              <Link href={`/dashboard/liquidation`} className="block w-full text-center py-2.5 border border-red-200 bg-red-50 text-red-650 rounded-2xl font-bold text-xs tracking-wider hover:bg-red-100 transition-colors uppercase dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/40">
+                Đề xuất thanh lý máy
               </Link>
             </div>
           </div>
@@ -166,11 +171,22 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
         <div className="lg:col-span-2 space-y-6">
           <EquipmentTabs
             equipmentId={equipment.id}
+            equipmentName={equipment.name}
+            equipmentCode={equipment.code}
             initialTotalSamples={equipment.totalSamples}
             initialMaintenances={equipment.maintenances as any}
             initialCalibrations={equipment.calibrations as any}
             initialQcs={equipment.qcs as any}
             initialSampleRuns={equipment.sampleRuns as any}
+            initialPhotos={equipment.logs.filter(l => Boolean(l.imageUrl)).map(l => ({
+              id: l.id,
+              imageUrl: l.imageUrl as string,
+              status: l.status,
+              note: l.note,
+              reporterName: l.reporterName,
+              userName: l.user?.name || l.user?.email || null,
+              createdAt: l.createdAt
+            }))}
             currentUser={session?.user ? { id: session.user.id, role: session.user.role, name: session.user.name || null } : null}
           />
           

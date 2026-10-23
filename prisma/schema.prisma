@@ -23,6 +23,7 @@ model User {
   usageLogs     UsageLog[]
   qcs           QualityControl[]
   sampleRuns    SampleRun[]
+  liquidations  Liquidation[]
 }
 
 model Equipment {
@@ -52,6 +53,7 @@ model Equipment {
   qcs           QualityControl[]
   sampleRuns    SampleRun[]
   reagents      Reagent[]
+  liquidations  Liquidation[]
 }
 
 model Log {
@@ -182,4 +184,31 @@ model Reagent {
 
   equipment             Equipment? @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
   @@index([equipmentId])
+}
+
+model Liquidation {
+  id              String    @id @default(cuid())
+  equipmentId     String
+  liquidationCode String    @unique // Mã biên bản (e.g. TL-YYYYMMDD-STT)
+  decisionNumber  String?   // Số quyết định / Tờ trình thanh lý
+  reason          String    // Lý do thanh lý thiết bị
+  method          String    // Hình thức: AUCTION (Bán đấu giá), DISPOSAL (Tiêu hủy), SALVAGE (Rã xác thu linh kiện), TRANSFER (Điều chuyển)
+  status          String    @default("PENDING") // PENDING, APPROVED, COMPLETED, REJECTED
+  requestDate     DateTime  @default(now()) // Ngày lập đề xuất
+  approvedDate    DateTime? // Ngày duyệt thanh lý
+  completedDate   DateTime? // Ngày hoàn tất thanh lý
+  councilMembers  String?   // Thành phần hội đồng thanh lý
+  estimatedValue  Float?    // Giá trị ước tính còn lại / nguyên giá (VNĐ)
+  recoveryValue   Float?    // Giá trị thu hồi thực tế (VNĐ)
+  documentUrl     String?   // File / Ảnh biên bản đính kèm
+  notes           String?   // Ghi chú chi tiết
+  createdById     String?   // Người tạo đề xuất
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  equipment       Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  user            User?     @relation(fields: [createdById], references: [id])
+
+  @@index([equipmentId])
+  @@index([createdById])
 }

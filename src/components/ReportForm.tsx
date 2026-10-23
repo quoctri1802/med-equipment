@@ -5,7 +5,19 @@ import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
 import { CheckCircle2, Camera, X, Play, Square, Activity, ShieldAlert } from "lucide-react"
 
-export default function ReportForm({ equipmentId }: { equipmentId: string }) {
+interface ReportFormProps {
+  equipmentId: string
+  photoCount?: number
+  onViewGallery?: () => void
+  onReportSuccess?: () => void
+}
+
+export default function ReportForm({ 
+  equipmentId,
+  photoCount = 0,
+  onViewGallery,
+  onReportSuccess
+}: ReportFormProps) {
   const router = useRouter()
   const formRef = useRef(null)
   const [status, setStatus] = useState("WORKING")
@@ -86,6 +98,7 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
         setNote("")
         setImageFile(null)
         setImagePreview(null)
+        onReportSuccess?.()
         router.refresh()
       } else {
         alert("Gửi báo cáo thất bại")
@@ -227,19 +240,38 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
       </div>
 
       {/* Photo Capture & Upload Section */}
-      <div>
-        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-2">Hình ảnh đính kèm (Khi có sự cố)</label>
-        
-        {imagePreview ? (
-          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 max-w-xs shadow-md">
-            <img src={imagePreview} alt="Xem trước" className="w-full h-auto object-cover max-h-48" />
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">
+            Chụp ảnh lưu hiện trạng thiết bị
+          </label>
+          {photoCount > 0 && onViewGallery && (
             <button
               type="button"
-              onClick={handleRemoveImage}
-              className="absolute top-2.5 right-2.5 p-1.5 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full transition-colors"
+              onClick={onViewGallery}
+              className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
-              <X className="w-3.5 h-3.5" />
+              <span>Xem lại {photoCount} ảnh đã lưu</span> &rarr;
             </button>
+          )}
+        </div>
+        
+        {imagePreview ? (
+          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 max-w-sm shadow-md group">
+            <img src={imagePreview} alt="Xem trước ảnh hiện trạng" className="w-full h-auto object-cover max-h-56" />
+            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="p-1.5 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full transition-colors shadow-md"
+                title="Xóa ảnh này"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="p-2 bg-slate-900/70 text-white text-[11px] text-center font-bold">
+              Ảnh hiện trạng đã sẵn sàng để lưu cùng báo cáo
+            </div>
           </div>
         ) : (
           <div>
@@ -253,11 +285,14 @@ export default function ReportForm({ equipmentId }: { equipmentId: string }) {
             />
             <label
               htmlFor="incident-photo"
-              className="inline-flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-650 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-dashed"
+              className="inline-flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-650 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-dashed hover:border-blue-400"
             >
               <Camera className="w-4 h-4 text-blue-500" />
-              Chụp ảnh / Tải ảnh sự cố
+              Chụp ảnh bằng Camera / Tải ảnh hiện trạng
             </label>
+            <p className="text-[10px] text-slate-400 mt-1.5 italic">
+              * Hỗ trợ lưu ảnh ngoại quan máy, màn hình báo mã lỗi, hoặc hiện trạng vật lý phục vụ đối chiếu sau này.
+            </p>
           </div>
         )}
       </div>

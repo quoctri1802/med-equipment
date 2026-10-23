@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Edit, Trash2, FileText } from "lucide-react"
+import { Edit, Trash2, FileText, Archive } from "lucide-react"
 import { deleteEquipment } from "@/app/actions/equipment"
 import { useRouter } from "next/navigation"
 
@@ -26,6 +26,9 @@ export default function EquipmentActions({ id }: { id: string }) {
       </Link>
       <Link href={`/dashboard/equipment/${id}/edit`} title="Sửa" className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
         <Edit className="w-5 h-5" />
+      </Link>
+      <Link href={`/dashboard/liquidation`} title="Lập đề xuất thanh lý" className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+        <Archive className="w-5 h-5" />
       </Link>
       <button onClick={handleDelete} title="Xóa" className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
         <Trash2 className="w-5 h-5" />

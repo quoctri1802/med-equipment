@@ -13,7 +13,8 @@ import {
   Settings,
   ShieldAlert,
   FileSpreadsheet,
-  Dna
+  Dna,
+  Archive
 } from "lucide-react"
 
 export default function Sidebar({ userRole, userPermissions = "" }: { userRole: string, userPermissions?: string }) {
@@ -56,6 +57,10 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
   
   if (isAdmin || perms.includes("MAINTENANCE_MANAGE")) {
     navItems.push({ name: "Lịch bảo trì", href: "/dashboard/maintenance", icon: Wrench })
+  }
+
+  if (isAdmin || perms.includes("EQUIPMENT_VIEW") || perms.includes("MAINTENANCE_MANAGE")) {
+    navItems.push({ name: "Thanh lý thiết bị", href: "/dashboard/liquidation", icon: Archive })
   }
 
   if (isAdmin) {

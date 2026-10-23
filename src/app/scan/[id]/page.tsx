@@ -1,8 +1,7 @@
-import UsageManager from '@/components/UsageManager'
 import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
-import ReportForm from "@/components/ReportForm"
 import { formatDateVN } from "@/lib/date"
+import ScanTabs from "@/components/ScanTabs"
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
   const cleanId = params.id.trim().replace(/\/$/, "");
@@ -20,6 +19,32 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
     notFound()
   }
 
+  // Lấy các bản ghi khai báo có ảnh & lịch sử báo cáo
+  const logs = await prisma.log.findMany({
+    where: { equipmentId: equipment.id },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true
+        }
+      }
+    }
+  })
+
+  const images = logs
+    .filter(log => Boolean(log.imageUrl))
+    .map(log => ({
+      id: log.id,
+      imageUrl: log.imageUrl as string,
+      status: log.status,
+      note: log.note,
+      reporterName: log.reporterName,
+      userName: log.user?.name || log.user?.email || null,
+      createdAt: log.createdAt
+    }))
+
   const activeUsage = await prisma.usageLog.findFirst({
     where: { equipmentId: equipment.id, endTime: null },
     orderBy: { startTime: 'desc' }
@@ -31,6 +56,23 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
     take: 10
   })
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "WORKING":
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800">SẴN SÀNG</span>
+      case "WARNING":
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800">CẦN HIỆU CHUẨN</span>
+      case "BROKEN":
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800">SỰ CỐ / HỎNG</span>
+      case "PENDING_LIQUIDATION":
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800">CHỜ THANH LÝ</span>
+      case "LIQUIDATED":
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">ĐÃ THANH LÝ</span>
+      default:
+        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border bg-slate-50 text-slate-700 border-slate-200">{status}</span>
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12">
       <div className="bg-gradient-to-r from-blue-700 to-indigo-900 pb-20 pt-8 px-4 text-center shadow-md">
@@ -39,19 +81,14 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="max-w-xl mx-auto px-4 -mt-12 space-y-6">
+        {/* Device Information Card */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 p-6">
           <div className="flex justify-between items-start mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
             <div>
               <h2 className="text-lg font-extrabold text-slate-900 dark:text-white uppercase leading-tight">{equipment.name}</h2>
               <p className="font-mono text-slate-400 dark:text-slate-500 font-bold text-xs mt-1">{equipment.code}</p>
             </div>
-            <span className={"px-2.5 py-0.5 rounded-full text-[10px] font-black border " + (
-              equipment.status === "WORKING" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-955/20 dark:text-green-400 dark:border-green-800" :
-              equipment.status === "WARNING" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-955/20 dark:text-yellow-400 dark:border-yellow-800" :
-              "bg-red-50 text-red-700 border-red-200 dark:bg-red-955/20 dark:text-red-400 dark:border-red-800"
-            )}>
-              {equipment.status === "WORKING" ? "SẴN SÀNG" : equipment.status === "WARNING" ? "CẦN HIỆU CHUẨN" : "SỰ CỐ / HỎNG"}
-            </span>
+            {getStatusBadge(equipment.status)}
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
@@ -71,11 +108,11 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
           <div className="grid grid-cols-2 gap-4 text-sm mb-4 border-b border-slate-100 dark:border-slate-700 pb-4">
             <div>
               <p className="text-slate-400 text-xs font-bold uppercase">Model</p>
-              <p className="font-extrabold text-slate-800 dark:text-slate-255 mt-0.5">{equipment.model || '--'}</p>
+              <p className="font-extrabold text-slate-800 dark:text-slate-200 mt-0.5">{equipment.model || '--'}</p>
             </div>
             <div>
               <p className="text-slate-400 text-xs font-bold uppercase">Số serial</p>
-              <p className="font-bold text-slate-800 dark:text-slate-255 mt-0.5">{equipment.serialNumber || '--'}</p>
+              <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{equipment.serialNumber || '--'}</p>
             </div>
           </div>
 
@@ -102,24 +139,26 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
             {equipment.contactInfo && (
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase">Liên hệ nhà phân phối / sản xuất</p>
-                <p className="font-semibold text-slate-700 dark:text-slate-355 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs mt-1 leading-relaxed">{equipment.contactInfo}</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs mt-1 leading-relaxed">{equipment.contactInfo}</p>
               </div>
             )}
             {equipment.usageNotes && (
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase">Lưu ý khi sử dụng</p>
-                <p className="font-semibold text-slate-700 dark:text-slate-355 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs mt-1 leading-relaxed">{equipment.usageNotes}</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs mt-1 leading-relaxed">{equipment.usageNotes}</p>
               </div>
             )}
           </div>
         </div>
 
-        <ReportForm equipmentId={equipment.id} />
-        
-        <UsageManager
+        {/* Tabs: Report + Capture Photo, View Captured Photos, Usage */}
+        <ScanTabs
           equipmentId={equipment.id}
-          initialActiveUsage={activeUsage as any}
-          initialHistory={usageHistory as any}
+          equipmentName={equipment.name}
+          equipmentCode={equipment.code}
+          images={images}
+          activeUsage={activeUsage}
+          usageHistory={usageHistory}
         />
       </div>
     </div>

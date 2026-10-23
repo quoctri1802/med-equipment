@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Wrench, Award, Activity, BarChart3, Plus, Download, AlertCircle, CheckCircle2, Loader2, Calendar } from "lucide-react"
+import { Wrench, Award, Activity, BarChart3, Plus, Download, AlertCircle, CheckCircle2, Loader2, Calendar, Camera } from "lucide-react"
 import { addCalibration, addQualityControl, addSampleRun } from "@/app/actions/quality"
 import { formatDateVN } from "@/lib/date"
+import DevicePhotoGallery, { LogImageItem } from "./DevicePhotoGallery"
 
 interface Maintenance {
   id: string
@@ -47,25 +48,32 @@ interface SampleRun {
 
 interface Props {
   equipmentId: string
+  equipmentName?: string
+  equipmentCode?: string
   initialTotalSamples: number
   initialMaintenances: Maintenance[]
   initialCalibrations: Calibration[]
   initialQcs: QCLog[]
   initialSampleRuns: SampleRun[]
+  initialPhotos?: LogImageItem[]
   currentUser: { id: string; role: string; name: string | null } | null
 }
 
 export default function EquipmentTabs({
   equipmentId,
+  equipmentName = "",
+  equipmentCode = "",
   initialTotalSamples,
   initialMaintenances,
   initialCalibrations,
   initialQcs,
   initialSampleRuns,
+  initialPhotos = [],
   currentUser
 }: Props) {
-  const [activeTab, setActiveTab] = useState<"maintenance" | "calibration" | "qc" | "samples">("maintenance")
+  const [activeTab, setActiveTab] = useState<"maintenance" | "calibration" | "qc" | "samples" | "photos">("maintenance")
   const [totalSamples, setTotalSamples] = useState(initialTotalSamples)
+  const [photos] = useState<LogImageItem[]>(initialPhotos)
 
   // Sub-data states
   const [maintenances, setMaintenances] = useState(initialMaintenances)
@@ -432,6 +440,16 @@ export default function EquipmentTabs({
           }`}
         >
           <BarChart3 className="w-4 h-4" /> Số mẫu chạy
+        </button>
+        <button
+          onClick={() => { setActiveTab("photos"); setError(null); }}
+          className={`flex items-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all ${
+            activeTab === "photos"
+              ? "bg-blue-600 text-white shadow-md shadow-blue-500/10"
+              : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-250"
+          }`}
+        >
+          <Camera className="w-4 h-4" /> Ảnh hiện trạng ({photos.length})
         </button>
       </div>
 
@@ -875,6 +893,17 @@ export default function EquipmentTabs({
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Tab 5: Device Photos Gallery */}
+        {activeTab === "photos" && (
+          <div className="p-5">
+            <DevicePhotoGallery
+              images={photos}
+              equipmentName={equipmentName}
+              equipmentCode={equipmentCode}
+            />
           </div>
         )}
       </div>

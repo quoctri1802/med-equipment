@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, FlaskConical, AlertCircle, CheckCircle, Info } from "lucide-react"
+import { Search, Filter, FlaskConical, AlertCircle, CheckCircle, Info, Archive } from "lucide-react"
 import EquipmentActions from "./EquipmentActions"
 
 type Equipment = {
@@ -61,6 +61,8 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
               <option value="WORKING">Sẵn sàng / Vận hành</option>
               <option value="WARNING">Cần hiệu chuẩn</option>
               <option value="BROKEN">Sự cố / Hỏng</option>
+              <option value="PENDING_LIQUIDATION">Chờ thanh lý</option>
+              <option value="LIQUIDATED">Đã thanh lý</option>
             </select>
             <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-400 w-0 h-0" />
           </div>
@@ -99,9 +101,11 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
                         <div className={`p-3 rounded-2xl transition-all duration-300 ${
                             eq.status === 'WORKING' ? 'bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400' :
                             eq.status === 'WARNING' ? 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/30 dark:text-yellow-400' :
+                            eq.status === 'PENDING_LIQUIDATION' ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400' :
+                            eq.status === 'LIQUIDATED' ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' :
                             'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
                         }`}>
-                            <FlaskConical className="w-5.5 h-5.5" />
+                            {eq.status === 'LIQUIDATED' ? <Archive className="w-5.5 h-5.5" /> : <FlaskConical className="w-5.5 h-5.5" />}
                         </div>
                         <div>
                           <div className="font-extrabold text-slate-900 dark:text-white uppercase text-[13px] tracking-tight">{eq.name}</div>
@@ -127,12 +131,16 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
                         {eq.status === 'WORKING' && <CheckCircle className="w-4 h-4 text-green-550" />}
                         {eq.status === 'WARNING' && <AlertCircle className="w-4 h-4 text-yellow-500" />}
                         {eq.status === 'BROKEN' && <AlertCircle className="w-4 h-4 text-red-500" />}
+                        {eq.status === 'PENDING_LIQUIDATION' && <Archive className="w-4 h-4 text-amber-500" />}
+                        {eq.status === 'LIQUIDATED' && <Archive className="w-4 h-4 text-slate-400" />}
                         <span className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${
                           eq.status === "WORKING" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800" :
                           eq.status === "WARNING" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-450 dark:border-yellow-800" :
+                          eq.status === "PENDING_LIQUIDATION" ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800" :
+                          eq.status === "LIQUIDATED" ? "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700" :
                           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
                         }`}>
-                          {eq.status === 'WORKING' ? 'SẴN SÀNG' : eq.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : 'SỰ CỐ / HỎNG'}
+                          {eq.status === 'WORKING' ? 'SẴN SÀNG' : eq.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : eq.status === 'PENDING_LIQUIDATION' ? 'CHỜ THANH LÝ' : eq.status === 'LIQUIDATED' ? 'ĐÃ THANH LÝ' : 'SỰ CỐ / HỎNG'}
                         </span>
                       </div>
                     </td>
