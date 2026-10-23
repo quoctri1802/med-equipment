@@ -26,7 +26,7 @@ export default async function DashboardPage() {
     prisma.equipment.count({ where: { department: "XN" } }),
     prisma.equipment.count({ where: { status: "BROKEN", department: "XN" } }),
     prisma.equipment.count({ where: { status: "WORKING", department: "XN" } }),
-    prisma.maintenance.count({ where: { status: "PENDING", equipment: { department: "XN" } } }),
+    prisma.maintenance.count({ where: { status: { in: ["PENDING", "IN_PROGRESS", "COMPLETED"] }, equipment: { department: "XN" } } }),
     prisma.equipment.groupBy({
       by: ['status'],
       where: { department: "XN" },
@@ -152,7 +152,7 @@ export default async function DashboardPage() {
             <Wrench className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Bảo trì / Hiệu chuẩn</p>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Bảo trì đang xử lý</p>
             <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{pendingMaintenance}</p>
           </div>
         </div>
@@ -230,13 +230,21 @@ export default async function DashboardPage() {
                     <div>
                       <h4 className="font-bold text-slate-900 dark:text-white text-sm uppercase">{m.equipment.name}</h4>
                       <p className="text-xs text-slate-500 mt-1 line-clamp-1">{m.description}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400 font-medium">
+                        <span>KTV: <strong className="text-slate-600 dark:text-slate-300">{m.technician?.name || 'Chưa phân công'}</strong></span>
+                        <span>•</span>
+                        <span>Lịch: {new Date(m.date).toLocaleDateString('vi-VN')}</span>
+                      </div>
                     </div>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black border ${
-                      m.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800' :
-                      m.status === 'IN_PROGRESS' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800' : 
-                      'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-950/20 dark:text-slate-400 dark:border-slate-800'
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black border uppercase tracking-wider shrink-0 ${
+                      m.status === 'VERIFIED' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800' :
+                      m.status === 'COMPLETED' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-800' :
+                      m.status === 'IN_PROGRESS' ? 'bg-yellow-50 text-yellow-750 border-yellow-250 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/40' : 
+                      'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800'
                     }`}>
-                      {m.status === 'COMPLETED' ? 'HOÀN THÀNH' : m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}
+                      {m.status === 'VERIFIED' ? 'ĐÃ NGHIỆM THU' :
+                       m.status === 'COMPLETED' ? 'CHỜ NGHIỆM THU' :
+                       m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}
                     </span>
                   </div>
                 </div>

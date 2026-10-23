@@ -482,11 +482,16 @@ export default function EquipmentTabs({
                   <div key={m.id} className="p-4 border border-slate-150 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">{m.description}</h4>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${
-                        m.status === 'COMPLETED' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800' :
-                        m.status === 'IN_PROGRESS' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800' :
-                        'bg-slate-50 text-slate-600 border-slate-200'
-                      }`}>{m.status === 'COMPLETED' ? 'HOÀN THÀNH' : m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}</span>
+                      <span className={`text-[9px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                        m.status === 'VERIFIED' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800' :
+                        m.status === 'COMPLETED' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-800' :
+                        m.status === 'IN_PROGRESS' ? 'bg-yellow-50 text-yellow-750 border-yellow-250 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/40' :
+                        'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800'
+                      }`}>
+                        {m.status === 'VERIFIED' ? 'ĐÃ NGHIỆM THU' :
+                         m.status === 'COMPLETED' ? 'CHỜ NGHIỆM THU' :
+                         m.status === 'IN_PROGRESS' ? 'ĐANG SỬA CHỮA' : 'CHỜ XỬ LÝ'}
+                      </span>
                     </div>
                     <div className="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1 mt-3 border-t border-slate-100 dark:border-slate-800/80 pt-2 font-medium">
                       <span>KTV: <span className="font-bold text-slate-700 dark:text-slate-350">{m.technician?.name || 'N/A'}</span></span>
