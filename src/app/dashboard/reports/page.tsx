@@ -2,12 +2,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { formatDateVN, formatTimeVN, formatDateTimeVN } from '@/lib/date'
 import { getReportData, getEquipmentSelectList, getIsoExportData } from "@/app/actions/export"
 import { getDailyStatus } from "@/app/actions/dailyReport"
 import { saveAs } from "file-saver"
 import ExcelJS from "exceljs"
-import { Download, Filter, FileSpreadsheet, Clock, AlertTriangle, ShieldCheck, ClipboardList, ShieldAlert, Award, ClipboardCheck } from "lucide-react"
+import { Download, Filter, FileSpreadsheet, Clock, AlertTriangle, ShieldCheck, ClipboardList, ShieldAlert, Award, ClipboardCheck, ExternalLink } from "lucide-react"
 import DailyReportModal from "@/components/DailyReportModal"
 
 export default function ReportsPage() {
@@ -1020,8 +1021,19 @@ export default function ReportsPage() {
                       {dailyData.reported.map((log: any) => (
                         <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/10 transition-colors">
                           <td className="px-5 py-4">
-                            <div className="font-extrabold text-slate-900 dark:text-white uppercase">{log.equipment.name}</div>
-                            <div className="text-[10px] font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">{log.equipment.code}</div>
+                            <Link
+                              href={`/dashboard/equipment/${log.equipment.id}`}
+                              className="group/eq inline-block"
+                              title="Nhấp để xem chi tiết hồ sơ thiết bị"
+                            >
+                              <div className="font-extrabold text-slate-900 dark:text-white uppercase group-hover/eq:text-blue-600 dark:group-hover/eq:text-blue-400 transition-colors flex items-center gap-1.5">
+                                <span>{log.equipment.name}</span>
+                                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/eq:text-blue-600 dark:group-hover/eq:text-blue-400 opacity-60 group-hover/eq:opacity-100 transition-all shrink-0" />
+                              </div>
+                              <div className="text-[10px] font-bold font-mono text-blue-600 dark:text-blue-400 mt-1 hover:underline">
+                                {log.equipment.code}
+                              </div>
+                            </Link>
                           </td>
                           <td className="px-5 py-4 font-semibold text-slate-700 dark:text-slate-355">
                             {log.equipment.model || '--'}
@@ -1083,15 +1095,31 @@ export default function ReportsPage() {
                     className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50/30 dark:bg-slate-900/20 hover:bg-blue-50/20 dark:hover:bg-blue-950/10 transition-all cursor-pointer group hover:shadow-md hover:-translate-y-0.5 relative flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-mono text-[10px] text-red-500 font-bold">{eq.code}</p>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <Link
+                          href={`/dashboard/equipment/${eq.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-mono text-[10px] text-red-500 font-bold hover:underline flex items-center gap-1 group/code"
+                          title="Nhấp để xem hồ sơ thiết bị"
+                        >
+                          <span>{eq.code}</span>
+                          <ExternalLink className="w-2.5 h-2.5 opacity-70 group-hover/code:opacity-100" />
+                        </Link>
                         <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                           <ClipboardCheck className="w-3.5 h-3.5" /> Báo cáo ngay
                         </span>
                       </div>
-                      <h4 className="font-extrabold text-slate-800 dark:text-white leading-tight mb-2 uppercase text-[12px] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {eq.name}
-                      </h4>
+                      <Link
+                        href={`/dashboard/equipment/${eq.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="block group/title"
+                        title="Nhấp để xem thông tin chi tiết thiết bị"
+                      >
+                        <h4 className="font-extrabold text-slate-800 dark:text-white leading-tight mb-2 uppercase text-[12px] group-hover/title:text-blue-600 dark:group-hover/title:text-blue-400 transition-colors flex items-center justify-between gap-1">
+                          <span>{eq.name}</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover/title:text-blue-500 opacity-0 group-hover/title:opacity-100 transition-all shrink-0" />
+                        </h4>
+                      </Link>
                       <div className="text-xs text-slate-500 font-medium space-y-0.5 mt-1 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
                         <p>Model: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.model || '--'}</span></p>
                         <p>QC KTV: <span className="font-bold text-slate-700 dark:text-slate-355">{eq.qcTechnician || '--'}</span></p>
