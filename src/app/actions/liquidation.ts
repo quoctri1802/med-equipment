@@ -82,12 +82,13 @@ export async function createLiquidation(data: {
   estimatedValue?: number
   recoveryValue?: number
   documentUrl?: string
+  imageUrl?: string
   notes?: string
 }) {
   try {
     const session = await getServerSession(authOptions)
     
-    // Tự động sinh mã thanh lý nếu không có
+    // Tự động sinh mã phiếu đề xuất thanh lý nếu không có
     let code = data.liquidationCode?.trim()
     if (!code) {
       const now = new Date()
@@ -99,7 +100,7 @@ export async function createLiquidation(data: {
           }
         }
       })
-      code = `TL-${yyyymmdd}-${String(countToday + 1).padStart(3, "0")}`
+      code = `DXTL-${yyyymmdd}-${String(countToday + 1).padStart(3, "0")}`
     }
 
     const initialStatus = data.status || "PENDING"
@@ -116,6 +117,7 @@ export async function createLiquidation(data: {
         estimatedValue: data.estimatedValue ? Number(data.estimatedValue) : null,
         recoveryValue: data.recoveryValue ? Number(data.recoveryValue) : null,
         documentUrl: data.documentUrl?.trim() || null,
+        imageUrl: data.imageUrl?.trim() || null,
         notes: data.notes?.trim() || null,
         createdById: session?.user?.id || null,
         approvedDate: initialStatus === "APPROVED" || initialStatus === "COMPLETED" ? new Date() : null,
@@ -138,7 +140,7 @@ export async function createLiquidation(data: {
           userId: session.user.id,
           status: newEquipmentStatus,
           reporterName: session.user.name || "Hội đồng thanh lý",
-          note: `[THANH LÝ] Lập biên bản đề xuất thanh lý mã ${code}. Lý do: ${data.reason}. Hình thức: ${data.method}. Trạng thái: ${initialStatus}`
+          note: `[THANH LÝ] Lập phiếu đề xuất thanh lý mã ${code}. Lý do: ${data.reason}. Hình thức: ${data.method}. Trạng thái: ${initialStatus}`
         }
       })
     }
@@ -150,8 +152,8 @@ export async function createLiquidation(data: {
 
     return { success: true, liquidation }
   } catch (err: any) {
-    console.error("Lỗi tạo biên bản thanh lý:", err)
-    return { success: false, error: err.message || "Không thể tạo biên bản thanh lý." }
+    console.error("Lỗi tạo phiếu đề xuất thanh lý:", err)
+    return { success: false, error: err.message || "Không thể tạo phiếu đề xuất thanh lý." }
   }
 }
 

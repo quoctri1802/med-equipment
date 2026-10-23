@@ -17,8 +17,9 @@ import {
   Download,
   Trash2,
   Eye,
-  Building,
-  RefreshCw
+  Camera,
+  X,
+  ImageIcon
 } from "lucide-react"
 import { formatDateVN } from "@/lib/date"
 import LiquidationModal from "./LiquidationModal"
@@ -40,6 +41,7 @@ interface LiquidationRecord {
   estimatedValue?: number | null
   recoveryValue?: number | null
   documentUrl?: string | null
+  imageUrl?: string | null
   notes?: string | null
   equipment: {
     id: string
@@ -89,6 +91,7 @@ export default function LiquidationManager({
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [printRecord, setPrintRecord] = useState<LiquidationRecord | null>(null)
+  const [selectedImagePreview, setSelectedImagePreview] = useState<{ url: string; title: string } | null>(null)
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
 
   // Calculations for KPIs
@@ -167,10 +170,10 @@ export default function LiquidationManager({
   const handleUpdateStatus = async (id: string, newStatus: "APPROVED" | "COMPLETED" | "REJECTED") => {
     const confirmMsg =
       newStatus === "APPROVED"
-        ? "Phê duyệt đề xuất thanh lý này?"
+        ? "Phê duyệt phiếu đề xuất thanh lý này?"
         : newStatus === "COMPLETED"
         ? "Xác nhận đã hoàn tất thanh lý thiết bị? Trạng thái thiết bị sẽ được chuyển thành 'ĐÃ THANH LÝ'."
-        : "Hủy bỏ/từ chối đề xuất thanh lý này? Thiết bị sẽ được hoàn trả về danh mục máy sự cố."
+        : "Hủy bỏ / từ chối phiếu đề xuất thanh lý này? Thiết bị sẽ được hoàn trả về danh mục máy sự cố."
 
     if (!confirm(confirmMsg)) return
 
@@ -200,7 +203,7 @@ export default function LiquidationManager({
   }
 
   const handleDelete = async (id: string, code: string) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa hồ sơ thanh lý ${code}?`)) return
+    if (!confirm(`Bạn có chắc chắn muốn xóa phiếu đề xuất thanh lý ${code}?`)) return
     try {
       setActionLoadingId(id)
       const res = await deleteLiquidation(id)
@@ -223,10 +226,10 @@ export default function LiquidationManager({
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2.5">
             <Archive className="w-7 h-7 text-red-600 dark:text-red-400" />
-            Module Quản lý thanh lý thiết bị
+            Phiếu đề xuất thanh lý thiết bị
           </h1>
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-            Quy trình lập biên bản, kiểm tra kỹ thuật, phê duyệt và thanh lý trang thiết bị y tế Khoa Xét nghiệm
+            Quy trình lập phiếu đề xuất, kiểm tra kỹ thuật, đính kèm ảnh hiện trạng và phê duyệt thanh lý thiết bị y tế
           </p>
         </div>
 
@@ -235,14 +238,14 @@ export default function LiquidationManager({
           onClick={() => setIsCreateModalOpen(true)}
           className="inline-flex items-center gap-2 px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-red-500/25 active:scale-95 transition-all self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> Lập đề xuất thanh lý
+          <Plus className="w-4 h-4" /> Lập phiếu đề xuất thanh lý
         </button>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
         <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl border border-slate-100 dark:border-slate-700/60 shadow-sm">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng số hồ sơ</p>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng số phiếu đề xuất</p>
           <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{totalCount}</p>
         </div>
 
@@ -283,7 +286,7 @@ export default function LiquidationManager({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Tìm theo mã thanh lý, tên máy, mã định danh, số quyết định..."
+            placeholder="Tìm theo mã đề xuất, tên máy, mã định danh, số tờ trình..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 dark:bg-slate-900 outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-xs font-semibold text-slate-900 dark:text-white"
@@ -329,9 +332,9 @@ export default function LiquidationManager({
           <table className="w-full text-xs text-left border-collapse">
             <thead className="text-[11px] text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-5 py-4 font-black tracking-wider">Hồ sơ thanh lý</th>
-                <th className="px-5 py-4 font-black tracking-wider">Trang thiết bị</th>
-                <th className="px-5 py-4 font-black tracking-wider">Ngày lập / Quyết định</th>
+                <th className="px-5 py-4 font-black tracking-wider">Phiếu đề xuất</th>
+                <th className="px-5 py-4 font-black tracking-wider">Trang thiết bị & Hiện trạng</th>
+                <th className="px-5 py-4 font-black tracking-wider">Ngày đề xuất / Tờ trình</th>
                 <th className="px-5 py-4 font-black tracking-wider">Hình thức</th>
                 <th className="px-5 py-4 font-black tracking-wider">Giá trị thu hồi</th>
                 <th className="px-5 py-4 font-black tracking-wider">Trạng thái</th>
@@ -342,7 +345,7 @@ export default function LiquidationManager({
               {filteredList.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-14 text-center text-slate-400 italic">
-                    Chưa có hồ sơ thanh lý nào phù hợp với điều kiện tìm kiếm.
+                    Chưa có phiếu đề xuất thanh lý nào phù hợp với điều kiện tìm kiếm.
                   </td>
                 </tr>
               ) : (
@@ -358,13 +361,40 @@ export default function LiquidationManager({
                       </p>
                     </td>
 
-                    {/* Equipment */}
+                    {/* Equipment with Photo thumbnail if available */}
                     <td className="px-5 py-4">
-                      <div className="font-bold text-slate-900 dark:text-white uppercase">
-                        {item.equipment.name}
-                      </div>
-                      <div className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">
-                        {item.equipment.code} {item.equipment.model ? `• Model: ${item.equipment.model}` : ""}
+                      <div className="flex items-center gap-3">
+                        {item.imageUrl ? (
+                          <div
+                            onClick={() => setSelectedImagePreview({ url: item.imageUrl!, title: item.equipment.name })}
+                            className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer shrink-0 group shadow-sm hover:ring-2 hover:ring-blue-500"
+                            title="Bấm để xem ảnh hiện trạng lúc làm đề xuất"
+                          >
+                            <img
+                              src={item.imageUrl}
+                              alt={item.equipment.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Eye className="w-3.5 h-3.5 text-white" />
+                            </div>
+                          </div>
+                        ) : null}
+
+                        <div>
+                          <div className="font-bold text-slate-900 dark:text-white uppercase">
+                            {item.equipment.name}
+                          </div>
+                          <div className="text-[10px] font-mono font-bold text-slate-400 mt-0.5 flex items-center gap-1.5">
+                            <span>{item.equipment.code}</span>
+                            {item.equipment.model && <span>• Model: {item.equipment.model}</span>}
+                            {item.imageUrl && (
+                              <span className="text-[9px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded-md flex items-center gap-0.5">
+                                <Camera className="w-2.5 h-2.5" /> Có ảnh
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </td>
 
@@ -378,7 +408,7 @@ export default function LiquidationManager({
                           Số: {item.decisionNumber}
                         </div>
                       ) : (
-                        <div className="text-[10px] text-slate-400 italic mt-0.5">Chưa có số QĐ</div>
+                        <div className="text-[10px] text-slate-400 italic mt-0.5">Chưa có số TTr</div>
                       )}
                     </td>
 
@@ -407,12 +437,12 @@ export default function LiquidationManager({
                     {/* Actions */}
                     <td className="px-5 py-4 text-right">
                       <div className="inline-flex items-center gap-1">
-                        {/* Print / View document button */}
+                        {/* Print / View proposal document button */}
                         <button
                           type="button"
                           onClick={() => setPrintRecord(item)}
                           className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors"
-                          title="Xem & In biên bản thanh lý chuẩn"
+                          title="Xem & In phiếu đề xuất thanh lý chuẩn"
                         >
                           <Printer className="w-4 h-4" />
                         </button>
@@ -424,7 +454,7 @@ export default function LiquidationManager({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                            title="Tải tệp chứng từ đính kèm"
+                            title="Tải tệp văn bản đính kèm"
                           >
                             <Download className="w-4 h-4" />
                           </a>
@@ -437,7 +467,7 @@ export default function LiquidationManager({
                             disabled={actionLoadingId === item.id}
                             onClick={() => handleUpdateStatus(item.id, "APPROVED")}
                             className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors"
-                            title="Phê duyệt đề xuất thanh lý"
+                            title="Phê duyệt phiếu đề xuất thanh lý"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                           </button>
@@ -475,7 +505,7 @@ export default function LiquidationManager({
                           disabled={actionLoadingId === item.id}
                           onClick={() => handleDelete(item.id, item.liquidationCode)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors"
-                          title="Xóa hồ sơ thanh lý"
+                          title="Xóa phiếu đề xuất thanh lý"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -506,6 +536,40 @@ export default function LiquidationManager({
         onClose={() => setPrintRecord(null)}
         liquidation={printRecord}
       />
+
+      {/* Quick Image Lightbox Preview */}
+      {selectedImagePreview && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setSelectedImagePreview(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-4 space-y-3 border border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <h4 className="font-extrabold text-sm uppercase text-slate-900 dark:text-white flex items-center gap-2">
+                <Camera className="w-4 h-4 text-blue-500" />
+                Ảnh hiện trạng: {selectedImagePreview.title}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setSelectedImagePreview(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center max-h-[70vh]">
+              <img
+                src={selectedImagePreview.url}
+                alt="Hiện trạng máy lúc đề xuất"
+                className="max-h-[68vh] w-auto object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -200,7 +200,8 @@ model Liquidation {
   councilMembers  String?   // Thành phần hội đồng thanh lý
   estimatedValue  Float?    // Giá trị ước tính còn lại / nguyên giá (VNĐ)
   recoveryValue   Float?    // Giá trị thu hồi thực tế (VNĐ)
-  documentUrl     String?   // File / Ảnh biên bản đính kèm
+  documentUrl     String?   // File tờ trình / chứng từ đính kèm
+  imageUrl        String?   // Hình ảnh hiện trạng thiết bị lúc làm đề xuất thanh lý
   notes           String?   // Ghi chú chi tiết
   createdById     String?   // Người tạo đề xuất
   createdAt       DateTime  @default(now())

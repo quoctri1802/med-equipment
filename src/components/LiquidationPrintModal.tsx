@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef } from "react"
-import { X, Printer, Download, CheckCircle2, AlertTriangle, FileText } from "lucide-react"
+import { X, Printer, Download, CheckCircle2, AlertTriangle, FileText, Camera } from "lucide-react"
 import { formatDateVN } from "@/lib/date"
 
 interface LiquidationItem {
@@ -18,6 +18,7 @@ interface LiquidationItem {
   estimatedValue?: number | null
   recoveryValue?: number | null
   documentUrl?: string | null
+  imageUrl?: string | null
   notes?: string | null
   equipment: {
     id: string
@@ -87,10 +88,10 @@ export default function LiquidationPrintModal({
             </span>
             <div>
               <h3 className="font-extrabold text-base text-slate-900 dark:text-white uppercase">
-                Biên bản kiểm tra kỹ thuật & thanh lý thiết bị
+                Phiếu đề xuất thanh lý trang thiết bị y tế
               </h3>
               <p className="text-xs text-slate-500 font-mono">
-                Số: {liquidation.liquidationCode} {liquidation.decisionNumber ? `• QĐ: ${liquidation.decisionNumber}` : ""}
+                Số: {liquidation.liquidationCode} {liquidation.decisionNumber ? `• QĐ/TTr: ${liquidation.decisionNumber}` : ""}
               </p>
             </div>
           </div>
@@ -101,7 +102,7 @@ export default function LiquidationPrintModal({
               onClick={handlePrint}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/20 active:scale-95"
             >
-              <Printer className="w-4 h-4" /> In biên bản
+              <Printer className="w-4 h-4" /> In phiếu đề xuất
             </button>
             <button
               type="button"
@@ -137,18 +138,21 @@ export default function LiquidationPrintModal({
           {/* Title */}
           <div className="text-center py-6">
             <h2 className="text-lg font-black uppercase tracking-wide">
-              BIÊN BẢN HỌP HỘI ĐỒNG KIỂM TRA KỸ THUẬT VÀ ĐỀ NGHỊ THANH LÝ TRANG THIẾT BỊ Y TẾ
+              PHIẾU ĐỀ XUẤT THANH LÝ TRANG THIẾT BỊ Y TẾ
             </h2>
+            <p className="text-xs font-sans text-slate-600 mt-1">
+              Kính gửi: Ban Giám đốc Trung tâm Y tế khu vực Liên Chiểu
+            </p>
             {liquidation.decisionNumber && (
               <p className="text-xs italic text-slate-600 mt-1 font-sans">
-                (Căn cứ Quyết định/Tờ trình số: {liquidation.decisionNumber})
+                (Căn cứ Tờ trình/Quyết định số: {liquidation.decisionNumber})
               </p>
             )}
           </div>
 
-          {/* I. Thành phần hội đồng */}
+          {/* I. Thành phần đề xuất / Hội đồng thẩm định */}
           <div className="space-y-2 mb-6">
-            <h4 className="font-bold text-sm uppercase">I. THÀNH PHẦN HỘI ĐỒNG KIỂM ĐỊNH & THANH LÝ:</h4>
+            <h4 className="font-bold text-sm uppercase">I. THÀNH PHẦN HỘI ĐỒNG / BAN THẨM ĐỊNH KỸ THUẬT:</h4>
             {liquidation.councilMembers ? (
               <div className="whitespace-pre-line text-xs pl-4 border-l-2 border-slate-300 font-sans">
                 {liquidation.councilMembers}
@@ -165,7 +169,7 @@ export default function LiquidationPrintModal({
 
           {/* II. Thông tin thiết bị */}
           <div className="space-y-3 mb-6">
-            <h4 className="font-bold text-sm uppercase">II. THÔNG TIN TRANG THIẾT BỊ Y TẾ ĐỀ NGHỊ THANH LÝ:</h4>
+            <h4 className="font-bold text-sm uppercase">II. THÔNG TIN THIẾT BỊ ĐỀ XUẤT THANH LÝ:</h4>
             <div className="border border-slate-300 rounded-lg overflow-hidden font-sans text-xs">
               <table className="w-full border-collapse">
                 <tbody>
@@ -204,7 +208,7 @@ export default function LiquidationPrintModal({
 
           {/* III. Hiện trạng kỹ thuật & Lý do */}
           <div className="space-y-2 mb-6">
-            <h4 className="font-bold text-sm uppercase">III. HIỆN TRẠNG KỸ THUẬT VÀ LÝ DO THANH LÝ:</h4>
+            <h4 className="font-bold text-sm uppercase">III. HIỆN TRẠNG KỸ THUẬT VÀ LÝ DO ĐỀ XUẤT THANH LÝ:</h4>
             <div className="p-3 bg-slate-50 border border-slate-300 rounded-lg font-sans text-xs space-y-1.5">
               <p><strong>Lý do cụ thể:</strong> {liquidation.reason}</p>
               {liquidation.notes && (
@@ -213,9 +217,30 @@ export default function LiquidationPrintModal({
             </div>
           </div>
 
-          {/* IV. Phương án thanh lý & Giá trị */}
+          {/* IV. Hình ảnh thiết bị lúc làm đề xuất thanh lý */}
+          {liquidation.imageUrl && (
+            <div className="space-y-2 mb-6">
+              <h4 className="font-bold text-sm uppercase flex items-center gap-1.5">
+                <span>IV. HÌNH ẢNH HIỆN TRẠNG THIẾT BỊ LÚC LÀM ĐỀ XUẤT:</span>
+              </h4>
+              <div className="border border-slate-300 rounded-lg p-2.5 bg-slate-50 flex flex-col items-center justify-center max-w-md mx-auto">
+                <img
+                  src={liquidation.imageUrl}
+                  alt="Hiện trạng máy lúc đề xuất thanh lý"
+                  className="max-h-60 w-auto object-contain rounded border border-slate-200"
+                />
+                <span className="text-[10px] text-slate-500 italic mt-1 font-sans">
+                  Ảnh chụp hiện trạng máy xét nghiệm tại thời điểm lập phiếu đề xuất
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* V. Phương án thanh lý & Giá trị */}
           <div className="space-y-2 mb-8">
-            <h4 className="font-bold text-sm uppercase">IV. PHƯƠNG ÁN THANH LÝ VÀ DỰ TOÁN THU HỒI:</h4>
+            <h4 className="font-bold text-sm uppercase">
+              {liquidation.imageUrl ? "V." : "IV."} PHƯƠNG ÁN XỬ LÝ VÀ DỰ TOÁN THU HỒI:
+            </h4>
             <div className="border border-slate-300 rounded-lg p-3 font-sans text-xs space-y-2">
               <div className="flex justify-between border-b border-slate-200 pb-1.5">
                 <span className="font-semibold">Hình thức thanh lý đề xuất:</span>
@@ -226,32 +251,26 @@ export default function LiquidationPrintModal({
                 <span className="font-bold">{formatCurrency(liquidation.estimatedValue)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-semibold">Giá trị thu hồi thực tế / dự kiến:</span>
+                <span className="font-semibold">Giá trị thu hồi dự kiến / thực tế:</span>
                 <span className="font-extrabold text-green-700">{formatCurrency(liquidation.recoveryValue)}</span>
               </div>
             </div>
           </div>
 
-          {/* Kết luận hội đồng */}
+          {/* Đề xuất kiến nghị */}
           <div className="mb-8 font-sans text-xs leading-relaxed">
             <p>
-              <strong>KẾT LUẬN:</strong> Hội đồng đã tiến hành kiểm tra thực tế tình trạng thiết bị y tế nêu trên và thống nhất đề nghị Ban Giám đốc Trung tâm Y tế phê duyệt thanh lý thiết bị theo đúng các quy định hiện hành về quản lý tài sản công và trang thiết bị y tế.
+              <strong>KÍNH ĐỀ NGHỊ:</strong> Khoa Xét nghiệm kính đề nghị Ban Giám đốc Trung tâm Y tế xem xét và phê duyệt phiếu đề xuất thanh lý đối với trang thiết bị y tế nêu trên để đơn vị tiến hành các thủ tục xử lý tài sản công theo đúng quy định pháp luật.
             </p>
           </div>
 
           {/* Signatures */}
           <div className="grid grid-cols-4 gap-2 text-center font-sans text-xs pt-4 border-t border-slate-300">
             <div>
-              <p className="font-bold uppercase">Người lập biên bản</p>
+              <p className="font-bold uppercase">Người lập phiếu</p>
               <p className="text-[10px] italic text-slate-500">(Ký, ghi rõ họ tên)</p>
               <div className="h-16"></div>
               <p className="font-bold">{liquidation.user?.name || "KTV Lập biểu"}</p>
-            </div>
-            <div>
-              <p className="font-bold uppercase">Trưởng Khoa XN</p>
-              <p className="text-[10px] italic text-slate-500">(Ký, ghi rõ họ tên)</p>
-              <div className="h-16"></div>
-              <p className="font-bold">BS. Trưởng khoa</p>
             </div>
             <div>
               <p className="font-bold uppercase">Phụ trách TTB</p>
@@ -260,10 +279,16 @@ export default function LiquidationPrintModal({
               <p className="font-bold">KTV. Phụ trách máy</p>
             </div>
             <div>
-              <p className="font-bold uppercase">Chủ tịch Hội đồng</p>
-              <p className="text-[10px] italic text-slate-500">(Ký, đóng dấu)</p>
+              <p className="font-bold uppercase">Trưởng Khoa XN</p>
+              <p className="text-[10px] italic text-slate-500">(Ký, ghi rõ họ tên)</p>
               <div className="h-16"></div>
-              <p className="font-bold">Ban Giám Đốc</p>
+              <p className="font-bold">BS. Trưởng khoa</p>
+            </div>
+            <div>
+              <p className="font-bold uppercase">Ban Giám Đốc</p>
+              <p className="text-[10px] italic text-slate-500">(Phê duyệt đề xuất)</p>
+              <div className="h-16"></div>
+              <p className="font-bold">Giám Đốc TTYT</p>
             </div>
           </div>
         </div>

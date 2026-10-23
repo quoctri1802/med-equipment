@@ -5,8 +5,8 @@ import prisma from "@/lib/prisma"
 import LiquidationManager from "@/components/LiquidationManager"
 
 export const metadata = {
-  title: "Quản lý thanh lý thiết bị | TTYT Liên Chiểu",
-  description: "Module quản lý hồ sơ kiểm tra kỹ thuật và thanh lý trang thiết bị y tế"
+  title: "Phiếu đề xuất thanh lý thiết bị | TTYT Liên Chiểu",
+  description: "Module lập phiếu đề xuất, kiểm tra kỹ thuật và thanh lý trang thiết bị y tế"
 }
 
 export default async function LiquidationPage() {

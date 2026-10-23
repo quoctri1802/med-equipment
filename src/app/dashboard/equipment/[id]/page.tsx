@@ -147,7 +147,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
                 Chỉnh sửa hồ sơ
               </Link>
               <Link href={`/dashboard/liquidation`} className="block w-full text-center py-2.5 border border-red-200 bg-red-50 text-red-650 rounded-2xl font-bold text-xs tracking-wider hover:bg-red-100 transition-colors uppercase dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/40">
-                Đề xuất thanh lý máy
+                Lập phiếu đề xuất thanh lý máy
               </Link>
             </div>
           </div>
