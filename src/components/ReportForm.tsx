@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
-import { CheckCircle2, Camera, X, Play, Square, Activity, ShieldAlert } from "lucide-react"
+import { CheckCircle2, Camera, X, Play, Square, Activity, ShieldAlert, Loader2 } from "lucide-react"
+import { compressImage } from "@/lib/imageCompress"
 
 interface ReportFormProps {
   equipmentId: string
@@ -27,13 +28,15 @@ export default function ReportForm({
   const [success, setSuccess] = useState(false)
   
   // Image Upload State
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [compressing, setCompressing] = useState(false)
 
   // Chế độ tự động gửi
   const [isAutoMode, setIsAutoMode] = useState(false)
-  const [countdown, setCountdown] = useState(null)
+  const [countdown, setCountdown] = useState<number | null>(null)
 
   // Tự động điền tên và lưu chế độ
   useEffect(() => {
@@ -44,45 +47,70 @@ export default function ReportForm({
     setIsAutoMode(savedAuto)
   }, [])
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result)
+      try {
+        setCompressing(true)
+        // Nén ảnh trực tiếp tại client để dung lượng nhẹ (<150KB), tải siêu nhanh
+        const { file: compressedFile, base64 } = await compressImage(file, 1280, 1280, 0.75)
+        setImageFile(compressedFile)
+        setImagePreview(base64)
+        setImageBase64(base64)
+      } catch (err) {
+        console.error("Lỗi nén ảnh:", err)
+        setImageFile(file)
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string)
+          setImageBase64(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      } finally {
+        setCompressing(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
   const handleRemoveImage = () => {
     setImageFile(null)
     setImagePreview(null)
+    setImageBase64(null)
   }
 
-  const performSubmit = async (formData) => {
+  const performSubmit = async (formData: { status: string; note: string; reporterName: string }) => {
     setLoading(true)
     try {
-      let photoUrl = null
+      let photoUrl: string | null = null
 
-      if (imageFile) {
+      if (imageFile || imageBase64) {
         setUploading(true)
-        const uploadFormData = new FormData()
-        uploadFormData.append("file", imageFile)
-        
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadFormData
-        })
-        
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json()
-          photoUrl = uploadData.url
-        } else {
-          alert("Lỗi tải ảnh lên. Đang gửi báo cáo không kèm ảnh...")
+        try {
+          if (imageFile) {
+            const uploadFormData = new FormData()
+            uploadFormData.append("file", imageFile)
+            
+            const uploadRes = await fetch("/api/upload", {
+              method: "POST",
+              body: uploadFormData
+            })
+            
+            if (uploadRes.ok) {
+              const uploadData = await uploadRes.json()
+              photoUrl = uploadData.url
+            } else {
+              // Dự phòng an toàn: nếu API upload không lưu được file, dùng trực tiếp Base64 đã nén
+              photoUrl = imageBase64
+            }
+          } else {
+            photoUrl = imageBase64
+          }
+        } catch (uploadError) {
+          console.warn("Lỗi gọi API upload, chuyển sang lưu trực tiếp Data URL:", uploadError)
+          photoUrl = imageBase64
+        } finally {
+          setUploading(false)
         }
-        setUploading(false)
       }
 
       const res = await submitScanReport(equipmentId, {
@@ -98,12 +126,13 @@ export default function ReportForm({
         setNote("")
         setImageFile(null)
         setImagePreview(null)
+        setImageBase64(null)
         onReportSuccess?.()
         router.refresh()
       } else {
         alert("Gửi báo cáo thất bại")
       }
-    } catch (err) {
+    } catch (err: any) {
       alert(err.message || "Đã xảy ra lỗi")
     } finally {
       setLoading(false)
@@ -281,17 +310,27 @@ export default function ReportForm({
               capture="environment"
               id="incident-photo"
               onChange={handleImageChange}
+              disabled={compressing}
               className="hidden"
             />
             <label
               htmlFor="incident-photo"
-              className="inline-flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-650 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-dashed hover:border-blue-400"
+              className={"inline-flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-bold text-slate-650 dark:text-slate-300 transition-all border-dashed hover:border-blue-400 " + (compressing ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800")}
             >
-              <Camera className="w-4 h-4 text-blue-500" />
-              Chụp ảnh bằng Camera / Tải ảnh hiện trạng
+              {compressing ? (
+                <>
+                  <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                  Đang tối ưu dung lượng ảnh...
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4 text-blue-500" />
+                  Chụp ảnh bằng Camera / Tải ảnh hiện trạng
+                </>
+              )}
             </label>
             <p className="text-[10px] text-slate-400 mt-1.5 italic">
-              * Hỗ trợ lưu ảnh ngoại quan máy, màn hình báo mã lỗi, hoặc hiện trạng vật lý phục vụ đối chiếu sau này.
+              * Ảnh sẽ tự động được nén tối ưu để gửi nhanh và lưu trữ an toàn.
             </p>
           </div>
         )}

@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react"
 import { submitScanReport } from "@/app/actions/report"
-import { X, Camera, Activity, CheckCircle2, AlertTriangle, Wrench } from "lucide-react"
+import { X, Camera, Activity, CheckCircle2, AlertTriangle, Wrench, Loader2 } from "lucide-react"
+import { compressImage } from "@/lib/imageCompress"
 
 interface Equipment {
   id: string
@@ -32,6 +33,8 @@ export default function DailyReportModal({
   const [uploading, setUploading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageBase64, setImageBase64] = useState<string | null>(null)
+  const [compressing, setCompressing] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   useEffect(() => {
@@ -44,27 +47,41 @@ export default function DailyReportModal({
       setNote("")
       setImageFile(null)
       setImagePreview(null)
+      setImageBase64(null)
       setErrorMsg(null)
     }
   }, [isOpen, equipment])
 
   if (!isOpen || !equipment) return null
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string)
+      try {
+        setCompressing(true)
+        const { file: compressedFile, base64 } = await compressImage(file, 1280, 1280, 0.75)
+        setImageFile(compressedFile)
+        setImagePreview(base64)
+        setImageBase64(base64)
+      } catch (err) {
+        console.error("Lỗi nén ảnh:", err)
+        setImageFile(file)
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string)
+          setImageBase64(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      } finally {
+        setCompressing(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
   const handleRemoveImage = () => {
     setImageFile(null)
     setImagePreview(null)
+    setImageBase64(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,23 +97,34 @@ export default function DailyReportModal({
     try {
       let photoUrl: string | null = null
 
-      if (imageFile) {
+      if (imageFile || imageBase64) {
         setUploading(true)
-        const uploadFormData = new FormData()
-        uploadFormData.append("file", imageFile)
+        try {
+          if (imageFile) {
+            const uploadFormData = new FormData()
+            uploadFormData.append("file", imageFile)
 
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadFormData
-        })
+            const uploadRes = await fetch("/api/upload", {
+              method: "POST",
+              body: uploadFormData
+            })
 
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json()
-          photoUrl = uploadData.url
-        } else {
-          console.error("Lỗi tải ảnh lên server")
+            if (uploadRes.ok) {
+              const uploadData = await uploadRes.json()
+              photoUrl = uploadData.url
+            } else {
+              // Fallback an toàn: Dùng chuỗi Base64 đã nén
+              photoUrl = imageBase64
+            }
+          } else {
+            photoUrl = imageBase64
+          }
+        } catch (uploadErr) {
+          console.warn("Lỗi upload API, dùng fallback base64:", uploadErr)
+          photoUrl = imageBase64
+        } finally {
+          setUploading(false)
         }
-        setUploading(false)
       }
 
       const res = await submitScanReport(equipment.id, {
