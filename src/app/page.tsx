@@ -3,7 +3,7 @@ import { ShieldCheck, QrCode, ArrowRight, ClipboardList, FlaskConical, MapPin, P
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-x-hidden font-sans">
       {/* Laboratory Grid Background Effect */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
       
@@ -169,9 +169,9 @@ export default function LandingPage() {
         <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-0 left-10 right-10 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-10 items-start">
-          {/* Cột 1: Thương hiệu & Giới thiệu (lg:col-span-5) */}
-          <div className="lg:col-span-5 space-y-4">
+        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 items-start">
+          {/* Cột 1: Thương hiệu & Giới thiệu */}
+          <div className="space-y-4">
             <div className="flex items-center gap-3 group">
               <div className="p-3 bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white rounded-2xl shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform duration-300">
                 <FlaskConical className="h-6 w-6 animate-pulse" />
@@ -199,9 +199,12 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
                 Khoa Xét Nghiệm • Chẩn đoán & Kiểm định
               </p>
+              <p className="text-[10px] text-slate-400 font-medium pt-0.5">
+                Lĩnh vực: Hóa sinh • Huyết học • Vi sinh • Miễn dịch
+              </p>
             </div>
 
-            <p className="text-slate-400 leading-relaxed font-medium text-[11px] max-w-md">
+            <p className="text-slate-400 leading-relaxed font-medium text-[11px]">
               Giải pháp số hóa toàn diện giúp giám sát tình trạng vận hành, kiểm định chất lượng IQC/EQC, hiệu chuẩn định kỳ và theo dõi trang thiết bị xét nghiệm y khoa theo chuẩn mực an toàn sinh học.
             </p>
 
@@ -217,8 +220,8 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Cột 2: Hỗ trợ kỹ thuật & Liên hệ (lg:col-span-4) */}
-          <div className="lg:col-span-4 space-y-4">
+          {/* Cột 2: Hỗ trợ kỹ thuật & Liên hệ */}
+          <div className="space-y-4">
             <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2.5 flex items-center gap-2">
               <Clock className="w-4 h-4 text-blue-500" />
               Hỗ trợ kỹ thuật & Trực ban 24/7
@@ -259,24 +262,35 @@ export default function LandingPage() {
                 </span>
               </li>
 
-              <li className="flex gap-2.5 items-center">
-                <Mail className="w-4 h-4 text-blue-500 shrink-0" />
-                <div className="flex items-center gap-1.5 min-w-0">
+              <li className="flex gap-2.5 items-start">
+                <Mail className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                   <span className="text-slate-500 text-[10px] uppercase">Email:</span>
-                  <a href="mailto:tranquangvu230789@gmail.com" className="font-mono text-slate-300 hover:text-cyan-400 transition truncate">
+                  <a href="mailto:tranquangvu230789@gmail.com" className="font-mono text-slate-300 hover:text-cyan-400 transition break-all">
                     tranquangvu230789@gmail.com
                   </a>
                 </div>
               </li>
 
-              <li className="pt-1 text-[10px] text-slate-500 italic">
+              <li className="flex gap-2.5 items-start pt-1 border-t border-slate-900">
+                <Clock className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-300">Thời gian làm việc:</span>
+                  <p className="text-[10px] text-slate-400">
+                    • Cấp cứu & tiếp nhận mẫu: <strong>24/24h (Tất cả các ngày)</strong><br />
+                    • Giờ hành chính: Sáng 07:00 - 11:30 | Chiều 13:30 - 17:00
+                  </p>
+                </div>
+              </li>
+
+              <li className="text-[10px] text-slate-500 italic">
                 * Tiếp nhận báo cáo sự cố máy móc, phiếu bảo dưỡng & kiểm định hiệu chuẩn thiết bị.
               </li>
             </ul>
           </div>
 
-          {/* Cột 3: Tiêu chuẩn kỹ thuật (lg:col-span-3) */}
-          <div className="lg:col-span-3 space-y-4">
+          {/* Cột 3: Tiêu chuẩn kỹ thuật */}
+          <div className="space-y-4">
             <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2.5 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               Tiêu chuẩn & Kiểm định
@@ -295,8 +309,8 @@ export default function LandingPage() {
                       VERIFIED
                     </span>
                   </div>
-                  <p className="text-[9px] text-slate-500 font-medium truncate mt-0.5">
-                    Quản lý chất lượng xét nghiệm y khoa
+                  <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-0.5">
+                    Quản lý chất lượng & năng lực phòng xét nghiệm y khoa
                   </p>
                 </div>
               </div>
@@ -314,8 +328,8 @@ export default function LandingPage() {
                       ACTIVE
                     </span>
                   </div>
-                  <p className="text-[9px] text-slate-500 font-medium truncate mt-0.5">
-                    Tem định danh số hóa máy xét nghiệm
+                  <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-0.5">
+                    Tem định danh số hóa máy xét nghiệm toàn viện
                   </p>
                 </div>
               </div>
@@ -333,8 +347,8 @@ export default function LandingPage() {
                       SECURE
                     </span>
                   </div>
-                  <p className="text-[9px] text-slate-500 font-medium truncate mt-0.5">
-                    Phân quyền đa tầng & kiểm soát truy cập
+                  <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-0.5">
+                    Phân quyền đa tầng & kiểm soát truy cập dữ liệu y tế
                   </p>
                 </div>
               </div>
@@ -343,12 +357,12 @@ export default function LandingPage() {
         </div>
 
         {/* Divider & Copyright */}
-        <div className="relative z-10 max-w-7xl mx-auto border-t border-slate-900 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 font-bold text-[11px]">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+        <div className="relative z-10 max-w-7xl mx-auto border-t border-slate-900 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 font-bold text-[11px] text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
             <span>&copy; {new Date().getFullYear()} Trung tâm Y tế khu vực Liên Chiểu - Khoa Xét nghiệm. Bảo lưu mọi quyền.</span>
           </div>
-          <div className="text-[10px] uppercase tracking-[0.15em] flex items-center gap-1.5">
+          <div className="text-[10px] uppercase tracking-[0.15em] flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
             <span>Phát triển bởi</span>
             <span className="text-cyan-400 font-black">QUỐC TRÍ</span>
             <span className="text-slate-800">|</span>
