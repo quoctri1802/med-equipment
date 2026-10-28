@@ -13,6 +13,12 @@ interface ScanTabsProps {
   images: LogImageItem[]
   activeUsage: any
   usageHistory: any[]
+  currentUser?: {
+    id: string
+    name?: string | null
+    email?: string | null
+    role?: string
+  } | null
 }
 
 export default function ScanTabs({
@@ -21,7 +27,8 @@ export default function ScanTabs({
   equipmentCode,
   images,
   activeUsage,
-  usageHistory
+  usageHistory,
+  currentUser
 }: ScanTabsProps) {
   const [activeTab, setActiveTab] = useState<"report" | "gallery" | "usage">("report")
 
@@ -83,6 +90,7 @@ export default function ScanTabs({
         <ReportForm
           equipmentId={equipmentId}
           photoCount={images.length}
+          currentUser={currentUser}
           onViewGallery={() => setActiveTab("gallery")}
         />
       )}
@@ -101,6 +109,7 @@ export default function ScanTabs({
           equipmentId={equipmentId}
           initialActiveUsage={activeUsage}
           initialHistory={usageHistory}
+          currentUser={currentUser}
         />
       )}
     </div>

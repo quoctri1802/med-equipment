@@ -14,7 +14,8 @@ import {
   ShieldAlert,
   FileSpreadsheet,
   Dna,
-  Archive
+  Archive,
+  QrCode
 } from "lucide-react"
 
 export default function Sidebar({ userRole, userPermissions = "" }: { userRole: string, userPermissions?: string }) {
@@ -44,7 +45,7 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
 
   const navItems = [
     { name: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-
+    { name: "Quét mã QR", href: "/scanner", icon: QrCode },
   ]
 
   if (isAdmin || perms.includes("EQUIPMENT_VIEW")) {

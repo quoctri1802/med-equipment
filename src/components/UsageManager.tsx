@@ -18,19 +18,26 @@ type UsageLog = {
 export default function UsageManager({
   equipmentId,
   initialActiveUsage,
-  initialHistory
+  initialHistory,
+  currentUser
 }: {
   equipmentId: string
   initialActiveUsage: UsageLog | null
   initialHistory: UsageLog[]
+  currentUser?: {
+    id: string
+    name?: string | null
+    email?: string | null
+    role?: string
+  } | null
 }) {
   const [activeUsage, setActiveUsage] = useState(initialActiveUsage)
   const [history, setHistory] = useState(initialHistory)
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
   
-  // Form fields
-  const [userName, setUserName] = useState("")
+  // Form fields - Tự động điền theo user đăng nhập nếu có
+  const [userName, setUserName] = useState(currentUser?.name || currentUser?.email || "")
   const [purpose, setPurpose] = useState("")
 
   const handleStartUsage = async (e: React.FormEvent) => {

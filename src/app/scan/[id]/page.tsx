@@ -2,8 +2,16 @@ import prisma from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { formatDateVN } from "@/lib/date"
 import ScanTabs from "@/components/ScanTabs"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import Link from "next/link"
+import { Lock, LogIn, QrCode, ShieldCheck, UserCheck, LayoutDashboard } from "lucide-react"
 
 export default async function ScanPage({ params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions)
+  const isAuthenticated = Boolean(session?.user)
+  const currentUser = session?.user || null
+
   const cleanId = params.id.trim().replace(/\/$/, "");
 
   const equipment = await prisma.equipment.findFirst({
@@ -151,15 +159,81 @@ export default async function ScanPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Tabs: Report + Capture Photo, View Captured Photos, Usage */}
-        <ScanTabs
-          equipmentId={equipment.id}
-          equipmentName={equipment.name}
-          equipmentCode={equipment.code}
-          images={images}
-          activeUsage={activeUsage}
-          usageHistory={usageHistory}
-        />
+        {/* Khối chức năng: Nếu chưa đăng nhập thì chỉ xem thông tin, nếu đã đăng nhập thì mở tab báo cáo */}
+        {!isAuthenticated ? (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-amber-200/80 dark:border-amber-700/50 p-6 text-center space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="w-14 h-14 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-200/80 dark:border-amber-900/50 shadow-inner">
+              <Lock className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-base font-black uppercase text-slate-900 dark:text-white">
+                Chế độ chỉ xem thông tin thiết bị
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                Hệ thống yêu cầu <strong>đăng nhập tài khoản nhân viên</strong> để báo cáo trạng thái, chụp ảnh hiện trạng hoặc đăng ký nhật ký vận hành cho thiết bị này.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5 justify-center">
+              <Link
+                href={`/login?callbackUrl=/scan/${encodeURIComponent(cleanId)}`}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/25 active:scale-95"
+              >
+                <LogIn className="w-4 h-4" />
+                Đăng nhập để báo cáo trạng thái
+              </Link>
+              <Link
+                href="/scanner"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all"
+              >
+                <QrCode className="w-4 h-4" />
+                Quét thiết bị khác
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Banner hiển thị nhân viên đang đăng nhập */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm shadow-md shadow-blue-500/20">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-extrabold text-slate-900 dark:text-white">
+                    {currentUser?.name || currentUser?.email}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Nhân viên báo cáo • <span className="font-semibold text-blue-600 dark:text-blue-400">{currentUser?.role}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 font-bold text-[10px] rounded-full border border-green-200 dark:border-green-800">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Đã xác thực
+                </span>
+                <Link
+                  href="/dashboard"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                  title="Về Bảng điều khiển"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Tabs: Report + Capture Photo, View Captured Photos, Usage */}
+            <ScanTabs
+              equipmentId={equipment.id}
+              equipmentName={equipment.name}
+              equipmentCode={equipment.code}
+              images={images}
+              activeUsage={activeUsage}
+              usageHistory={usageHistory}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

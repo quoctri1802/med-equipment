@@ -23,7 +23,14 @@ export default function LandingPage() {
           </span>
         </Link>
         
-        <nav className="ml-auto flex gap-4 sm:gap-8 items-center">
+        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+          <Link
+            className="text-xs font-bold uppercase tracking-wider text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5"
+            href="/scanner"
+          >
+            <QrCode className="w-4 h-4" />
+            <span>Quét QR</span>
+          </Link>
           <Link
             className="text-xs font-bold uppercase tracking-wider hover:text-blue-400 transition-colors text-slate-350"
             href="/dashboard"
@@ -75,7 +82,13 @@ export default function LandingPage() {
                 Vào bảng điều khiển
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              
+              <Link
+                href="/scanner"
+                className="inline-flex items-center justify-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 font-bold text-sm px-7 py-3.5 rounded-2xl transition-all shadow-lg hover:-translate-y-0.5 active:scale-98"
+              >
+                <QrCode className="w-4 h-4 text-cyan-400" />
+                Quét mã QR thiết bị
+              </Link>
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { Suspense } from "react"
 import LoginForm from "@/components/LoginForm"
 import Image from "next/image"
 
@@ -43,7 +44,9 @@ export default function LoginPage() {
         {/* Login Form Container - Glassmorphism */}
         <div className="login-card overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-1 backdrop-blur-xl transition shadow-2xl animate-in fade-in zoom-in duration-700">
            <div className="rounded-[22px] bg-slate-900/40 p-8 shadow-inner">
-             <LoginForm />
+             <Suspense fallback={<div className="text-center text-xs text-slate-400 py-8">Đang tải biểu mẫu...</div>}>
+               <LoginForm />
+             </Suspense>
            </div>
         </div>
 

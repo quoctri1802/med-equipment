@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -28,7 +30,7 @@ export default function LoginForm() {
       if (res?.error) {
         setError("Email hoặc mật khẩu không chính xác")
       } else {
-        router.push("/dashboard")
+        router.push(callbackUrl)
         router.refresh()
       }
     } catch (err) {

@@ -8,19 +8,18 @@ import { sendEmail } from "@/lib/email"
 
 export async function submitScanReport(
   equipmentId: string,
-  data: { status: string; note: string; reporterName: string; photoUrl?: string | null }
+  data: { status: string; note: string; reporterName?: string; photoUrl?: string | null }
 ) {
-  // Try to get session, if unauthenticated, try to find an admin user to assign it to
+  // Bắt buộc xác thực người dùng - Chỉ cho phép báo cáo khi đã đăng nhập
   const session = await getServerSession(authOptions)
   
-  let userId = session?.user?.id
-  
-  if (!userId) {
-    // Fallback if scanning happens without login
-    const adminUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } })
-    if (adminUser) userId = adminUser.id
-    else throw new Error("Chưa đăng nhập và không tìm thấy User mặc định hệ thống.")
+  if (!session || !session.user || !session.user.id) {
+    throw new Error("Yêu cầu bảo mật: Vui lòng đăng nhập tài khoản để báo cáo trạng thái thiết bị.")
   }
+
+  const userId = session.user.id
+  // Người báo cáo lấy chính xác tên tài khoản đã đăng nhập (bảo mật tuyệt đối, chống mạo danh)
+  const verifiedReporterName = session.user.name || session.user.email || "Nhân viên xác thực"
 
   // 1. Update the Equipment Status
   await prisma.equipment.update({
@@ -34,7 +33,7 @@ export async function submitScanReport(
       equipmentId: equipmentId,
       userId: userId,
       status: data.status,
-      reporterName: data.reporterName,
+      reporterName: verifiedReporterName,
       note: data.note || "Cập nhật qua quét QR Hệ thống.",
       imageUrl: data.photoUrl || null
     }

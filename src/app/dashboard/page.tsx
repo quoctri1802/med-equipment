@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { FlaskConical, ShieldAlert, CheckCircle2, Wrench, ClipboardList, Clock, Sparkles } from "lucide-react"
+import { FlaskConical, ShieldAlert, CheckCircle2, Wrench, ClipboardList, Clock, Sparkles, QrCode } from "lucide-react"
 import { StatusPieChart, RiskBarChart } from "@/components/DashboardCharts"
 import Link from "next/link"
 import { formatDateTimeVN } from '@/lib/date'
@@ -93,6 +93,16 @@ export default async function DashboardPage() {
             </span>
             <h1 className="text-3xl font-black tracking-tight">Hệ thống Giám sát & Quản lý Máy Xét nghiệm</h1>
             <p className="text-blue-200 text-sm mt-1.5 opacity-90">Chào mừng trở lại, <span className="font-bold text-white">{session?.user?.name || session?.user?.email}</span></p>
+          </div>
+
+          <div>
+            <Link
+              href="/scanner"
+              className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 active:scale-95"
+            >
+              <QrCode className="w-4 h-4 text-cyan-400" />
+              <span>Quét mã QR thiết bị</span>
+            </Link>
           </div>
 
         </div>

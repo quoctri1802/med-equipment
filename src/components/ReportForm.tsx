@@ -3,12 +3,18 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { submitScanReport } from "@/app/actions/report"
-import { CheckCircle2, Camera, X, Play, Square, Activity, ShieldAlert, Loader2 } from "lucide-react"
+import { CheckCircle2, Camera, X, Play, Square, Activity, ShieldAlert, ShieldCheck, Loader2 } from "lucide-react"
 import { compressImage } from "@/lib/imageCompress"
 
 interface ReportFormProps {
   equipmentId: string
   photoCount?: number
+  currentUser?: {
+    id: string
+    name?: string | null
+    email?: string | null
+    role?: string
+  } | null
   onViewGallery?: () => void
   onReportSuccess?: () => void
 }
@@ -16,6 +22,7 @@ interface ReportFormProps {
 export default function ReportForm({ 
   equipmentId,
   photoCount = 0,
+  currentUser,
   onViewGallery,
   onReportSuccess
 }: ReportFormProps) {
@@ -23,7 +30,7 @@ export default function ReportForm({
   const formRef = useRef(null)
   const [status, setStatus] = useState("WORKING")
   const [note, setNote] = useState("")
-  const [reporterName, setReporterName] = useState("")
+  const [reporterName, setReporterName] = useState(currentUser?.name || currentUser?.email || "")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   
@@ -38,14 +45,15 @@ export default function ReportForm({
   const [isAutoMode, setIsAutoMode] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
 
-  // Tự động điền tên và lưu chế độ
+  // Tự động gán tên từ User đăng nhập và lưu chế độ
   useEffect(() => {
-    const savedName = localStorage.getItem("med_reporter_name")
-    if (savedName) setReporterName(savedName)
+    if (currentUser?.name || currentUser?.email) {
+      setReporterName(currentUser.name || currentUser.email || "")
+    }
 
     const savedAuto = localStorage.getItem("med_auto_mode") === "true"
     setIsAutoMode(savedAuto)
-  }, [])
+  }, [currentUser])
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -225,15 +233,27 @@ export default function ReportForm({
       )}
 
       <div>
-        <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase mb-2">Họ và tên người báo cáo *</label>
-        <input
-          type="text"
-          value={reporterName}
-          onChange={(e) => setReporterName(e.target.value)}
-          required
-          placeholder="Nhập tên của bạn... (VD: KTV. Nguyễn Văn A)"
-          className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-slate-900 dark:text-white transition-all outline-none text-sm font-semibold"
-        />
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">
+            Người báo cáo (Tài khoản xác thực) *
+          </label>
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+            <ShieldCheck className="w-3.5 h-3.5" /> Xác thực hệ thống
+          </span>
+        </div>
+        <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-900/70 rounded-2xl border border-slate-200 dark:border-slate-700/80">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black flex items-center justify-center text-sm shadow-md shadow-blue-500/20 shrink-0">
+            {((reporterName || currentUser?.name || currentUser?.email || "U")[0]).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+              {reporterName || currentUser?.name || currentUser?.email || "Chưa xác định"}
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+              {currentUser?.role ? `Vai trò: ${currentUser.role}` : "Nhân viên"} {currentUser?.email ? `• ${currentUser.email}` : ""}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
