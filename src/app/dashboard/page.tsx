@@ -41,20 +41,50 @@ export default async function DashboardPage() {
       take: 5,
       where: { equipment: { department: "XN" } },
       orderBy: { createdAt: 'desc' },
-      include: { equipment: true, technician: true }
+      select: {
+        id: true,
+        description: true,
+        status: true,
+        date: true,
+        createdAt: true,
+        equipment: {
+          select: { name: true, code: true }
+        },
+        technician: {
+          select: { name: true, email: true }
+        }
+      }
     }),
     prisma.log.findMany({
       take: 5,
       where: { equipment: { department: "XN" } },
       orderBy: { createdAt: 'desc' },
-      include: { equipment: true, user: true }
+      select: {
+        id: true,
+        status: true,
+        reporterName: true,
+        createdAt: true,
+        note: true,
+        equipment: {
+          select: { name: true, code: true }
+        },
+        user: {
+          select: { name: true, email: true }
+        }
+      }
     }),
     prisma.equipment.groupBy({
       by: ['testGroup'],
       where: { department: "XN" },
       _count: { id: true }
     }),
-    prisma.reagent.findMany()
+    prisma.reagent.findMany({
+      select: {
+        volume: true,
+        minSafetyVolume: true,
+        expiryDate: true
+      }
+    })
   ])
 
   // Map status labels

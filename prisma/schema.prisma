@@ -54,6 +54,12 @@ model Equipment {
   sampleRuns    SampleRun[]
   reagents      Reagent[]
   liquidations  Liquidation[]
+
+  @@index([department])
+  @@index([department, status])
+  @@index([status])
+  @@index([createdAt])
+  @@index([testGroup])
 }
 
 model Log {
@@ -71,6 +77,8 @@ model Log {
 
   @@index([equipmentId])
   @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Maintenance {
@@ -90,6 +98,9 @@ model Maintenance {
 
   @@index([equipmentId])
   @@index([technicianId])
+  @@index([status])
+  @@index([date])
+  @@index([createdAt])
 }
 
 model UsageLog {
@@ -108,6 +119,8 @@ model UsageLog {
 
   @@index([equipmentId])
   @@index([userId])
+  @@index([startTime])
+  @@index([createdAt])
 }
 
 model EquipmentGroup {
@@ -151,6 +164,8 @@ model QualityControl {
   user          User      @relation(fields: [userId], references: [id])
   @@index([equipmentId])
   @@index([userId])
+  @@index([resultStatus])
+  @@index([runDate])
 }
 
 model SampleRun {
@@ -165,6 +180,7 @@ model SampleRun {
   user          User      @relation(fields: [userId], references: [id])
   @@index([equipmentId])
   @@index([userId])
+  @@index([runDate])
 }
 
 
@@ -184,6 +200,7 @@ model Reagent {
 
   equipment             Equipment? @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
   @@index([equipmentId])
+  @@index([expiryDate])
 }
 
 model Liquidation {
@@ -212,4 +229,5 @@ model Liquidation {
 
   @@index([equipmentId])
   @@index([createdById])
+  @@index([status])
 }
