@@ -15,7 +15,9 @@ import {
   FileSpreadsheet,
   Dna,
   Archive,
-  QrCode
+  QrCode,
+  Smartphone,
+  Download
 } from "lucide-react"
 
 export default function Sidebar({ userRole, userPermissions = "" }: { userRole: string, userPermissions?: string }) {
@@ -24,8 +26,16 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
   const isAdmin = userRole === "ADMIN"
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const standalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true
+      setIsStandalone(standalone)
+    }
+
     const handlePrompt = (e: any) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -35,11 +45,20 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
   }, [])
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    if (outcome === "accepted") {
-      setDeferredPrompt(null)
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === "accepted") {
+        setDeferredPrompt(null)
+      }
+    } else if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-install-modal"))
+    }
+  }
+
+  const openInstallGuide = () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("open-install-modal"))
     }
   }
 
@@ -118,16 +137,25 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
           })}
         </div>
 
-        {/* PWA Install Banner */}
-        {deferredPrompt && (
-          <div className="p-4 mx-4 mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl border border-white/10 text-white space-y-2 shadow-lg shadow-blue-500/10">
-            <p className="text-[10px] font-bold leading-tight">Cài đặt ứng dụng di động để truy cập nhanh hơn và chạy offline!</p>
+        {/* PWA Install Banner Desktop */}
+        {!isStandalone && (
+          <div className="p-3.5 mx-3 mb-3 bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-slate-900/60 rounded-2xl border border-cyan-500/30 text-white space-y-2 shadow-lg backdrop-blur-sm">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-blue-500/20 rounded-lg text-cyan-400">
+                <Smartphone className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-black uppercase text-cyan-300 tracking-wider">Cài đặt ứng dụng</p>
+            </div>
+            <p className="text-[10px] text-slate-350 leading-snug">
+              Cài app lên điện thoại để quét mã QR và vận hành thiết bị nhanh chóng!
+            </p>
             <button
               type="button"
               onClick={handleInstallClick}
-              className="w-full py-2 bg-white text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md hover:bg-slate-50 active:scale-95 transition-all"
+              className="w-full py-2 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
-              Cài đặt ngay
+              <Download className="w-3 h-3" />
+              <span>Cài đặt ngay</span>
             </button>
           </div>
         )}
@@ -165,6 +193,16 @@ export default function Sidebar({ userRole, userPermissions = "" }: { userRole: 
               </Link>
             )
           })}
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={openInstallGuide}
+              className="flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-cyan-400 transition-colors min-w-[76px] hover:bg-white/5 active:scale-95"
+            >
+              <Smartphone className="w-5 h-5 mb-1 animate-pulse" />
+              <span className="text-[9px] font-extrabold uppercase tracking-tighter text-center">Cài App</span>
+            </button>
+          )}
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-red-550 transition-colors min-w-[76px]"

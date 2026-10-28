@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, QrCode, ArrowRight, ClipboardList, FlaskConical, MapPin, Phone, Mail } from "lucide-react";
+import { ShieldCheck, QrCode, ArrowRight, ClipboardList, FlaskConical, MapPin, Phone, Mail, Smartphone, Lock, Clock } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -163,91 +163,123 @@ export default function LandingPage() {
       </main>
       
       {/* Footer */}
-      <footer className="relative bg-slate-950/70 border-t border-slate-900/60 text-slate-400 text-xs py-12 px-6 lg:px-14 backdrop-blur-md z-10 mt-auto">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          {/* Cột 1: Thương hiệu */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 group">
-              <div className="p-2 bg-blue-600/10 rounded-xl border border-blue-500/20 shadow-inner">
-                <FlaskConical className="h-5 w-5 text-blue-500" />
+      <footer className="relative bg-slate-950/85 border-t border-slate-900/80 text-slate-400 text-xs py-12 px-6 lg:px-14 backdrop-blur-md z-10 mt-auto">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-12 items-start">
+          {/* Cột 1: Thương hiệu & Giới thiệu (lg:col-span-5) */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="flex items-center gap-2.5 group">
+              <div className="p-2.5 bg-gradient-to-tr from-blue-600 to-cyan-500 text-white rounded-2xl shadow-lg shadow-blue-500/20">
+                <FlaskConical className="h-5 w-5" />
               </div>
-              <span className="font-black text-sm tracking-tight text-white uppercase">
-                LabEquip <span className="text-blue-500">Center</span>
+              <div>
+                <span className="font-black text-base tracking-tight text-white uppercase">
+                  LabEquip <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Center</span>
+                </span>
+                <span className="ml-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-950/80 text-cyan-400 border border-cyan-500/30">
+                  v2.5 Pro
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-[12px] font-extrabold text-white uppercase tracking-wider">
+                Trung tâm Y tế khu vực Liên Chiểu
+              </p>
+              <p className="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">
+                Khoa Xét Nghiệm
+              </p>
+            </div>
+
+            <p className="text-slate-400 leading-relaxed font-medium text-[11px] max-w-md">
+              Giải pháp số hóa toàn diện giúp giám sát, kiểm định, hiệu chuẩn QC và theo dõi thiết bị xét nghiệm y khoa theo tiêu chuẩn chất lượng cao.
+            </p>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Hệ thống trực tuyến 24/7
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-blue-950/40 text-cyan-400 border border-blue-500/30">
+                <Smartphone className="w-3 h-3 text-cyan-400" />
+                Hỗ trợ PWA Cài đặt Mobile
               </span>
             </div>
-            <p className="text-[11px] font-bold text-slate-350 uppercase tracking-wider">
-              TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm
-            </p>
-            <p className="text-slate-500 leading-relaxed font-medium">
-              Giải pháp số hóa toàn diện giúp giám sát, kiểm định, hiệu chuẩn QC và theo dõi thiết bị xét nghiệm y khoa theo tiêu chuẩn chất lượng.
-            </p>
           </div>
 
-          {/* Cột 2: Liên kết nhanh */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
-              Liên kết nhanh
+          {/* Cột 2: Hỗ trợ kỹ thuật & Liên hệ (lg:col-span-4) */}
+          <div className="lg:col-span-4 space-y-4">
+            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2.5 flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-blue-500" />
+              Hỗ trợ kỹ thuật & Trực ban
             </h4>
-            <ul className="space-y-2.5 font-bold">
-              <li>
-                <Link href="/" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
-                  Trang chủ
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
-                  Bảng điều khiển
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="hover:text-cyan-400 hover:translate-x-1 transition-all duration-300 flex items-center gap-1.5 w-fit">
-                  Đăng nhập hệ thống
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Cột 3: Liên hệ */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
-              Liên hệ & Hỗ trợ
-            </h4>
-            <ul className="space-y-3 font-medium text-slate-500">
+            <ul className="space-y-3 font-medium text-slate-400 text-[11px]">
               <li className="flex gap-2.5 items-start">
-                <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">
-                  Trung tâm Y tế khu vực Liên Chiểu : 525 Tôn Đức Thắng, phường Hòa Khánh, TP. Đà Nẵng
+                  Trung tâm Y tế khu vực Liên Chiểu: 525 Tôn Đức Thắng, phường Hòa Khánh, TP. Đà Nẵng
                 </span>
               </li>
               <li className="flex gap-2.5 items-center">
-                <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <span className="font-mono font-bold text-slate-400">0906440970</span>
+                <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 text-[10px] uppercase">Hotline:</span>
+                  <a href="tel:0906440970" className="font-mono font-bold text-white hover:text-cyan-400 transition">
+                    0906440970
+                  </a>
+                  <span className="px-2 py-0.5 text-[9px] font-extrabold bg-blue-950 text-cyan-400 rounded-full border border-blue-800">
+                    24/7
+                  </span>
+                </div>
               </li>
               <li className="flex gap-2.5 items-center">
-                <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <span className="font-mono">support@ttytlienchieu.org</span>
+                <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500 text-[10px] uppercase">Email:</span>
+                  <a href="mailto:tranquangvu230789@gmail.com" className="font-mono text-slate-300 hover:text-cyan-400 transition">
+                    tranquangvu230789@gmail.com
+                  </a>
+                </div>
+              </li>
+              <li className="pt-1 text-[10px] text-slate-500 italic">
+                * Tiếp nhận cảnh báo sự cố hỏng máy, phiếu bảo trì & kiểm định hiệu chuẩn thiết bị.
               </li>
             </ul>
           </div>
 
-          {/* Cột 4: Tiêu chuẩn */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2">
+          {/* Cột 3: Tiêu chuẩn kỹ thuật (lg:col-span-3) */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-[11px] font-black uppercase text-white tracking-widest border-b border-slate-900 pb-2.5 flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               Tiêu chuẩn kỹ thuật
             </h4>
-            <div className="space-y-3 font-medium">
-              <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-900/60 p-2.5 rounded-xl">
-                <ShieldCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <div className="space-y-2.5 font-medium">
+              <div className="flex items-center gap-2.5 bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-2xl hover:border-emerald-500/30 transition">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
                 <div>
-                  <div className="text-[10px] font-extrabold text-white">ISO 15189 COMPLIANT</div>
-                  <div className="text-[9px] text-slate-500">Quản lý chất lượng xét nghiệm</div>
+                  <div className="text-[10px] font-black text-white uppercase tracking-wider">ISO 15189 COMPLIANT</div>
+                  <div className="text-[9px] text-slate-500">Quản lý chất lượng xét nghiệm y khoa</div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-900/60 p-2.5 rounded-xl">
-                <QrCode className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+
+              <div className="flex items-center gap-2.5 bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-2xl hover:border-cyan-500/30 transition">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
+                  <QrCode className="w-4 h-4" />
+                </div>
                 <div>
-                  <div className="text-[10px] font-extrabold text-white">QR IDENTIFIER</div>
+                  <div className="text-[10px] font-black text-white uppercase tracking-wider">QR IDENTIFIER</div>
                   <div className="text-[9px] text-slate-500">Định danh số hóa thiết bị</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-slate-900/60 border border-slate-800/80 p-2.5 rounded-2xl hover:border-blue-500/30 transition">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black text-white uppercase tracking-wider">BẢO MẬT & PHÂN QUYỀN</div>
+                  <div className="text-[9px] text-slate-500">Kiểm soát truy cập & dữ liệu</div>
                 </div>
               </div>
             </div>
@@ -255,15 +287,15 @@ export default function LandingPage() {
         </div>
 
         {/* Divider & Copyright */}
-        <div className="max-w-7xl mx-auto border-t border-slate-900/60 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-650 font-bold">
+        <div className="max-w-7xl mx-auto border-t border-slate-900/80 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 font-bold text-[11px]">
           <div>
             &copy; {new Date().getFullYear()} TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm. Tất cả các quyền được bảo lưu.
           </div>
-          <div className="text-[10px] uppercase tracking-[0.2em] flex items-center gap-1.5">
-            <span>Design by</span>
-            <span className="text-blue-500">tritnq</span>
+          <div className="text-[10px] uppercase tracking-[0.15em] flex items-center gap-1.5">
+            <span>Phát triển bởi</span>
+            <span className="text-cyan-400 font-extrabold">QUỐC TRÍ</span>
             <span className="text-slate-800">|</span>
-            <span className="text-slate-600 font-normal normal-case">Hỗ trợ kỹ thuật: 0905924194</span>
+            <span className="text-slate-400 font-medium normal-case">Hỗ trợ kỹ thuật: 0906440970</span>
           </div>
         </div>
       </footer>

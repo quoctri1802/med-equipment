@@ -1,12 +1,16 @@
 {
-  "name": "LabEquip Center",
+  "name": "LabEquip Center - Quản Lý Thiết Bị Y Tế",
   "short_name": "LabEquip",
-  "description": "Hệ thống giám sát và quản lý thiết bị y tế y khoa",
+  "description": "Hệ thống giám sát, kiểm định và quản lý trang thiết bị y tế Khoa Xét nghiệm - TTYT Liên Chiểu",
+  "id": "/dashboard",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#090d16",
+  "background_color": "#0b132b",
   "theme_color": "#1e3a8a",
   "orientation": "portrait-primary",
+  "categories": ["medical", "health", "productivity"],
+  "lang": "vi",
   "icons": [
     {
       "src": "/logo.png",

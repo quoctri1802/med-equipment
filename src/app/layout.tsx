@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import InstallAppPrompt from "@/components/InstallAppPrompt";
 
 const roboto = Roboto({
   subsets: ["vietnamese"],
@@ -31,7 +32,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body className={`${roboto.variable} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <InstallAppPrompt />
+        </Providers>
       </body>
     </html>
   );
