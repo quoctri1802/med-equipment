@@ -317,73 +317,145 @@ export default function MaintenanceManager({
 
       {/* VIEW MODE 1: LIST VIEW */}
       {viewMode === "LIST" && (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden animate-in fade-in duration-350">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-150 dark:border-slate-700">
-                <tr>
-                  <th className="px-6 py-4 font-bold">Thiết bị xét nghiệm</th>
-                  <th className="px-6 py-4 font-bold">Nội dung công việc</th>
-                  <th className="px-6 py-4 font-bold">Thời gian đặt lịch</th>
-                  <th className="px-6 py-4 font-bold">Chi phí</th>
-                  <th className="px-6 py-4 font-bold">Trạng thái</th>
-                  <th className="px-6 py-4 font-bold">Người chịu trách nhiệm</th>
-                  <th className="px-6 py-4 font-bold text-right">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-                {localRecords.map(record => (
-                  <tr key={record.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/10 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-extrabold text-slate-900 dark:text-white uppercase text-xs">{record.equipment.name}</div>
-                      <div className="text-[10px] font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">{record.equipment.code}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-800 dark:text-slate-200 text-xs font-semibold max-w-xs line-clamp-2 leading-relaxed">
-                        {record.description}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-500 text-xs font-semibold">
-                      {new Date(record.date).toLocaleDateString("vi-VN")}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-xs">
-                      {record.cost ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(record.cost) : '---'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(record.status)}
-                    </td>
-                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                      <div className="font-bold text-xs uppercase">{record.technician?.name || 'Chưa phân công'}</div>
-                      {record.technician?.email && <div className="text-[10px] text-slate-400 font-mono mt-0.5">{record.technician.email}</div>}
-                    </td>
-                    <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                      {userRole === "ADMIN" && record.status === "COMPLETED" && (
-                        <button 
-                          onClick={() => handleVerify(record.id)} 
-                          className="text-green-600 dark:text-green-400 font-bold hover:underline flex items-center gap-1 cursor-pointer mr-2 shrink-0"
-                          title="Xác nhận nghiệm thu thiết bị đã hoạt động tốt"
-                        >
-                          <CheckCircle className="w-4 h-4" /> Nghiệm thu
-                        </button>
-                      )}
-                      <button onClick={() => openEditModal(record)} className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 cursor-pointer">
-                        <Edit className="w-4 h-4"/> Sửa
+        <div className="space-y-4">
+          {/* Mobile Card View */}
+          <div className="block md:hidden space-y-3">
+            {localRecords.length === 0 ? (
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 text-center text-slate-400 font-medium border border-slate-100 dark:border-slate-700/60 shadow-sm">
+                Chưa có lịch sử bảo trì nào trong khoa xét nghiệm.
+              </div>
+            ) : (
+              localRecords.map(record => (
+                <div key={record.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-150 dark:border-slate-700 shadow-sm space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm uppercase leading-snug">
+                        {record.equipment.name}
+                      </h4>
+                      <span className="inline-block mt-0.5 text-[11px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md">
+                        {record.equipment.code}
+                      </span>
+                    </div>
+                    <div className="shrink-0">{getStatusBadge(record.status)}</div>
+                  </div>
+
+                  <p className="text-xs text-slate-650 dark:text-slate-300 font-medium leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                    {record.description}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-slate-100 dark:border-slate-700/60 text-slate-500 dark:text-slate-400">
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-slate-400">Thời gian</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">{new Date(record.date).toLocaleDateString("vi-VN")}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-slate-400">Chi phí</span>
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {record.cost ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(record.cost) : '---'}
+                      </span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="block text-[10px] uppercase font-bold text-slate-400">Kỹ thuật viên</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase">{record.technician?.name || 'Chưa phân công'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                    {userRole === "ADMIN" && record.status === "COMPLETED" && (
+                      <button 
+                        onClick={() => handleVerify(record.id)} 
+                        className="text-xs bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 font-bold px-2.5 py-1.5 rounded-lg border border-green-200 dark:border-green-800 flex items-center gap-1 active:scale-95 transition"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" /> Nghiệm thu
                       </button>
-                      <button onClick={() => handleDelete(record.id)} className="text-red-550 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer">
-                        <Trash2 className="w-4 h-4"/> Xóa
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {localRecords.length === 0 && (
+                    )}
+                    <button 
+                      onClick={() => openEditModal(record)} 
+                      className="text-xs bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold px-2.5 py-1.5 rounded-lg border border-blue-200 dark:border-blue-800 flex items-center gap-1 active:scale-95 transition"
+                    >
+                      <Edit className="w-3.5 h-3.5"/> Sửa
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(record.id)} 
+                      className="text-xs bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 font-bold px-2.5 py-1.5 rounded-lg border border-red-200 dark:border-red-800 flex items-center gap-1 active:scale-95 transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5"/> Xóa
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden animate-in fade-in duration-350">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-150 dark:border-slate-700">
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-medium">
-                      Chưa có lịch sử bảo trì nào trong khoa xét nghiệm.
-                    </td>
+                    <th className="px-6 py-4 font-bold">Thiết bị xét nghiệm</th>
+                    <th className="px-6 py-4 font-bold">Nội dung công việc</th>
+                    <th className="px-6 py-4 font-bold">Thời gian đặt lịch</th>
+                    <th className="px-6 py-4 font-bold">Chi phí</th>
+                    <th className="px-6 py-4 font-bold">Trạng thái</th>
+                    <th className="px-6 py-4 font-bold">Người chịu trách nhiệm</th>
+                    <th className="px-6 py-4 font-bold text-right">Thao tác</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                  {localRecords.map(record => (
+                    <tr key={record.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/10 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-extrabold text-slate-900 dark:text-white uppercase text-xs">{record.equipment.name}</div>
+                        <div className="text-[10px] font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">{record.equipment.code}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-800 dark:text-slate-200 text-xs font-semibold max-w-xs line-clamp-2 leading-relaxed">
+                          {record.description}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500 text-xs font-semibold">
+                        {new Date(record.date).toLocaleDateString("vi-VN")}
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-xs">
+                        {record.cost ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(record.cost) : '---'}
+                      </td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(record.status)}
+                      </td>
+                      <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                        <div className="font-bold text-xs uppercase">{record.technician?.name || 'Chưa phân công'}</div>
+                        {record.technician?.email && <div className="text-[10px] text-slate-400 font-mono mt-0.5">{record.technician.email}</div>}
+                      </td>
+                      <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
+                        {userRole === "ADMIN" && record.status === "COMPLETED" && (
+                          <button 
+                            onClick={() => handleVerify(record.id)} 
+                            className="text-green-600 dark:text-green-400 font-bold hover:underline flex items-center gap-1 cursor-pointer mr-2 shrink-0"
+                            title="Xác nhận nghiệm thu thiết bị đã hoạt động tốt"
+                          >
+                            <CheckCircle className="w-4 h-4" /> Nghiệm thu
+                          </button>
+                        )}
+                        <button onClick={() => openEditModal(record)} className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                          <Edit className="w-4 h-4"/> Sửa
+                        </button>
+                        <button onClick={() => handleDelete(record.id)} className="text-red-550 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer">
+                          <Trash2 className="w-4 h-4"/> Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {localRecords.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-medium">
+                        Chưa có lịch sử bảo trì nào trong khoa xét nghiệm.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

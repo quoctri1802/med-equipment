@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Sidebar from "@/components/Sidebar"
 import Link from "next/link"
+import Image from "next/image"
 import { FlaskConical, MapPin, Phone, Mail, ShieldCheck, QrCode, Smartphone, Sparkles, Clock, Lock } from "lucide-react"
 
 export default async function DashboardLayout({
@@ -19,7 +20,37 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
       <Sidebar userRole={session.user.role} userPermissions={session.user.permissions || ""} />
-      <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-8 md:pb-8 flex flex-col justify-between">
+      <main className="flex-1 overflow-y-auto p-3.5 sm:p-4 pb-28 md:p-8 md:pb-8 flex flex-col justify-between">
+        {/* Mobile Top App Bar */}
+        <div className="md:hidden mb-4 p-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm flex items-center justify-between">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm border border-slate-200 dark:border-slate-700 shrink-0 flex items-center justify-center">
+              <Image src="/logo.png" alt="Logo" width={28} height={28} className="rounded-lg" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-black uppercase text-slate-900 dark:text-white truncate tracking-tight">
+                TTYT Liên Chiểu
+              </p>
+              <p className="text-[9px] font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-wider truncate">
+                Khoa Xét Nghiệm
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/scanner"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-black text-[10px] uppercase tracking-wider shadow-md shadow-blue-500/20 active:scale-95"
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              <span>Quét QR</span>
+            </Link>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 font-black text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800">
+              {((session.user?.name || session.user?.email || "U")[0]).toUpperCase()}
+            </div>
+          </div>
+        </div>
+
         <div className="flex-1">
           {children}
         </div>

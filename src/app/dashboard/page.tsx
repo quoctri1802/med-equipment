@@ -110,90 +110,89 @@ export default async function DashboardPage() {
   }).length
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-950 p-8 rounded-3xl text-white shadow-xl border border-white/5">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-950 p-5 sm:p-6 md:p-8 rounded-2xl md:rounded-3xl text-white shadow-xl border border-white/5">
         <div className="absolute right-0 top-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <span className="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 inline-block">
+            <span className="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2.5 inline-block">
               Khoa Xét Nghiệm
             </span>
-            <h1 className="text-3xl font-black tracking-tight">Hệ thống Giám sát & Quản lý Máy Xét nghiệm</h1>
-            <p className="text-blue-200 text-sm mt-1.5 opacity-90">Chào mừng trở lại, <span className="font-bold text-white">{session?.user?.name || session?.user?.email}</span></p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight leading-snug">Hệ thống Giám sát & Quản lý Máy Xét nghiệm</h1>
+            <p className="text-blue-200 text-xs sm:text-sm mt-1.5 opacity-90">Chào mừng trở lại, <span className="font-bold text-white">{session?.user?.name || session?.user?.email}</span></p>
           </div>
 
-          <div>
+          <div className="w-full sm:w-auto">
             <Link
               href="/scanner"
-              className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 active:scale-95"
+              className="inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 active:scale-95"
             >
               <QrCode className="w-4 h-4 text-cyan-400" />
               <span>Quét mã QR thiết bị</span>
             </Link>
           </div>
-
         </div>
       </div>
 
       {/* Reagent Warning Banner */}
       {criticalReagentsCount > 0 && (
-        <div className="bg-red-50 border border-red-150 dark:bg-red-950/20 dark:border-red-900/30 p-4 px-5 rounded-3xl flex items-center justify-between text-xs font-semibold text-red-800 dark:text-red-400">
+        <div className="bg-red-50 border border-red-150 dark:bg-red-950/20 dark:border-red-900/30 p-3.5 sm:p-4 sm:px-5 rounded-2xl md:rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs font-semibold text-red-800 dark:text-red-400">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping shrink-0" />
-            <span>Có <strong>{criticalReagentsCount}</strong> hóa chất/vật tư tiêu hao sắp hết hạn hoặc tồn kho dưới mức an toàn!</span>
+            <span>Có <strong>{criticalReagentsCount}</strong> hóa chất/vật tư tiêu hao sắp hết hạn hoặc dưới mức an toàn!</span>
           </div>
           <Link href="/dashboard/reagents" className="underline hover:text-red-900 dark:hover:text-red-300 font-extrabold uppercase shrink-0">
-            Kiểm tra ngay
+            Kiểm tra ngay &rarr;
           </Link>
         </div>
       )}
 
-      {/* Grid Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Grid Stats (2 columns on mobile, 4 columns on desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {/* Card 1 */}
-        <div className="group bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-500/20 dark:hover:border-blue-500/20">
-          <div className="p-4 bg-blue-50 text-blue-600 rounded-2xl dark:bg-blue-900/20 dark:text-blue-400 group-hover:scale-110 transition-transform">
-            <FlaskConical className="w-7 h-7 animate-pulse" />
+        <div className="group bg-white dark:bg-slate-800 p-3.5 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 md:gap-5 transition-all duration-300 hover:shadow-md hover:border-blue-500/20">
+          <div className="p-2.5 sm:p-3.5 md:p-4 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl dark:bg-blue-900/20 dark:text-blue-400 shrink-0">
+            <FlaskConical className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 animate-pulse" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Tổng thiết bị</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{totalEquipments}</p>
+            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 sm:mb-1">Tổng thiết bị</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{totalEquipments}</p>
           </div>
         </div>
 
         {/* Card 2 */}
-        <div className="group bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/5 hover:border-emerald-500/20 dark:hover:border-emerald-500/20">
-          <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl dark:bg-emerald-900/20 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-            <CheckCircle2 className="w-7 h-7" />
+        <div className="group bg-white dark:bg-slate-800 p-3.5 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 md:gap-5 transition-all duration-300 hover:shadow-md hover:border-emerald-500/20">
+          <div className="p-2.5 sm:p-3.5 md:p-4 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl dark:bg-emerald-900/20 dark:text-emerald-400 shrink-0">
+            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Sẵn sàng / Vận hành</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{workingEquipments}</p>
+            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 sm:mb-1">Sẵn sàng</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{workingEquipments}</p>
           </div>
         </div>
 
         {/* Card 3 */}
-        <div className="group bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/5 hover:border-red-500/20 dark:hover:border-red-500/20">
-          <div className="p-4 bg-red-50 text-red-600 rounded-2xl dark:bg-red-900/20 dark:text-red-400 group-hover:scale-110 transition-transform">
-            <ShieldAlert className="w-7 h-7" />
+        <div className="group bg-white dark:bg-slate-800 p-3.5 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 md:gap-5 transition-all duration-300 hover:shadow-md hover:border-red-500/20">
+          <div className="p-2.5 sm:p-3.5 md:p-4 bg-red-50 text-red-600 rounded-xl sm:rounded-2xl dark:bg-red-900/20 dark:text-red-400 shrink-0">
+            <ShieldAlert className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Sự cố / Hỏng</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{brokenEquipments}</p>
+            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 sm:mb-1">Sự cố / Hỏng</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{brokenEquipments}</p>
           </div>
         </div>
 
         {/* Card 4 */}
-        <div className="group bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/5 hover:border-amber-500/20 dark:hover:border-amber-500/20">
-          <div className="p-4 bg-amber-50 text-amber-600 rounded-2xl dark:bg-amber-900/20 dark:text-amber-400 group-hover:scale-110 transition-transform">
-            <Wrench className="w-7 h-7" />
+        <div className="group bg-white dark:bg-slate-800 p-3.5 sm:p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-4 md:gap-5 transition-all duration-300 hover:shadow-md hover:border-amber-500/20">
+          <div className="p-2.5 sm:p-3.5 md:p-4 bg-amber-50 text-amber-600 rounded-xl sm:rounded-2xl dark:bg-amber-900/20 dark:text-amber-400 shrink-0">
+            <Wrench className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Bảo trì đang xử lý</p>
-            <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{pendingMaintenance}</p>
+            <p className="text-[9px] sm:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 sm:mb-1">Bảo trì xử lý</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tabular-nums leading-none">{pendingMaintenance}</p>
           </div>
         </div>
       </div>

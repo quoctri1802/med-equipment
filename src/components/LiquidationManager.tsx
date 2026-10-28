@@ -326,8 +326,155 @@ export default function LiquidationManager({
         </div>
       </div>
 
+      {/* Mobile Card List */}
+      <div className="block md:hidden space-y-3">
+        {filteredList.length === 0 ? (
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 text-center text-slate-400 italic border border-slate-150 dark:border-slate-700">
+            Chưa có phiếu đề xuất thanh lý nào phù hợp với điều kiện tìm kiếm.
+          </div>
+        ) : (
+          filteredList.map((item) => (
+            <div key={item.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-150 dark:border-slate-700 shadow-sm space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="font-mono font-black text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md">
+                    {item.liquidationCode}
+                  </span>
+                  <div className="text-[10px] text-slate-400 mt-1">
+                    Ngày đề xuất: <span className="font-semibold text-slate-700 dark:text-slate-300">{formatDateVN(item.requestDate)}</span>
+                  </div>
+                </div>
+                <div className="shrink-0">{getStatusBadge(item.status)}</div>
+              </div>
+
+              {/* Equipment info & image */}
+              <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                {item.imageUrl && (
+                  <div
+                    onClick={() => setSelectedImagePreview({ url: item.imageUrl!, title: item.equipment.name })}
+                    className="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer shrink-0 group shadow-sm active:scale-95 transition"
+                    title="Bấm để xem ảnh hiện trạng"
+                  >
+                    <img
+                      src={item.imageUrl}
+                      alt={item.equipment.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <Eye className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-xs uppercase truncate">
+                    {item.equipment.name}
+                  </h4>
+                  <div className="text-[10px] font-mono text-slate-500 mt-0.5">
+                    Mã: {item.equipment.code} {item.equipment.model ? `• Model: ${item.equipment.model}` : ''}
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
+                    <span className="font-semibold">Lý do:</span> {item.reason}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details grid */}
+              <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                <div>
+                  <span className="block text-[10px] uppercase font-bold text-slate-400">Hình thức</span>
+                  <div className="mt-0.5">{getMethodBadge(item.method)}</div>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase font-bold text-slate-400">Giá trị thu hồi</span>
+                  <div className="font-extrabold text-slate-900 dark:text-white mt-0.5">
+                    {formatCurrency(item.recoveryValue)}
+                  </div>
+                  {item.estimatedValue ? (
+                    <div className="text-[9px] text-slate-400">Ước tính: {formatCurrency(item.estimatedValue)}</div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setPrintRecord(item)}
+                    className="p-2 text-xs text-blue-600 bg-blue-50 dark:bg-blue-950/40 rounded-lg font-bold flex items-center gap-1 active:scale-95 transition"
+                    title="In phiếu"
+                  >
+                    <Printer className="w-3.5 h-3.5" /> In phiếu
+                  </button>
+
+                  {item.documentUrl && (
+                    <a
+                      href={item.documentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg font-bold flex items-center gap-1 active:scale-95 transition"
+                      title="Tải tệp đính kèm"
+                    >
+                      <Download className="w-3.5 h-3.5" /> File
+                    </a>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  {item.status === "PENDING" && (
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === item.id}
+                      onClick={() => handleUpdateStatus(item.id, "APPROVED")}
+                      className="p-2 text-amber-600 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 rounded-lg active:scale-95 transition"
+                      title="Phê duyệt"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {item.status !== "COMPLETED" && item.status !== "REJECTED" && (
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === item.id}
+                      onClick={() => handleUpdateStatus(item.id, "COMPLETED")}
+                      className="p-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 rounded-lg active:scale-95 transition"
+                      title="Hoàn tất"
+                    >
+                      <Archive className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {item.status !== "REJECTED" && item.status !== "COMPLETED" && (
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === item.id}
+                      onClick={() => handleUpdateStatus(item.id, "REJECTED")}
+                      className="p-2 text-rose-500 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 rounded-lg active:scale-95 transition"
+                      title="Từ chối"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={actionLoadingId === item.id}
+                    onClick={() => handleDelete(item.id, item.liquidationCode)}
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg active:scale-95 transition"
+                    title="Xóa phiếu"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Main Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left border-collapse">
             <thead className="text-[11px] text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">

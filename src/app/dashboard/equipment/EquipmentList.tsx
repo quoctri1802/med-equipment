@@ -69,8 +69,86 @@ export default function EquipmentList({ initialEquipments }: { initialEquipments
         </div>
       </div>
 
-      {/* Equipment Table Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
+      {/* Mobile Card List (md:hidden) */}
+      <div className="block md:hidden space-y-3">
+        {filteredEquipments.length === 0 ? (
+          <div className="p-8 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 text-slate-400">
+            <Info className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+            <p className="text-xs font-medium">Không tìm thấy máy xét nghiệm nào khớp bộ lọc</p>
+          </div>
+        ) : (
+          filteredEquipments.map((eq) => (
+            <div
+              key={eq.id}
+              className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-150 dark:border-slate-700/60 space-y-3"
+            >
+              {/* Header card: Icon + Name + Code + Actions */}
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  <div className={`p-2.5 rounded-2xl shrink-0 ${
+                    eq.status === 'WORKING' ? 'bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400' :
+                    eq.status === 'WARNING' ? 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/30 dark:text-yellow-400' :
+                    eq.status === 'PENDING_LIQUIDATION' ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400' :
+                    eq.status === 'LIQUIDATED' ? 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' :
+                    'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400'
+                  }`}>
+                    {eq.status === 'LIQUIDATED' ? <Archive className="w-5 h-5" /> : <FlaskConical className="w-5 h-5" />}
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-extrabold text-sm text-slate-900 dark:text-white uppercase leading-snug line-clamp-2">
+                      {eq.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">{eq.code}</span>
+                      {eq.testGroup && (
+                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-350 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded-md">
+                          {eq.testGroup}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  <EquipmentActions id={eq.id} />
+                </div>
+              </div>
+
+              {/* Status and Risk Badges */}
+              <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1 border-t border-slate-100 dark:border-slate-700/60">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${
+                    eq.status === "WORKING" ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800" :
+                    eq.status === "WARNING" ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-450 dark:border-yellow-800" :
+                    eq.status === "PENDING_LIQUIDATION" ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800" :
+                    eq.status === "LIQUIDATED" ? "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700" :
+                    "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800"
+                  }`}>
+                    {eq.status === 'WORKING' ? 'SẴN SÀNG' : eq.status === 'WARNING' ? 'CẦN HIỆU CHUẨN' : eq.status === 'PENDING_LIQUIDATION' ? 'CHỜ THANH LÝ' : eq.status === 'LIQUIDATED' ? 'ĐÃ THANH LÝ' : 'SỰ CỐ / HỎNG'}
+                  </span>
+
+                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold border ${
+                    eq.riskScore === "LOW" ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-800/50" :
+                    eq.riskScore === "MEDIUM" ? "bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-900/10 dark:text-orange-400 dark:border-orange-800/50" :
+                    "bg-red-50 text-red-600 border-red-200 dark:bg-red-900/10 dark:text-red-400 dark:border-red-800/50"
+                  }`}>
+                    {eq.riskScore} RISK
+                  </span>
+                </div>
+
+                {eq.model && (
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate max-w-[140px]">
+                    Model: <strong className="text-slate-700 dark:text-slate-200">{eq.model}</strong>
+                  </span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Equipment Table Card (hidden on mobile, visible on md:block) */}
+      <div className="hidden md:block bg-white dark:bg-slate-800 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-700/60 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left border-collapse">
             <thead className="text-xs text-slate-500 uppercase bg-slate-50/70 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-150 dark:border-slate-700">
