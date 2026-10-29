@@ -33,7 +33,7 @@ export default async function ReagentsPage() {
   } : null
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Kho Hóa Chất & Vật Tư</h1>

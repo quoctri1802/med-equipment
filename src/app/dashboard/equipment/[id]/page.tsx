@@ -53,7 +53,7 @@ export default async function EquipmentDetailsPage({ params }: { params: { id: s
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-20">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4 mb-2">
         <Link href="/dashboard/equipment" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-500">
           <ArrowLeft className="w-6 h-6" />

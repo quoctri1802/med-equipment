@@ -163,7 +163,7 @@ export default function LandingPage() {
       </main>
       
       {/* Footer */}
-      <footer className="relative bg-slate-950/90 border-t border-slate-900/80 text-slate-400 text-xs py-14 px-6 lg:px-14 backdrop-blur-xl z-10 mt-auto overflow-hidden">
+      <footer className="relative bg-slate-950/90 border-t border-slate-900/80 text-slate-400 text-xs py-14 px-6 lg:px-14 backdrop-blur-xl z-10 mt-auto shrink-0 w-full overflow-hidden">
         {/* Subtle Ambient Glow Effects */}
         <div className="absolute -top-24 -left-24 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />

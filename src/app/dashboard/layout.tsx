@@ -20,9 +20,9 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
       <Sidebar userRole={session.user.role} userPermissions={session.user.permissions || ""} />
-      <main className="flex-1 overflow-y-auto p-3.5 sm:p-4 pb-36 md:p-8 md:pb-12 flex flex-col justify-between">
+      <main className="flex-1 overflow-y-auto p-3.5 sm:p-4 pb-36 md:p-8 md:pb-12 flex flex-col min-h-0">
         {/* Mobile Top App Bar */}
-        <div className="md:hidden mb-4 p-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm flex items-center justify-between">
+        <div className="md:hidden mb-4 p-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-sm border border-slate-200 dark:border-slate-700 shrink-0 flex items-center justify-center">
               <Image src="/logo.png" alt="Logo" width={28} height={28} className="rounded-lg" />
@@ -51,10 +51,10 @@ export default async function DashboardLayout({
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 w-full shrink-0">
           {children}
         </div>
-        <footer className="mt-12 relative overflow-hidden bg-gradient-to-br from-white via-slate-50/80 to-blue-50/30 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-200/80 dark:border-white/10 p-6 md:p-10 text-slate-500 dark:text-slate-400 text-xs z-10 backdrop-blur-xl">
+        <footer className="mt-12 md:mt-16 shrink-0 w-full relative overflow-hidden bg-gradient-to-br from-white via-slate-50/80 to-blue-50/30 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-200/80 dark:border-white/10 p-6 md:p-10 text-slate-500 dark:text-slate-400 text-xs z-10 backdrop-blur-xl">
           {/* Subtle Ambient Glow Effects */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/10 dark:bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
