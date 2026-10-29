@@ -1,16 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import { 
+  FlaskConical,
   Dna, 
   ChevronDown, 
   ArrowRight, 
   Play, 
+  Pause,
+  Volume2,
+  VolumeX,
   QrCode, 
   ShieldCheck, 
-  Activity, 
-  FlaskConical, 
   Clock, 
   Phone, 
   Mail, 
@@ -18,72 +20,74 @@ import {
   Smartphone, 
   Lock, 
   Sparkles,
-  X,
-  CheckCircle2,
   Layers,
-  Menu
+  Menu,
+  X,
+  Maximize2
 } from "lucide-react"
 
 export default function LandingPage() {
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
   const [isSolutionsOpen, setIsSolutionsOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause()
+        setIsPlaying(false)
+      } else {
+        videoRef.current.play()
+        setIsPlaying(true)
+      }
+    }
+  }
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
+
+  const toggleFullScreen = () => {
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen()
+      }
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-[#0a192f] flex flex-col relative overflow-x-hidden font-sans">
-      {/* =========================================================================
-          BACKGROUND VIDEO & GRADIENT OVERLAY
-          ========================================================================= */}
-      {/* Absolute-positioned video covering the entire screen */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-20">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover object-center filter brightness-[0.98]"
-        >
-          <source src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/dna_video.mp4" type="video/mp4" />
-          Trình duyệt của bạn không hỗ trợ thẻ video HTML5.
-        </video>
-      </div>
-
-      {/* Video Overlay: High-tech biotechnology gradient for maximum text contrast */}
-      <div 
-        className="absolute inset-0 pointer-events-none -z-10"
-        style={{
-          background: "linear-gradient(90deg, rgba(240, 248, 255, 1) 0%, rgba(240, 248, 255, 0.88) 45%, rgba(240, 248, 255, 0.2) 100%)"
-        }}
-      />
-      {/* Mobile-specific vertical gradient enhancer */}
-      <div 
-        className="md:hidden absolute inset-0 pointer-events-none -z-10"
-        style={{
-          background: "linear-gradient(180deg, rgba(240, 248, 255, 0.98) 0%, rgba(240, 248, 255, 0.92) 50%, rgba(240, 248, 255, 0.6) 100%)"
-        }}
-      />
+      {/* Background Cyber Lab Grid & Glow Effects */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none opacity-60" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[130px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-10%] w-[45%] h-[55%] rounded-full bg-cyan-500/10 blur-[130px] pointer-events-none" />
 
       {/* =========================================================================
           NAVBAR
           ========================================================================= */}
-      <header className="w-full py-6 px-6 sm:px-10 lg:px-16 flex items-center justify-between border-b border-black/[0.06] bg-white/40 backdrop-blur-md sticky top-0 z-40 transition-all">
-        {/* Left: Logo container with DNA icon and stacked text */}
+      <header className="w-full py-5 px-6 sm:px-10 lg:px-16 flex items-center justify-between border-b border-black/[0.06] bg-white/70 backdrop-blur-xl sticky top-0 z-40 transition-all shadow-sm">
+        {/* Left: Brand Logo */}
         <Link href="/" className="flex items-center gap-3.5 group">
           <div className="w-11 h-11 rounded-2xl bg-[#eff6ff] border border-[#1a56db]/20 text-[#1a56db] flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:bg-[#1a56db] group-hover:text-white transition-all duration-300">
-            <Dna className="w-6 h-6 animate-pulse" />
+            <FlaskConical className="w-6 h-6 animate-pulse" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[1.5rem] font-bold text-[#0a192f] leading-none tracking-tight">
-              Genova <span className="text-[#1a56db]">Lab</span>
+            <span className="text-[1.4rem] font-bold text-[#0a192f] leading-none tracking-tight">
+              LabEquip <span className="text-[#1a56db]">Center</span>
             </span>
-            <span className="text-[0.65rem] font-semibold text-[#475569] tracking-[2px] uppercase mt-1">
-              BIOSCIENCES • LIÊN CHIỂU
+            <span className="text-[0.65rem] font-bold text-[#475569] tracking-[1.5px] uppercase mt-1">
+              TTYT KHU VỰC LIÊN CHIỂU • KHOA XÉT NGHIỆM
             </span>
           </div>
         </Link>
 
         {/* Center: Navigation Links (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-10">
+        <nav className="hidden lg:flex items-center gap-8">
           {/* Solutions with Dropdown */}
           <div className="relative">
             <button
@@ -91,7 +95,7 @@ export default function LandingPage() {
               onMouseEnter={() => setIsSolutionsOpen(true)}
               className="flex items-center gap-1.5 text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors py-2"
             >
-              <span>Giải Pháp</span>
+              <span>Giải Pháp Xét Nghiệm</span>
               <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSolutionsOpen ? 'rotate-180 text-[#1a56db]' : ''}`} />
             </button>
 
@@ -99,7 +103,7 @@ export default function LandingPage() {
             {isSolutionsOpen && (
               <div 
                 onMouseLeave={() => setIsSolutionsOpen(false)}
-                className="absolute top-full left-0 w-72 bg-white/95 rounded-2xl shadow-xl border border-black/[0.08] p-3 backdrop-blur-xl animate-fade-in-up space-y-1 z-50"
+                className="absolute top-full left-0 w-72 bg-white rounded-2xl shadow-xl border border-black/[0.08] p-3 backdrop-blur-xl animate-fade-in-up space-y-1 z-50"
               >
                 <Link
                   href="/dashboard/equipment"
@@ -109,8 +113,8 @@ export default function LandingPage() {
                     <FlaskConical className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold">Quản Lý Trang Thiết Bị</p>
-                    <p className="text-[10px] text-[#475569]">Số hóa & hồ sơ kỹ thuật số</p>
+                    <p className="text-xs font-bold">Hồ Sơ Trang Thiết Bị</p>
+                    <p className="text-[10px] text-[#475569]">Số hóa & thông số kỹ thuật</p>
                   </div>
                 </Link>
 
@@ -122,8 +126,8 @@ export default function LandingPage() {
                     <QrCode className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold">Định Danh QR Thông Minh</p>
-                    <p className="text-[10px] text-[#475569]">Quét mã tra cứu & báo cáo tức thì</p>
+                    <p className="text-xs font-bold">Định Danh Mã QR</p>
+                    <p className="text-[10px] text-[#475569]">Tra cứu thông tin & báo lỗi nhanh</p>
                   </div>
                 </Link>
 
@@ -135,8 +139,8 @@ export default function LandingPage() {
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold">Chất Lượng ISO 15189</p>
-                    <p className="text-[10px] text-[#475569]">Sổ theo dõi sự cố & nhật ký QC</p>
+                    <p className="text-xs font-bold">Tiêu Chuẩn ISO 15189</p>
+                    <p className="text-[10px] text-[#475569]">Sổ sự cố & xuất báo cáo Excel</p>
                   </div>
                 </Link>
 
@@ -149,7 +153,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold">Kho Hóa Chất & Vật Tư</p>
-                    <p className="text-[10px] text-[#475569]">Cảnh báo hao mòn & hạn sử dụng</p>
+                    <p className="text-[10px] text-[#475569]">Cảnh báo hao mòn & hạn dùng</p>
                   </div>
                 </Link>
               </div>
@@ -157,24 +161,24 @@ export default function LandingPage() {
           </div>
 
           <a href="#technology" className="text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors">
-            Công Nghệ
+            Công Nghệ Số
           </a>
-          <a href="#research" className="text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors">
-            Nghiên Cứu & ISO
+          <a href="#iso-standards" className="text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors">
+            Chuẩn ISO 15189
           </a>
           <a href="#about" className="text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors">
-            Về Chúng Tôi
+            Khoa Xét Nghiệm
           </a>
           <a href="#contact" className="text-[0.95rem] font-medium text-[#475569] hover:text-[#1a56db] transition-colors">
-            Liên Hệ
+            Liên Hệ 24/7
           </a>
         </nav>
 
-        {/* Right: Primary "Contact Us" / "Login" Button */}
+        {/* Right: Actions */}
         <div className="flex items-center gap-3">
           <Link
             href="/scanner"
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[0.9rem] font-medium text-[#0a192f] bg-white/60 hover:bg-white border border-black/10 backdrop-blur-md transition-all shadow-sm active:scale-95"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-[0.9rem] font-medium text-[#0a192f] bg-white hover:bg-slate-50 border border-black/10 shadow-sm transition-all active:scale-95"
           >
             <QrCode className="w-4 h-4 text-[#1a56db]" />
             <span>Quét QR</span>
@@ -182,16 +186,16 @@ export default function LandingPage() {
 
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0c2b64] hover:bg-[#133a80] text-white text-[0.95rem] font-medium transition-all shadow-lg shadow-[#0c2b64]/15 hover:-translate-y-0.5 active:scale-95"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0c2b64] hover:bg-[#133a80] text-white text-[0.95rem] font-medium transition-all shadow-md shadow-[#0c2b64]/20 hover:-translate-y-0.5 active:scale-95"
           >
             <span>Đăng Nhập</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
 
-          {/* Mobile hamburger menu toggle */}
+          {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2.5 rounded-xl bg-white/70 border border-black/10 text-[#0a192f] active:scale-95"
+            className="lg:hidden p-2 rounded-xl bg-white border border-black/10 text-[#0a192f] active:scale-95"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -201,7 +205,7 @@ export default function LandingPage() {
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-black/10 px-6 py-5 space-y-3 animate-fade-in-up z-30">
+        <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-black/10 px-6 py-5 space-y-3 animate-fade-in-up z-30 shadow-lg">
           <Link
             href="/dashboard"
             onClick={() => setMobileMenuOpen(false)}
@@ -214,26 +218,26 @@ export default function LandingPage() {
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2.5 px-4 rounded-xl text-sm font-semibold text-[#0a192f] hover:bg-[#eff6ff] hover:text-[#1a56db] transition"
           >
-            Hồ sơ thiết bị xét nghiệm
+            Danh mục thiết bị xét nghiệm
           </Link>
           <Link
             href="/scanner"
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2.5 px-4 rounded-xl text-sm font-semibold text-[#0a192f] hover:bg-[#eff6ff] hover:text-[#1a56db] transition"
           >
-            Máy quét mã QR di động
+            Máy quét mã QR thiết bị
           </Link>
           <Link
             href="/dashboard/reports"
             onClick={() => setMobileMenuOpen(false)}
             className="block py-2.5 px-4 rounded-xl text-sm font-semibold text-[#0a192f] hover:bg-[#eff6ff] hover:text-[#1a56db] transition"
           >
-            Báo cáo chất lượng ISO 15189
+            Báo cáo kiểm định chất lượng ISO 15189
           </Link>
           <Link
             href="/login"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2.5 px-4 rounded-xl text-sm font-bold text-center bg-[#0c2b64] text-white transition mt-2 shadow-md"
+            className="block py-3 px-4 rounded-xl text-sm font-bold text-center bg-[#0c2b64] text-white transition mt-2 shadow-md"
           >
             Đăng nhập hệ thống
           </Link>
@@ -241,77 +245,181 @@ export default function LandingPage() {
       )}
 
       {/* =========================================================================
-          HERO MAIN CONTENT (LEFT-ALIGNED)
+          HERO SECTION (SPLIT LAYOUT: INFO LEFT + LIVE VIDEO PLAYER RIGHT)
           ========================================================================= */}
-      <main className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-12 lg:py-20 max-w-7xl w-full mx-auto z-10">
-        <div className="max-w-[800px] text-left">
-          {/* Chip / Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e0f2fe] text-[#0369a1] text-[0.75rem] font-semibold uppercase tracking-[1px] mb-6 border border-[#0369a1]/15 shadow-sm animate-fade-in-up">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0369a1] animate-pulse" />
-            <span>INNOVATING LIFE SCIENCES • KHOA XÉT NGHIỆM</span>
-          </div>
+      <main className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-10 lg:py-16 max-w-7xl w-full mx-auto z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          
+          {/* Left Column: Headlines, Description & Actions */}
+          <div className="lg:col-span-7 text-left">
+            {/* Chip Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e0f2fe] text-[#0369a1] text-[0.75rem] font-semibold uppercase tracking-[1px] mb-6 border border-[#0369a1]/15 shadow-sm animate-fade-in-up">
+              <span className="w-2 h-2 rounded-full bg-[#0369a1] animate-pulse" />
+              <span>SỐ HÓA TRANG THIẾT BỊ • KHOA XÉT NGHIỆM</span>
+            </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[4.5rem] font-bold text-[#0a192f] leading-[1.1] tracking-[-0.02em] mb-6 animate-fade-in-up animation-delay-100">
-            Tiên phong khoa học.
-            <br />
-            <span className="text-[#1a56db]">Chuyển hóa</span> y khoa tương lai.
-          </h1>
+            {/* Headline */}
+            <h1 className="text-3xl sm:text-5xl lg:text-[4.2rem] font-bold text-[#0a192f] leading-[1.12] tracking-[-0.02em] mb-6 animate-fade-in-up animation-delay-100">
+              Tiên phong khoa học.
+              <br />
+              <span className="text-[#1a56db]">Chuyển hóa</span> y khoa tương lai.
+            </h1>
 
-          {/* Description */}
-          <p className="text-[1.15rem] leading-[1.6] text-[#475569] mb-10 max-w-2xl font-normal animate-fade-in-up animation-delay-200">
-            Genova Biosciences đồng hành cùng Khoa Xét nghiệm - TTYT Liên Chiểu trong việc phát triển các giải pháp số hóa toàn diện trang thiết bị, chuẩn hóa quy trình kiểm định IQC/EQC vì sự an toàn và sức khỏe cộng đồng.
-          </p>
+            {/* Description */}
+            <p className="text-[1.05rem] sm:text-[1.15rem] leading-[1.6] text-[#475569] mb-8 max-w-2xl font-normal animate-fade-in-up animation-delay-200">
+              Hệ thống quản lý và số hóa toàn diện trang thiết bị phòng xét nghiệm y khoa - TTYT Khu vực Liên Chiểu. Ứng dụng công nghệ định danh mã QR thông minh, theo dõi chu kỳ bảo dưỡng và kiểm soát chất lượng đạt chuẩn ISO 15189.
+            </p>
 
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-4 mb-16 animate-fade-in-up animation-delay-300">
-            {/* Primary Action Button */}
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#0c2b64] hover:bg-[#133a80] text-white text-[0.95rem] font-medium transition-all shadow-xl shadow-[#0c2b64]/20 hover:-translate-y-0.5 active:scale-95 group"
-            >
-              <span>Vào Bảng Điều Khiển</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-4 mb-10 animate-fade-in-up animation-delay-300">
+              {/* Primary Action Button */}
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#0c2b64] hover:bg-[#133a80] text-white text-[0.95rem] font-medium transition-all shadow-xl shadow-[#0c2b64]/20 hover:-translate-y-0.5 active:scale-95 group"
+              >
+                <span>Vào Bảng Điều Khiển</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
 
-            {/* Secondary Action Button (Glassmorphism with Circle Play Icon) */}
-            <button
-              onClick={() => setIsVideoModalOpen(true)}
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white/60 hover:bg-white/80 text-[#0a192f] text-[0.95rem] font-medium backdrop-blur-md border border-black/10 hover:border-black/20 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 active:scale-95 group"
-            >
-              <div className="w-6 h-6 rounded-full bg-[#1a56db] text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Play className="w-3 h-3 fill-current ml-0.5" />
+              {/* Secondary Action Button (Quét QR trực tiếp) */}
+              <Link
+                href="/scanner"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#0a192f] text-[0.95rem] font-medium border border-black/10 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 active:scale-95"
+              >
+                <QrCode className="w-4 h-4 text-[#1a56db]" />
+                <span>Quét Mã QR Thiết Bị</span>
+              </Link>
+            </div>
+
+            {/* Key Metrics / Highlights */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-black/10 max-w-lg animate-fade-in-up animation-delay-400">
+              <div>
+                <p className="text-2xl font-bold text-[#0a192f] tracking-tight">100%</p>
+                <p className="text-xs text-[#475569] font-medium mt-0.5">Số hóa thiết bị qua QR</p>
               </div>
-              <span>Xem Video Giới Thiệu</span>
-            </button>
+              <div>
+                <p className="text-2xl font-bold text-[#1a56db] tracking-tight">ISO 15189</p>
+                <p className="text-xs text-[#475569] font-medium mt-0.5">Chuẩn năng lực xét nghiệm</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-emerald-600 tracking-tight">24/24h</p>
+                <p className="text-xs text-[#475569] font-medium mt-0.5">Tiếp nhận & vận hành máy</p>
+              </div>
+            </div>
           </div>
 
-          {/* Quick Metrics / Verification Chips */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-black/10 max-w-xl animate-fade-in-up animation-delay-400">
-            <div>
-              <p className="text-2xl font-bold text-[#0a192f] tracking-tight">100%</p>
-              <p className="text-xs text-[#475569] font-medium mt-0.5">Định danh số hóa QR</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1a56db] tracking-tight">ISO 15189</p>
-              <p className="text-xs text-[#475569] font-medium mt-0.5">Chuẩn năng lực xét nghiệm</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-emerald-600 tracking-tight">24/7</p>
-              <p className="text-xs text-[#475569] font-medium mt-0.5">Tiếp nhận cấp cứu & trực máy</p>
+          {/* Right Column: LIVE VIDEO DISPLAYED DIRECTLY ON THE INTERFACE */}
+          <div className="lg:col-span-5 flex justify-center items-center animate-fade-in-up animation-delay-200">
+            <div className="relative w-full max-w-[500px]">
+              {/* High-tech Glow Backing */}
+              <div className="absolute -inset-1 rounded-[2.5rem] bg-gradient-to-tr from-[#1a56db]/30 via-cyan-400/20 to-indigo-600/30 blur-xl opacity-70 group-hover:opacity-100 transition duration-700 pointer-events-none" />
+
+              {/* Main Video Player Container Card */}
+              <div className="relative bg-white/90 rounded-[2.2rem] p-3.5 sm:p-4 shadow-2xl border border-black/[0.08] backdrop-blur-xl">
+                {/* Header Status Bar above video */}
+                <div className="flex items-center justify-between px-3 py-2 mb-2 text-xs font-semibold">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                    <span className="text-[11px] font-bold text-[#0a192f] uppercase tracking-wider">
+                      LIVE LAB FEED • CÔNG NGHỆ PHÂN TỬ
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-[#eff6ff] text-[#1a56db] border border-[#1a56db]/20">
+                    BIO-TECH 4.0
+                  </span>
+                </div>
+
+                {/* The Embedded Video Viewport */}
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-inner bg-slate-950 group">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    className="w-full h-full object-cover object-center cursor-pointer"
+                    onClick={togglePlay}
+                  >
+                    <source src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/dna_video.mp4" type="video/mp4" />
+                    Trình duyệt không hỗ trợ thẻ video.
+                  </video>
+
+                  {/* Subtle video scanline & gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+                  {/* Play / Pause Center Overlay (appears when paused) */}
+                  {!isPlaying && (
+                    <div 
+                      onClick={togglePlay}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] cursor-pointer"
+                    >
+                      <div className="w-14 h-14 rounded-full bg-white/90 text-[#0c2b64] flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                        <Play className="w-6 h-6 fill-current ml-1" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Interactive Controls Overlay at bottom of video */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between text-white z-10">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={togglePlay}
+                        className="p-1.5 rounded-lg bg-black/50 hover:bg-black/70 backdrop-blur-md text-white transition active:scale-95"
+                        title={isPlaying ? "Tạm dừng" : "Phát video"}
+                      >
+                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                      </button>
+
+                      <button
+                        onClick={toggleMute}
+                        className="p-1.5 rounded-lg bg-black/50 hover:bg-black/70 backdrop-blur-md text-white transition active:scale-95"
+                        title={isMuted ? "Bật âm thanh" : "Tắt âm thanh"}
+                      >
+                        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono tracking-wider bg-black/50 backdrop-blur-md px-2 py-1 rounded-md text-cyan-300">
+                        DNA_HELIX_SIMULATION
+                      </span>
+                      <button
+                        onClick={toggleFullScreen}
+                        className="p-1.5 rounded-lg bg-black/50 hover:bg-black/70 backdrop-blur-md text-white transition active:scale-95"
+                        title="Xem toàn màn hình"
+                      >
+                        <Maximize2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer caption below video */}
+                <div className="mt-3 px-2 flex items-center justify-between text-[11px] text-[#475569]">
+                  <span className="flex items-center gap-1.5">
+                    <Dna className="w-4 h-4 text-[#1a56db]" />
+                    <span>Mô phỏng chuỗi xoắn kép DNA sinh học y khoa</span>
+                  </span>
+                  <span className="font-semibold text-emerald-600">● ỔN ĐỊNH</span>
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
 
         {/* =========================================================================
-            FEATURE PILLARS (BIOTECH SYSTEM HIGHLIGHTS)
+            FEATURE PILLARS SECTION
             ========================================================================= */}
-        <section id="technology" className="mt-28 w-full">
+        <section id="technology" className="mt-24 sm:mt-32 w-full">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[#1a56db] mb-2">HỆ SINH THÁI Y KHOA TIÊN TIẾN</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0a192f] tracking-tight">
-                Giải pháp công nghệ số cho phòng xét nghiệm
+              <p className="text-xs font-bold uppercase tracking-widest text-[#1a56db] mb-2">HỆ THỐNG Y TẾ THÔNG MINH</p>
+              <h2 className="text-2xl sm:text-4xl font-bold text-[#0a192f] tracking-tight">
+                Giải pháp số hóa toàn diện phòng xét nghiệm
               </h2>
             </div>
             <Link
@@ -324,36 +432,36 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Pillar 1: QR & Smart Asset Tracking */}
-            <div className="relative group bg-white/70 hover:bg-white rounded-[2rem] p-8 border border-black/[0.08] backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
+            {/* Pillar 1: QR Code Tracking */}
+            <div className="relative group bg-white rounded-[2rem] p-8 border border-black/[0.08] shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-[#eff6ff] text-[#1a56db] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#1a56db] group-hover:text-white transition-all shadow-sm">
                 <QrCode className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-[#0a192f] mb-3">Định Danh Mã QR Độc Bản</h3>
               <p className="text-sm text-[#475569] leading-relaxed font-normal">
-                Mỗi thiết bị xét nghiệm được gắn mã QR duy nhất. Kỹ thuật viên dễ dàng quét mã bằng camera điện thoại để tra cứu thông số kỹ thuật, lịch sử hiệu chuẩn và nhật ký sử dụng.
+                Mỗi thiết bị xét nghiệm được gắn mã QR định danh riêng biệt. Cán bộ y tế quét mã bằng điện thoại thông minh để tra cứu hồ sơ, lịch bảo trì và gửi báo cáo sự cố tức thời.
               </p>
             </div>
 
             {/* Pillar 2: ISO 15189 Quality Control */}
-            <div id="research" className="relative group bg-white/70 hover:bg-white rounded-[2rem] p-8 border border-black/[0.08] backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
+            <div id="iso-standards" className="relative group bg-white rounded-[2rem] p-8 border border-black/[0.08] shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-[#eff6ff] text-[#1a56db] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#1a56db] group-hover:text-white transition-all shadow-sm">
                 <ShieldCheck className="w-6 h-6 text-emerald-600" />
               </div>
               <h3 className="text-lg font-bold text-[#0a192f] mb-3">Kiểm Định Chất Lượng ISO 15189</h3>
               <p className="text-sm text-[#475569] leading-relaxed font-normal">
-                Tự động hóa báo cáo kiểm định chất lượng phòng xét nghiệm y khoa. Xuất Excel mẫu biểu tiêu chuẩn, theo dõi nhật ký vận hành và ghi chép hành động khắc phục sự cố.
+                Số hóa toàn bộ hồ sơ kiểm định chất lượng, nhật ký vận hành máy, hiệu chuẩn định kỳ IQC/EQC và tự động xuất các biểu mẫu Excel theo quy chuẩn y tế quốc gia.
               </p>
             </div>
 
-            {/* Pillar 3: AI Monitoring & RBAC Security */}
-            <div id="about" className="relative group bg-white/70 hover:bg-white rounded-[2rem] p-8 border border-black/[0.08] backdrop-blur-xl shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
+            {/* Pillar 3: RBAC Security */}
+            <div id="about" className="relative group bg-white rounded-[2rem] p-8 border border-black/[0.08] shadow-sm hover:shadow-xl hover:shadow-[#1a56db]/5 transition-all duration-300">
               <div className="w-12 h-12 rounded-2xl bg-[#eff6ff] text-[#1a56db] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#1a56db] group-hover:text-white transition-all shadow-sm">
                 <Lock className="w-6 h-6 text-indigo-600" />
               </div>
-              <h3 className="text-lg font-bold text-[#0a192f] mb-3">Bảo Mật RBAC & Cảnh Báo AI</h3>
+              <h3 className="text-lg font-bold text-[#0a192f] mb-3">Phân Quyền Đa Tầng RBAC</h3>
               <p className="text-sm text-[#475569] leading-relaxed font-normal">
-                Phân quyền truy cập 3 tầng nghiêm ngặt (Admin, KTV bảo trì, Nhân viên xét nghiệm). Thuật toán phân tích dự đoán chu kỳ bảo dưỡng và phát hiện nguy cơ hỏng hóc sớm.
+                Phân quyền truy cập 3 cấp độ chặt chẽ (Ban giám đốc, Kỹ thuật viên bảo trì máy, Nhân viên xét nghiệm). Bảo đảm an toàn thông tin và ghi vết nhật ký vận hành 24/7.
               </p>
             </div>
           </div>
@@ -361,66 +469,9 @@ export default function LandingPage() {
       </main>
 
       {/* =========================================================================
-          INTERACTIVE VIDEO MODAL ("WATCH OUR STORY")
+          VERIFIED HOSPITAL FOOTER
           ========================================================================= */}
-      {isVideoModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md animate-fade-in-up">
-          <div className="relative w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl border border-white/20">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-black/[0.06] bg-slate-50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#eff6ff] rounded-xl text-[#1a56db]">
-                  <Dna className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-[#0a192f]">Genova Biosciences • Video Giới Thiệu</h3>
-                  <p className="text-xs text-[#475569]">Số hóa trang thiết bị phòng xét nghiệm y khoa TTYT Liên Chiểu</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsVideoModalOpen(false)}
-                className="p-2 rounded-full hover:bg-slate-200 text-[#0a192f] transition"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Video Player Container */}
-            <div className="relative aspect-video w-full bg-black">
-              <video
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
-              >
-                <source src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/dna_video.mp4" type="video/mp4" />
-                Trình duyệt không hỗ trợ thẻ video.
-              </video>
-            </div>
-
-            {/* Modal Footer Description */}
-            <div className="p-4 sm:p-6 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <p className="text-xs text-[#475569] leading-relaxed max-w-xl">
-                Genova Biosciences ứng dụng các giải pháp phần mềm hiện đại vào y sinh học, nâng tầm năng lực xét nghiệm đạt chuẩn quốc tế.
-              </p>
-              <Link
-                href="/dashboard"
-                onClick={() => setIsVideoModalOpen(false)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#0c2b64] text-white text-xs font-semibold hover:bg-[#133a80] transition"
-              >
-                <span>Trải nghiệm ngay</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================================
-          AWARD-WINNING RESPONSIVE FOOTER
-          ========================================================================= */}
-      <footer id="contact" className="relative bg-white/85 border-t border-black/[0.08] text-[#475569] text-xs py-14 px-6 sm:px-10 lg:px-16 backdrop-blur-xl z-10 mt-auto shrink-0 w-full overflow-hidden">
+      <footer id="contact" className="relative bg-white border-t border-black/[0.08] text-[#475569] text-xs py-14 px-6 sm:px-10 lg:px-16 z-10 mt-auto shrink-0 w-full overflow-hidden">
         {/* Subtle Ambient Glow Effects */}
         <div className="absolute -top-24 -left-24 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -431,12 +482,12 @@ export default function LandingPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-3 group">
               <div className="w-12 h-12 rounded-2xl bg-[#eff6ff] border border-[#1a56db]/20 text-[#1a56db] flex items-center justify-center shadow-sm">
-                <Dna className="h-6 w-6 animate-pulse" />
+                <FlaskConical className="h-6 w-6 animate-pulse" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg tracking-tight text-[#0a192f] uppercase">
-                    Genova <span className="text-[#1a56db]">BioLab</span>
+                    LabEquip <span className="text-[#1a56db]">Center</span>
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#e0f2fe] text-[#0369a1] border border-[#0369a1]/20">
                     v2.5 Pro
@@ -448,7 +499,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="space-y-1 bg-white/70 p-3.5 rounded-2xl border border-black/[0.06] shadow-sm">
+            <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-black/[0.06] shadow-sm">
               <p className="text-[12px] font-black text-[#0a192f] uppercase tracking-wider">
                 Trung tâm Y tế khu vực Liên Chiểu
               </p>
@@ -553,7 +604,7 @@ export default function LandingPage() {
               Tiêu chuẩn & Kiểm định
             </h4>
             <div className="space-y-2.5 font-medium">
-              <div className="group flex items-center gap-3 bg-white/70 border border-black/[0.06] p-3 rounded-2xl hover:border-emerald-500/50 hover:shadow-md transition-all duration-300">
+              <div className="group flex items-center gap-3 bg-slate-50 border border-black/[0.06] p-3 rounded-2xl hover:border-emerald-500/50 hover:shadow-md transition-all duration-300">
                 <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
@@ -572,7 +623,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="group flex items-center gap-3 bg-white/70 border border-black/[0.06] p-3 rounded-2xl hover:border-[#1a56db]/50 hover:shadow-md transition-all duration-300">
+              <div className="group flex items-center gap-3 bg-slate-50 border border-black/[0.06] p-3 rounded-2xl hover:border-[#1a56db]/50 hover:shadow-md transition-all duration-300">
                 <div className="w-9 h-9 rounded-xl bg-[#eff6ff] text-[#1a56db] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <QrCode className="w-5 h-5" />
                 </div>
@@ -591,7 +642,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="group flex items-center gap-3 bg-white/70 border border-black/[0.06] p-3 rounded-2xl hover:border-indigo-500/50 hover:shadow-md transition-all duration-300">
+              <div className="group flex items-center gap-3 bg-slate-50 border border-black/[0.06] p-3 rounded-2xl hover:border-indigo-500/50 hover:shadow-md transition-all duration-300">
                 <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <Lock className="w-5 h-5" />
                 </div>

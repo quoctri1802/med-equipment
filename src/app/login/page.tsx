@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Dna, ArrowLeft, ShieldCheck, Lock } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Đăng nhập | Genova Biosciences - Quản lý thiết bị xét nghiệm",
+  title: "Đăng nhập | LabEquip Pro - Quản lý thiết bị xét nghiệm",
   description: "Cổng đăng nhập hệ thống quản lý thiết bị phòng xét nghiệm y khoa - TTYT Liên Chiểu",
 }
 
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0a192f] dark:text-white">
-                Genova <span className="text-[#1a56db]">LabEquip</span>
+                LabEquip <span className="text-[#1a56db]">Pro</span>
               </h1>
               <p className="text-[11px] font-semibold tracking-[1.5px] uppercase text-[#475569] mt-1">
                 TTYT KHU VỰC LIÊN CHIỂU • KHOA XÉT NGHIỆM
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         {/* Bottom Copyright */}
         <div className="mt-6 text-center text-[11px] text-[#475569] font-medium">
-          &copy; {new Date().getFullYear()} Genova Biosciences • Phát triển bởi <strong className="text-[#0a192f] font-bold">QUỐC TRÍ</strong>
+          &copy; {new Date().getFullYear()} TTYT Khu vực Liên Chiểu - Khoa Xét nghiệm • Phát triển bởi <strong className="text-[#0a192f] font-bold">QUỐC TRÍ</strong>
         </div>
       </div>
     </div>
